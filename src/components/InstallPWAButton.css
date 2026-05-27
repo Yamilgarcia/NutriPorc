@@ -1,0 +1,44 @@
+/* src/components/InstallPWAButton.css */
+
+.btn-install-pwa {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #16a34a; /* Verde success / NutriPorc */
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px; /* Bordes modernos redondeados */
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.2), 
+              0 2px 4px -2px rgba(22, 163, 74, 0.2);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-transform: none; /* textTransform: 'none' de tu config anterior */
+}
+
+/* Estado Hover (Al pasar el mouse) */
+.btn-install-pwa:hover {
+  background-color: #15803d; /* Un tono más oscuro */
+  box-shadow: 0 10px 15px -3px rgba(22, 163, 74, 0.3), 
+              0 4px 6px -4px rgba(22, 163, 74, 0.3);
+  transform: translateY(-2px); /* Efecto sutil de elevación */
+}
+
+/* Estado Active (Al hacer clic) */
+.btn-install-pwa:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.2);
+}
+
+/* Responsivo: Ajuste para pantallas pequeñas (móviles en el campo) */
+@media (max-width: 480px) {
+  .btn-install-pwa {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    border-radius: 6px;
+  }
+}
