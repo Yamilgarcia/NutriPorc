@@ -1,8 +1,8 @@
-import { useWelcome } from '../logic/useWelcome';
+//import { useWelcome } from '../logic/useWelcome';
 import './Welcome.css';
 
 export default function Welcome() {
-  const { handleEntrar } = useWelcome();
+  //const { handleEntrar } = useWelcome();
 
   return (
     <div className="welcome-container">
@@ -13,9 +13,9 @@ export default function Welcome() {
           Ciencia nutricional al alcance del pequeño productor.
         </p>
         
-        <button className="btn-entrar" onClick={handleEntrar}>
-          Entrar al Sistema
-        </button>
+        {/* <button className="btn-entrar" onClick={handleEntrar}>
+  Entrar al Sistema
+</button> */}
       </div>
     </div>
   );

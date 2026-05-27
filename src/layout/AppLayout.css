@@ -159,3 +159,18 @@
     padding: 32px;
   }
 }
+
+
+.side-menu-nav .nav-link {
+  text-decoration: none;
+  color: #334155;
+  font-weight: 600;
+  padding: 12px 16px;
+  border-radius: 8px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.side-menu-nav .nav-link.active {
+  background-color: #dcfce7; /* Verde claro */
+  color: #166534; /* Verde oscuro */
+}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, NavLink } from "react-router-dom";
 import "./AppLayout.css";
 import InstallPWAButton from "../components/InstallPWAButton";
 
@@ -37,7 +37,9 @@ export default function AppLayout() {
         </div>
 
         {/* Espacio reservado para el botón de PWA */}
-        <div className="header-actions">{<InstallPWAButton />}</div>
+        <div className="header-actions">
+          <InstallPWAButton />
+        </div>
       </header>
 
       {/* MENÚ LATERAL (SIDEBAR) */}
@@ -59,19 +61,45 @@ export default function AppLayout() {
           </button>
         </div>
         <nav className="side-menu-nav">
-          {/* Aquí irán los NavLinks de React Router posteriormente */}
-          <a href="#lotes" onClick={() => setMenuOpen(false)}>
+          <NavLink 
+            to="/" 
+            className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+            onClick={() => setMenuOpen(false)}
+          >
+            Inicio
+          </NavLink>
+          
+          <NavLink 
+            to="/lotes" 
+            className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+            onClick={() => setMenuOpen(false)}
+          >
             Lotes y Cerdos
-          </a>
-          <a href="#insumos" onClick={() => setMenuOpen(false)}>
+          </NavLink>
+          
+          <NavLink 
+            to="/insumos" 
+            className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+            onClick={() => setMenuOpen(false)}
+          >
             Biblioteca de Insumos
-          </a>
-          <a href="#formulador" onClick={() => setMenuOpen(false)}>
+          </NavLink>
+          
+          <NavLink 
+            to="/formulador" 
+            className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+            onClick={() => setMenuOpen(false)}
+          >
             Formulador de Dietas
-          </a>
-          <a href="#finanzas" onClick={() => setMenuOpen(false)}>
+          </NavLink>
+          
+          <NavLink 
+            to="/finanzas" 
+            className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+            onClick={() => setMenuOpen(false)}
+          >
             Rentabilidad
-          </a>
+          </NavLink>
         </nav>
       </aside>
 
