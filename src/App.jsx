@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import AppLayout from "./layout/AppLayout";
 import WelcomePage from "./pages/WelcomePage";
 import InsumosPage from "./pages/InsumosPage";
+import LotesPage from "./pages/LotesPage";
 
 //EJEMPLO DE COMO DEBEN IR LAS RUTAS
 
@@ -10,7 +11,8 @@ export default function App() {
     <Routes>
       <Route element={<AppLayout />}>
         <Route path="/" element={<WelcomePage />} />
-       <Route path="/insumos" element={<InsumosPage />} />
+        <Route path="/insumos" element={<InsumosPage />} />
+        <Route path="/lotes" element={<LotesPage />} />
       </Route>
     </Routes>
   );
