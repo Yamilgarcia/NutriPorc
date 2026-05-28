@@ -15,8 +15,14 @@ export const addInsumo = async (insumoData) => {
   return { id: docRef.id, ...insumoData };
 };
 
+
+
 export const getInsumos = async () => {
-  const q = query(collection(db, INSUMOS_COLLECTION), where("fincaId", "==", MOCK_FINCA_ID));
+  // Aquí está la magia: el "in" le dice que traiga AMBOS tipos de fincaId
+  const q = query(
+    collection(db, INSUMOS_COLLECTION), 
+    where("fincaId", "in", [MOCK_FINCA_ID, "sistema"])
+  );
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
