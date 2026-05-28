@@ -32,10 +32,25 @@ export const useInsumos = () => {
     }
   };
 
-  const handleUpdatePrecio = async (id, nuevoPrecio) => {
+  const handleUpdatePrecio = async (insumo, nuevoPrecio) => {
     try {
-      await updatePrecioInsumo(id, nuevoPrecio);
-      setInsumos(insumos.map(item => item.id === id ? { ...item, costoPorLibra: nuevoPrecio } : item));
+      if (insumo.fincaId === "sistema") {
+        // Es un insumo global. NO lo modificamos. Creamos una copia local.
+        const copiaLocal = {
+          nombre: insumo.nombre, // Mantenemos el mismo nombre para que el algoritmo lo reconozca
+          porcentajeProteina: insumo.porcentajeProteina,
+          porcentajeEnergia: insumo.porcentajeEnergia,
+          porcentajeFibra: insumo.porcentajeFibra,
+          costoPorLibra: nuevoPrecio,
+        };
+        
+        await addInsumo(copiaLocal);
+        await loadInsumos(); // Recargamos para traer la nueva copia y aplicar el filtro de duplicados
+      } else {
+        // Es un insumo propio del usuario, lo actualizamos normalmente
+        await updatePrecioInsumo(insumo.id, nuevoPrecio);
+        setInsumos(insumos.map(item => item.id === insumo.id ? { ...item, costoPorLibra: nuevoPrecio } : item));
+      }
     } catch (error) {
       console.error("Error al actualizar precio:", error);
     }
@@ -50,12 +65,32 @@ export const useInsumos = () => {
     }
   };
 
-  // Motor de Búsqueda y Ordenamiento procesado en memoria para máxima velocidad
+  // Motor de Búsqueda, Ordenamiento y FILTRO DE DUPLICADOS
   const filteredAndSortedInsumos = useMemo(() => {
-    let result = insumos.filter(insumo => 
+    const insumosUnicos = [];
+    const nombresLocales = new Set();
+
+    // 1A. Guardamos primero los insumos propios (locales) del usuario
+    insumos.forEach(insumo => {
+      if (insumo.fincaId !== "sistema") {
+        nombresLocales.add(insumo.nombre.toLowerCase());
+        insumosUnicos.push(insumo);
+      }
+    });
+
+    // 1B. Agregamos los del sistema SOLO si el usuario no ha creado una copia modificada
+    insumos.forEach(insumo => {
+      if (insumo.fincaId === "sistema" && !nombresLocales.has(insumo.nombre.toLowerCase())) {
+        insumosUnicos.push(insumo);
+      }
+    });
+
+    // 2. Aplicamos la búsqueda del usuario
+    let result = insumosUnicos.filter(insumo => 
       insumo.nombre.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    // 3. Aplicamos el ordenamiento
     result.sort((a, b) => {
       if (sortBy === "precio") return a.costoPorLibra - b.costoPorLibra;
       if (sortBy === "proteina") return b.porcentajeProteina - a.porcentajeProteina; // Mayor a menor

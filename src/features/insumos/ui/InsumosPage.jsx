@@ -15,8 +15,11 @@ const InsumoCard = ({ insumo, esDelSistema, handleUpdatePrecio, handleDelete }) 
 
   const hayCambios = parseFloat(precioBorrador) !== parseFloat(insumo.costoPorLibra);
 
+  
   const confirmarGuardado = () => {
-    handleUpdatePrecio(insumo.id, parseFloat(precioBorrador));
+    // AHORA PASAMOS EL OBJETO COMPLETO, NO SOLO EL ID
+    handleUpdatePrecio(insumo, parseFloat(precioBorrador));
+    setConfirmarEliminar(false); // Ocultar overlay por si acaso
   };
 
   const cancelarCambio = () => {
