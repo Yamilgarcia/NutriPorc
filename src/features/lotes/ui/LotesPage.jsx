@@ -39,6 +39,18 @@ export default function LotesPage() {
       alert("El nombre del lote es obligatorio.");
       return;
     }
+    // Evitar números en el nombre del lote
+    if (/\d/.test(formData.nombre)) {
+      alert("El nombre del lote no debe contener números (ej. usa 'Lote San José' en lugar de '55555').");
+      return;
+    }
+    
+    // Limitar longitud del código interno para no romper el diseño
+    if (formData.codigo && formData.codigo.trim().length > 15) {
+      alert("El código interno es demasiado largo. Máximo 15 caracteres permitidos (ej. EPR-2026-006).");
+      return;
+    }
+
     if (!formData.fechaInicio) {
       alert("La fecha de inicio es obligatoria.");
       return;

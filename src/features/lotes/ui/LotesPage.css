@@ -165,6 +165,7 @@
   color: #a0aec0;
   font-size: 0.875rem;
   margin: 0;
+  word-wrap: break-word;
 }
 
 .card-body {
