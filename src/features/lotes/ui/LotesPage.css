@@ -151,6 +151,7 @@
   margin-bottom: 1rem;
   border-bottom: 1px solid #edf2f7;
   padding-bottom: 1rem;
+  padding-right: 5.5rem; /* Evita que el subtítulo choque con el badge de estado */
 }
 
 .card-header h3 {

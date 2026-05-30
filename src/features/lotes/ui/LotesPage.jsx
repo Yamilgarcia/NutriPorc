@@ -33,8 +33,26 @@ export default function LotesPage() {
 
   const submitCreate = (e) => {
     e.preventDefault();
+    
+    // Validaciones
+    if (!formData.nombre.trim()) {
+      alert("El nombre del lote es obligatorio.");
+      return;
+    }
+    if (!formData.fechaInicio) {
+      alert("La fecha de inicio es obligatoria.");
+      return;
+    }
+    if (!formData.cantidad || formData.cantidad <= 0) {
+      alert("La cantidad debe ser mayor a 0.");
+      return;
+    }
+
     handleAdd({
       ...formData,
+      nombre: formData.nombre.trim(),
+      codigo: formData.codigo.trim(),
+      raza: formData.raza.trim(),
       cantidad: parseInt(formData.cantidad, 10)
     });
     setCreateModalOpen(false);
@@ -48,6 +66,16 @@ export default function LotesPage() {
 
   const submitCambioEtapa = (e) => {
     e.preventDefault();
+    
+    // Validación
+    if (nuevaEtapa === selectedLote.etapa) {
+      alert("El lote ya se encuentra en esta etapa.");
+      return;
+    }
+    if (!window.confirm(`¿Estás seguro de cambiar el lote a la etapa: ${nuevaEtapa}?`)) {
+      return;
+    }
+
     handleUpdate(selectedLote.id, { etapa: nuevaEtapa });
     setEtapaModalOpen(false);
   };
@@ -61,15 +89,49 @@ export default function LotesPage() {
   const submitBaja = (e) => {
     e.preventDefault();
     const cantidadBaja = parseInt(bajaData.cantidad, 10);
+    
+    // Validaciones
+    if (!bajaData.fecha) {
+      alert("La fecha es obligatoria.");
+      return;
+    }
+    if (isNaN(cantidadBaja) || cantidadBaja <= 0) {
+      alert("La cantidad de bajas debe ser mayor a 0.");
+      return;
+    }
+    if (cantidadBaja > selectedLote.cantidad) {
+      alert(`No puedes reportar más bajas (${cantidadBaja}) que la población actual (${selectedLote.cantidad}).`);
+      return;
+    }
+    if (!bajaData.causa.trim()) {
+      alert("La causa es obligatoria.");
+      return;
+    }
+    // Nueva validación: no permitir números en la causa
+    if (/\d/.test(bajaData.causa)) {
+      alert("La causa de la baja no debe contener números, solo texto descriptivo (ej. Neumonía).");
+      return;
+    }
+
+    if (!window.confirm(`¿Confirmas el registro de ${cantidadBaja} baja(s) por ${bajaData.causa}?`)) {
+      return;
+    }
+
     const cantidadRestante = selectedLote.cantidad - cantidadBaja;
     
     handleRegistrarBaja(
       selectedLote.id, 
       selectedLote.bajas, 
-      { fecha: bajaData.fecha, cantidad: cantidadBaja, causa: bajaData.causa }, 
+      { fecha: bajaData.fecha, cantidad: cantidadBaja, causa: bajaData.causa.trim() }, 
       cantidadRestante
     );
     setBajaModalOpen(false);
+  };
+
+  const handleArchivarClick = (id, nombre) => {
+    if (window.confirm(`¿Estás seguro de que deseas cerrar el lote "${nombre}"? Esta acción lo pasará al historial.`)) {
+      handleArchivar(id);
+    }
   };
 
   return (
@@ -144,7 +206,7 @@ export default function LotesPage() {
                 <div className="card-actions">
                   <button className="btn-action" onClick={() => openEtapaModal(lote)}>Cambiar Etapa</button>
                   <button className="btn-action" onClick={() => openBajaModal(lote)}>Reportar Baja</button>
-                  <button className="btn-action archivar" onClick={() => handleArchivar(lote.id)}>Cerrar Lote</button>
+                  <button className="btn-action archivar" onClick={() => handleArchivarClick(lote.id, lote.nombre)}>Cerrar Lote</button>
                 </div>
               )}
             </div>
