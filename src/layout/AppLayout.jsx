@@ -94,11 +94,11 @@ export default function AppLayout() {
           </NavLink>
           
           <NavLink 
-            to="/finanzas" 
+            to="/monitoreo" 
             className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
             onClick={() => setMenuOpen(false)}
           >
-            Rentabilidad
+            Módulo de Monitoreo de Peso
           </NavLink>
         </nav>
       </aside>
