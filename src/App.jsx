@@ -4,6 +4,7 @@ import WelcomePage from "./pages/WelcomePage";
 import InsumosPage from "./pages/InsumosPage";
 import LotesPage from "./pages/LotesPage";
 import PesajesPage from "./pages/PesajesPage";
+import FormuladorPage from "./features/formulador/ui/FormuladorPage";
 //EJEMPLO DE COMO DEBEN IR LAS RUTAS
 
 export default function App() {
@@ -14,6 +15,7 @@ export default function App() {
         <Route path="/insumos" element={<InsumosPage />} />
         <Route path="/lotes" element={<LotesPage />} />
         <Route path="/monitoreo" element={<PesajesPage />} />
+        <Route path="/formulador" element={<FormuladorPage />} />
       </Route>
     </Routes>
   );
