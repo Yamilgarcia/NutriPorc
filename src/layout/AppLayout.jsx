@@ -17,7 +17,7 @@ export default function AppLayout() {
             aria-label="Abrir menú"
           >
             {/* Icono de hamburguesa SVG puro */}
-            <svg
+              <svg
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -99,6 +99,14 @@ export default function AppLayout() {
             onClick={() => setMenuOpen(false)}
           >
             Módulo de Monitoreo de Peso
+          </NavLink>
+          
+          <NavLink 
+            to="/maximizador" 
+            className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+            onClick={() => setMenuOpen(false)}
+          >
+            Maximizador de Ganancia
           </NavLink>
         </nav>
       </aside>

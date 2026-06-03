@@ -5,7 +5,7 @@ import InsumosPage from "./pages/InsumosPage";
 import LotesPage from "./pages/LotesPage";
 import PesajesPage from "./pages/PesajesPage";
 import FormuladorPage from "./features/formulador/ui/FormuladorPage";
-//EJEMPLO DE COMO DEBEN IR LAS RUTAS
+import MaximizadorPage from "./features/maximizador/ui/MaximizadorPage";
 
 export default function App() {
   return (
@@ -16,6 +16,7 @@ export default function App() {
         <Route path="/lotes" element={<LotesPage />} />
         <Route path="/monitoreo" element={<PesajesPage />} />
         <Route path="/formulador" element={<FormuladorPage />} />
+        <Route path="/maximizador" element={<MaximizadorPage />} />
       </Route>
     </Routes>
   );
