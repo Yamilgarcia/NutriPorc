@@ -172,6 +172,9 @@ export default function LotesPage() {
           <option value="Destete">Destete</option>
           <option value="Desarrollo">Desarrollo</option>
           <option value="Engorde">Engorde</option>
+          <option value="Reproducción">Reproducción</option>
+          <option value="Gestación">Gestación</option>
+          <option value="Lactancia">Lactancia</option>
         </select>
         
         <button className="btn-primary" style={{marginLeft: "auto"}} onClick={handleOpenCreate}>
@@ -259,6 +262,9 @@ export default function LotesPage() {
                   <option value="Destete">Destete</option>
                   <option value="Desarrollo">Desarrollo</option>
                   <option value="Engorde">Engorde</option>
+                  <option value="Reproducción">Reproducción</option>
+                  <option value="Gestación">Gestación</option>
+                  <option value="Lactancia">Lactancia</option>
                 </select>
               </div>
               <div className="modal-actions">
@@ -282,6 +288,9 @@ export default function LotesPage() {
                   <option value="Destete">Destete</option>
                   <option value="Desarrollo">Desarrollo</option>
                   <option value="Engorde">Engorde</option>
+                  <option value="Reproducción">Reproducción</option>
+                  <option value="Gestación">Gestación</option>
+                  <option value="Lactancia">Lactancia</option>
                 </select>
                 {nuevaEtapa !== selectedLote.etapa && (
                   <div className="alert-dieta">

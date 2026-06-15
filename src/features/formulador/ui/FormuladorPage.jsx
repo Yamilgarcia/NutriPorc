@@ -250,6 +250,30 @@ export default function FormuladorPage() {
                 </p>
               )}
 
+              {/* PLAN DE ALIMENTACIÓN */}
+              {selectedLote && (
+                <div className="plan-alimentacion">
+                  <h4>Plan de Alimentación Diaria</h4>
+                  <div className="plan-grid">
+                    <div className="plan-card">
+                      <span className="plan-label">Por Cerdo</span>
+                      <span className="plan-value">{requerimientos.consumoDiario} kg</span>
+                    </div>
+                    <div className="plan-card highlight">
+                      <span className="plan-label">Lote ({selectedLote.cantidad} cerdos)</span>
+                      <span className="plan-value">{(requerimientos.consumoDiario * selectedLote.cantidad).toFixed(1)} kg</span>
+                    </div>
+                  </div>
+                  <div className="plan-note">
+                    <strong>
+                      Etapa: {selectedLote.etapa}
+                      {['Destete', 'Desarrollo', 'Engorde'].includes(selectedLote.etapa) && ` (Edad real: ${requerimientos.semanasEdad} semanas)`}
+                    </strong>
+                    <p>Preparar aprox. <span className="highlight-text">{((requerimientos.consumoDiario * selectedLote.cantidad) / 45.3592).toFixed(2)} quintales</span> (100 lbs) de esta mezcla al día.</p>
+                  </div>
+                </div>
+              )}
+
               <button className="btn-exportar" onClick={handlePrint}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="6 9 6 2 18 2 18 9"></polyline>
