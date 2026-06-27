@@ -38,14 +38,60 @@ export const useFormulador = () => {
   }, [lotes, selectedLoteId]);
 
   const requerimientos = useMemo(() => {
-    if (!loteSeleccionado) return { proteina: 0, energia: 0 };
-    // Valores estándar aproximados por etapa
-    switch (loteSeleccionado.etapa) {
-      case "Destete": return { proteina: 20, energia: 3200 };
-      case "Desarrollo": return { proteina: 16, energia: 3000 };
-      case "Engorde": return { proteina: 14, energia: 3000 };
-      default: return { proteina: 15, energia: 3000 };
+    if (!loteSeleccionado) return { proteina: 0, energia: 0, consumoDiario: 0, semanasEdad: 0 };
+    
+    // Calcular edad en semanas basado en fechaInicio real del lote
+    let semanasEdad = 0;
+    if (loteSeleccionado.fechaInicio) {
+      // Separamos la fecha (viene en formato DD/MM/YYYY del objeto lote)
+      // Ojo: en JS new Date("DD/MM/YYYY") no es estándar.
+      // Para estar seguros si es string de fecha local, pero sabemos que se guardó desde input type="date" o local date.
+      // Revisando en LotesPage, usa new Date(Date.now()).toLocaleDateString() para guardarlo.
+      // Es más robusto intentar parsearlo. En la UI actual el inicio viene de date.toLocaleDateString() que es "D/M/YYYY".
+      const partes = loteSeleccionado.fechaInicio.split('/');
+      let fechaObjeto = new Date();
+      if (partes.length === 3) {
+        fechaObjeto = new Date(partes[2], partes[1] - 1, partes[0]);
+      } else {
+        fechaObjeto = new Date(loteSeleccionado.fechaInicio);
+      }
+      
+      const hoy = new Date();
+      const dias = Math.max(0, Math.floor((hoy - fechaObjeto) / (1000 * 60 * 60 * 24)));
+      semanasEdad = Math.floor(dias / 7);
     }
+
+    let proteina = 15;
+    let energia = 3000;
+    let consumoDiario = 2.0;
+
+    switch (loteSeleccionado.etapa) {
+      case "Destete": 
+        proteina = 20; energia = 3200; 
+        consumoDiario = 0.4 + (semanasEdad * 0.15);
+        break;
+      case "Desarrollo": 
+        proteina = 16; energia = 3000; 
+        consumoDiario = 1.2 + (semanasEdad * 0.15);
+        break;
+      case "Engorde": 
+        proteina = 14; energia = 3000; 
+        consumoDiario = Math.min(2.0 + (semanasEdad * 0.1), 3.2); // Toppe en 3.2 kg
+        break;
+      case "Reproducción": 
+        proteina = 14; energia = 3000; consumoDiario = 2.5; 
+        break;
+      case "Gestación": 
+        proteina = 13; energia = 2900; consumoDiario = 2.2; 
+        break;
+      case "Lactancia": 
+        proteina = 16; energia = 3200; consumoDiario = 5.5; 
+        break;
+    }
+
+    consumoDiario = Math.round(consumoDiario * 100) / 100;
+
+    return { proteina, energia, consumoDiario, semanasEdad };
   }, [loteSeleccionado]);
 
   const handleCalcularMezcla = () => {

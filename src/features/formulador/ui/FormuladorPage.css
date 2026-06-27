@@ -3,7 +3,11 @@
   max-width: 1200px;
   margin: 0 auto;
   animation: fadeIn 0.4s ease-out;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
   color: #2d3748;
 }
 
@@ -34,7 +38,9 @@
   background: white;
   border-radius: 16px;
   padding: 1.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.05),
+    0 4px 6px -2px rgba(0, 0, 0, 0.025);
   border: 1px solid #edf2f7;
 }
 
@@ -118,7 +124,9 @@
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
   z-index: 50;
   overflow: hidden;
   animation: fadeIn 0.2s ease-out;
@@ -185,20 +193,37 @@
   font-weight: 700;
 }
 
- /* Colores por etapas */
+/* Colores por etapas */
 .etapa-destete {
-  background: #e7fafc !important; 
+  background: #e7fafc !important;
   color: #2b7b7b !important;
 }
 
 .etapa-desarrollo {
-  background: #fef3c7 !important; 
+  background: #fef3c7 !important;
   color: #b45309 !important;
 }
 
 .etapa-engorde {
   background: #e0e7ff !important;
   color: #4338ca !important;
+}
+
+.etapa-reproducción,
+.etapa-reproduccion {
+  background: #fae8ff !important;
+  color: #86198f !important;
+}
+
+.etapa-gestación,
+.etapa-gestacion {
+  background: #dcfce7 !important;
+  color: #166534 !important;
+}
+
+.etapa-lactancia {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
 }
 
 .insumo-search-input {
@@ -233,15 +258,15 @@
   width: 6px;
 }
 .insumos-list::-webkit-scrollbar-track {
-  background: #f1f5f9; 
+  background: #f1f5f9;
   border-radius: 4px;
 }
 .insumos-list::-webkit-scrollbar-thumb {
-  background: #cbd5e1; 
+  background: #cbd5e1;
   border-radius: 4px;
 }
 .insumos-list::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8; 
+  background: #94a3b8;
 }
 
 .insumos-footer {
@@ -295,7 +320,9 @@
   font-weight: 600;
   border-radius: 8px;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   box-shadow: 0 4px 6px rgba(56, 178, 172, 0.2);
 }
 
@@ -376,13 +403,21 @@
 .barra-progreso {
   height: 100%;
   border-radius: 6px;
-  transition: width 0.4s ease-out, background-color 0.4s;
+  transition:
+    width 0.4s ease-out,
+    background-color 0.4s;
 }
 
 /* Colores dinámicos para barras */
-.progreso-proteina { background: #38b2ac; }
-.progreso-energia { background: #ed8936; }
-.progreso-exceso { background: #e53e3e; }
+.progreso-proteina {
+  background: #38b2ac;
+}
+.progreso-energia {
+  background: #ed8936;
+}
+.progreso-exceso {
+  background: #e53e3e;
+}
 
 .ajustes-lista {
   display: flex;
@@ -447,6 +482,97 @@
   color: #4fd1c5;
 }
 
+/* Plan de Alimentación */
+.plan-alimentacion {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: #f0fdfa;
+  border: 1px solid #ccfbf1;
+  border-radius: 12px;
+}
+
+.plan-alimentacion h4 {
+  color: #115e59;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  margin-top: 0;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.plan-alimentacion h4::before {
+  content: "🌾";
+}
+
+.plan-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.plan-card {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.plan-card.highlight {
+  background: #115e59;
+  color: white;
+  border-color: #0f766e;
+}
+
+.plan-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.plan-card.highlight .plan-label {
+  color: #ccfbf1;
+}
+
+.plan-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f766e;
+}
+
+.plan-card.highlight .plan-value {
+  color: white;
+}
+
+.plan-note {
+  font-size: 0.9rem;
+  color: #334155;
+  background: white;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  border-left: 3px solid #0d9488;
+}
+
+.plan-note strong {
+  display: block;
+  color: #0f766e;
+  margin-bottom: 0.25rem;
+}
+
+.plan-note p {
+  margin: 0;
+}
+
+.highlight-text {
+  font-weight: 700;
+  color: #0f766e;
+}
+
 .btn-exportar {
   display: flex;
   align-items: center;
@@ -471,6 +597,11 @@
    MODO IMPRESIÓN (ALTO CONTRASTE Y EXPORTACIÓN PDF)
    ======================================================== */
 @media print {
+  @page {
+    margin: 12mm 15mm;
+  }
+
+  .module-header,
   .app-header,
   .side-menu,
   .menu-button,
@@ -519,8 +650,9 @@
     border: 2px solid #000 !important;
     color: #000 !important;
   }
-  
-  .mezcla-header h4, .mezcla-header p {
+
+  .mezcla-header h4,
+  .mezcla-header p {
     color: #000 !important;
   }
 
