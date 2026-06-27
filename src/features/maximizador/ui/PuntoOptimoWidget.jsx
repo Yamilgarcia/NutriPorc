@@ -72,7 +72,7 @@ export const PuntoOptimoWidget = ({
               ? "¡Lote en máxima rentabilidad HOY!"
               : `Ventana Óptima de Venta: en ${diasRestantes} días`}
           </h4>
-          <p>Ganancia neta máxima proyectada: <strong>${diaOptimo.gananciaNeta.toLocaleString()}</strong></p>
+          <p>Ganancia neta máxima proyectada: <strong>C$ {diaOptimo.gananciaNeta.toLocaleString()}</strong></p>
         </div>
       </div>
 
@@ -80,10 +80,10 @@ export const PuntoOptimoWidget = ({
         <div className="input-group">
           <label>Precio de Venta (por lb en pie)</label>
           <div className="input-with-symbol">
-            <span>$</span>
+            <span>C$</span>
             <input 
               type="number" 
-              step="0.05"
+              step="0.5"
               value={precioVenta} 
               onChange={e => setPrecioVenta(parseFloat(e.target.value) || 0)} 
             />
@@ -92,10 +92,10 @@ export const PuntoOptimoWidget = ({
         <div className="input-group">
           <label>Costo de Alimento (por lb)</label>
           <div className="input-with-symbol">
-            <span>$</span>
+            <span>C$</span>
             <input 
               type="number" 
-              step="0.05"
+              step="0.5"
               value={costoAlimento} 
               onChange={e => setCostoAlimento(parseFloat(e.target.value) || 0)} 
             />
@@ -154,7 +154,7 @@ export const PuntoOptimoWidget = ({
             <span>Este es el <strong>punto exacto</strong> de máxima rentabilidad.</span>
           ) : (
             <span>
-              Si vendes en +{diasSimulacion} días, tu ganancia será de <strong>${diaSeleccionado.gananciaNeta.toLocaleString()}</strong>.
+              Si vendes en +{diasSimulacion} días, tu ganancia será de <strong>C$ {diaSeleccionado.gananciaNeta.toLocaleString()}</strong>.
               <br/>
               <span className={diaSeleccionado.porcentajeCambio >= 0 ? "sim-positive" : "sim-negative"}>
                 ({diaSeleccionado.porcentajeCambio > 0 ? '+' : ''}{diaSeleccionado.porcentajeCambio}% respecto a hoy)

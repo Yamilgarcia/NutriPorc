@@ -11,8 +11,8 @@ export const useMaximizador = () => {
   const [loadingPesajes, setLoadingPesajes] = useState(false);
 
   // Configuración del simulador
-  const [precioVenta, setPrecioVenta] = useState(1.50);
-  const [costoAlimento, setCostoAlimento] = useState(0.45);
+  const [precioVenta, setPrecioVenta] = useState(41); // C$ 41 promedio en pie (C$ 33 - 49)
+  const [costoAlimento, setCostoAlimento] = useState(16.50); // C$ 16.50 aprox por lb de alimento
   const [diasSimulacion, setDiasSimulacion] = useState(0);
 
   useEffect(() => {
@@ -20,7 +20,10 @@ export const useMaximizador = () => {
       try {
         setLoadingLotes(true);
         const listaLotes = await getLotes();
-        const activos = listaLotes.filter(lote => lote.estado === "Activo");
+        const activos = listaLotes.filter(lote => 
+          lote.estado === "Activo" &&
+          (!lote.etapa || ['Destete', 'Desarrollo', 'Engorde'].includes(lote.etapa))
+        );
         setLotes(activos);
         
         if (activos.length > 0) {
