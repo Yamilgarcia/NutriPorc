@@ -209,6 +209,23 @@
   color: #4338ca !important;
 }
 
+.etapa-reproducción,
+.etapa-reproduccion {
+  background: #fae8ff !important;
+  color: #86198f !important;
+}
+
+.etapa-gestación,
+.etapa-gestacion {
+  background: #dcfce7 !important;
+  color: #166534 !important;
+}
+
+.etapa-lactancia {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+}
+
 .insumo-search-input {
   width: 100%;
   padding: 0.6rem 0.8rem;
@@ -580,6 +597,11 @@
    MODO IMPRESIÓN (ALTO CONTRASTE Y EXPORTACIÓN PDF)
    ======================================================== */
 @media print {
+  @page {
+    margin: 12mm 15mm;
+  }
+
+  .module-header,
   .app-header,
   .side-menu,
   .menu-button,
