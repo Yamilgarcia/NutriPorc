@@ -22,7 +22,7 @@ export const useMaximizador = () => {
         const listaLotes = await getLotes();
         const activos = listaLotes.filter(lote => 
           lote.estado === "Activo" &&
-          (!lote.etapa || ['Destete', 'Desarrollo', 'Engorde'].includes(lote.etapa))
+          (!lote.etapa || ['Destete', 'Desarrollo', 'Engorde', 'Reproducción', 'Gestación', 'Lactancia'].includes(lote.etapa))
         );
         setLotes(activos);
         

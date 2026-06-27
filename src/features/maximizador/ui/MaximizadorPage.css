@@ -204,3 +204,20 @@
   background: #e0e7ff !important;
   color: #4338ca !important;
 }
+
+.etapa-reproducción,
+.etapa-reproduccion {
+  background: #fae8ff !important;
+  color: #86198f !important;
+}
+
+.etapa-gestación,
+.etapa-gestacion {
+  background: #dcfce7 !important;
+  color: #166534 !important;
+}
+
+.etapa-lactancia {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+}
