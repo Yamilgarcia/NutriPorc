@@ -41,13 +41,19 @@ export default function LotesPage() {
     }
     // Evitar números en el nombre del lote
     if (/\d/.test(formData.nombre)) {
-      alert("El nombre del lote no debe contener números (ej. usa 'Lote San José' en lugar de '55555').");
+      alert("El nombre del lote no debe contener números.");
       return;
     }
     
-    // Limitar longitud del código interno para no romper el diseño
+    // Limitar longitud del código interno a un máximo de 15 caracteres
     if (formData.codigo && formData.codigo.trim().length > 15) {
-      alert("El código interno es demasiado largo. Máximo 15 caracteres permitidos (ej. EPR-2026-006).");
+      alert("El código interno es demasiado largo. Máximo 15 caracteres permitidos.");
+      return;
+    }
+
+    // Evitar números en la raza
+    if (formData.raza && /\d/.test(formData.raza)) {
+      alert("La raza no debe contener números.");
       return;
     }
 
@@ -172,6 +178,9 @@ export default function LotesPage() {
           <option value="Destete">Destete</option>
           <option value="Desarrollo">Desarrollo</option>
           <option value="Engorde">Engorde</option>
+          <option value="Reproducción">Reproducción</option>
+          <option value="Gestación">Gestación</option>
+          <option value="Lactancia">Lactancia</option>
         </select>
         
         <button className="btn-primary" style={{marginLeft: "auto"}} onClick={handleOpenCreate}>
@@ -235,11 +244,11 @@ export default function LotesPage() {
             <form onSubmit={submitCreate}>
               <div className="form-group">
                 <label>Nombre del Lote</label>
-                <input required className="form-input" value={formData.nombre} onChange={e => setFormData({...formData, nombre: e.target.value})} />
+                <input required className="form-input" value={formData.nombre} onChange={e => setFormData({...formData, nombre: e.target.value.replace(/[0-9]/g, "")})} />
               </div>
               <div className="form-group">
                 <label>Código Interno</label>
-                <input className="form-input" value={formData.codigo} onChange={e => setFormData({...formData, codigo: e.target.value})} />
+                <input className="form-input" maxLength={15} value={formData.codigo} onChange={e => setFormData({...formData, codigo: e.target.value})} />
               </div>
               <div className="form-group">
                 <label>Fecha de Inicio</label>
@@ -251,7 +260,7 @@ export default function LotesPage() {
               </div>
               <div className="form-group">
                 <label>Raza (Opcional)</label>
-                <input className="form-input" value={formData.raza} onChange={e => setFormData({...formData, raza: e.target.value})} />
+                <input className="form-input" value={formData.raza} onChange={e => setFormData({...formData, raza: e.target.value.replace(/[0-9]/g, "")})} />
               </div>
               <div className="form-group">
                 <label>Etapa Biológica Inicial</label>
@@ -259,6 +268,9 @@ export default function LotesPage() {
                   <option value="Destete">Destete</option>
                   <option value="Desarrollo">Desarrollo</option>
                   <option value="Engorde">Engorde</option>
+                  <option value="Reproducción">Reproducción</option>
+                  <option value="Gestación">Gestación</option>
+                  <option value="Lactancia">Lactancia</option>
                 </select>
               </div>
               <div className="modal-actions">
@@ -282,6 +294,9 @@ export default function LotesPage() {
                   <option value="Destete">Destete</option>
                   <option value="Desarrollo">Desarrollo</option>
                   <option value="Engorde">Engorde</option>
+                  <option value="Reproducción">Reproducción</option>
+                  <option value="Gestación">Gestación</option>
+                  <option value="Lactancia">Lactancia</option>
                 </select>
                 {nuevaEtapa !== selectedLote.etapa && (
                   <div className="alert-dieta">
