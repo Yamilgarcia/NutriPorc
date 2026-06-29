@@ -4,10 +4,7 @@ import "./LotesPage.css";
 
 export default function LotesPage() {
   const {
-    lotes, loading,
-    searchTerm, setSearchTerm,
-    filterEstado, setFilterEstado,
-    filterEtapa, setFilterEtapa,
+    lotes, loading, searchTerm, setSearchTerm, filterEstado, setFilterEstado, filterEtapa, setFilterEtapa,
     handleAdd, handleUpdate, handleArchivar, handleRegistrarBaja
   } = useLotes();
 
@@ -23,7 +20,6 @@ export default function LotesPage() {
   const [bajaData, setBajaData] = useState({
     cantidad: "", causa: "", fecha: new Date().toISOString().split('T')[0]
   });
-
   const [nuevaEtapa, setNuevaEtapa] = useState("");
 
   const handleOpenCreate = () => {
@@ -33,45 +29,15 @@ export default function LotesPage() {
 
   const submitCreate = (e) => {
     e.preventDefault();
-    
-    // Validaciones
-    if (!formData.nombre.trim()) {
-      alert("El nombre del lote es obligatorio.");
-      return;
-    }
-    // Evitar números en el nombre del lote
-    if (/\d/.test(formData.nombre)) {
-      alert("El nombre del lote no debe contener números.");
-      return;
-    }
-    
-    // Limitar longitud del código interno a un máximo de 15 caracteres
-    if (formData.codigo && formData.codigo.trim().length > 15) {
-      alert("El código interno es demasiado largo. Máximo 15 caracteres permitidos.");
-      return;
-    }
-
-    // Evitar números en la raza
-    if (formData.raza && /\d/.test(formData.raza)) {
-      alert("La raza no debe contener números.");
-      return;
-    }
-
-    if (!formData.fechaInicio) {
-      alert("La fecha de inicio es obligatoria.");
-      return;
-    }
-    if (!formData.cantidad || formData.cantidad <= 0) {
-      alert("La cantidad debe ser mayor a 0.");
-      return;
-    }
+    if (!formData.nombre.trim()) return alert("El nombre del lote es obligatorio.");
+    if (/\d/.test(formData.nombre)) return alert("El nombre del lote no debe contener números (ej. usa 'Lote San José' en lugar de '55555').");
+    if (formData.codigo && formData.codigo.trim().length > 15) return alert("El código interno es demasiado largo. Máximo 15 caracteres permitidos (ej. EPR-2026-006).");
+    if (formData.raza && /\d/.test(formData.raza)) return alert("La raza no debe contener números.");
+    if (!formData.fechaInicio) return alert("La fecha de inicio es obligatoria.");
+    if (!formData.cantidad || formData.cantidad <= 0) return alert("La cantidad debe ser mayor a 0.");
 
     handleAdd({
-      ...formData,
-      nombre: formData.nombre.trim(),
-      codigo: formData.codigo.trim(),
-      raza: formData.raza.trim(),
-      cantidad: parseInt(formData.cantidad, 10)
+      ...formData, nombre: formData.nombre.trim(), codigo: formData.codigo.trim(), raza: formData.raza.trim(), cantidad: parseInt(formData.cantidad, 10)
     });
     setCreateModalOpen(false);
   };
@@ -84,16 +50,8 @@ export default function LotesPage() {
 
   const submitCambioEtapa = (e) => {
     e.preventDefault();
-    
-    // Validación
-    if (nuevaEtapa === selectedLote.etapa) {
-      alert("El lote ya se encuentra en esta etapa.");
-      return;
-    }
-    if (!window.confirm(`¿Estás seguro de cambiar el lote a la etapa: ${nuevaEtapa}?`)) {
-      return;
-    }
-
+    if (nuevaEtapa === selectedLote.etapa) return alert("El lote ya se encuentra en esta etapa.");
+    if (!window.confirm(`¿Estás seguro de cambiar el lote a la etapa: ${nuevaEtapa}?`)) return;
     handleUpdate(selectedLote.id, { etapa: nuevaEtapa });
     setEtapaModalOpen(false);
   };
@@ -107,49 +65,20 @@ export default function LotesPage() {
   const submitBaja = (e) => {
     e.preventDefault();
     const cantidadBaja = parseInt(bajaData.cantidad, 10);
-    
-    // Validaciones
-    if (!bajaData.fecha) {
-      alert("La fecha es obligatoria.");
-      return;
-    }
-    if (isNaN(cantidadBaja) || cantidadBaja <= 0) {
-      alert("La cantidad de bajas debe ser mayor a 0.");
-      return;
-    }
-    if (cantidadBaja > selectedLote.cantidad) {
-      alert(`No puedes reportar más bajas (${cantidadBaja}) que la población actual (${selectedLote.cantidad}).`);
-      return;
-    }
-    if (!bajaData.causa.trim()) {
-      alert("La causa es obligatoria.");
-      return;
-    }
-    // Nueva validación: no permitir números en la causa
-    if (/\d/.test(bajaData.causa)) {
-      alert("La causa de la baja no debe contener números, solo texto descriptivo (ej. Neumonía).");
-      return;
-    }
-
-    if (!window.confirm(`¿Confirmas el registro de ${cantidadBaja} baja(s) por ${bajaData.causa}?`)) {
-      return;
-    }
+    if (!bajaData.fecha) return alert("La fecha es obligatoria.");
+    if (isNaN(cantidadBaja) || cantidadBaja <= 0) return alert("La cantidad de bajas debe ser mayor a 0.");
+    if (cantidadBaja > selectedLote.cantidad) return alert(`No puedes reportar más bajas (${cantidadBaja}) que la población actual (${selectedLote.cantidad}).`);
+    if (!bajaData.causa.trim()) return alert("La causa es obligatoria.");
+    if (/\d/.test(bajaData.causa)) return alert("La causa de la baja no debe contener números, solo texto descriptivo (ej. Neumonía).");
+    if (!window.confirm(`¿Confirmas el registro de ${cantidadBaja} baja(s) por ${bajaData.causa}?`)) return;
 
     const cantidadRestante = selectedLote.cantidad - cantidadBaja;
-    
-    handleRegistrarBaja(
-      selectedLote.id, 
-      selectedLote.bajas, 
-      { fecha: bajaData.fecha, cantidad: cantidadBaja, causa: bajaData.causa.trim() }, 
-      cantidadRestante
-    );
+    handleRegistrarBaja(selectedLote.id, selectedLote.bajas, { fecha: bajaData.fecha, cantidad: cantidadBaja, causa: bajaData.causa.trim() }, cantidadRestante);
     setBajaModalOpen(false);
   };
 
   const handleArchivarClick = (id, nombre) => {
-    if (window.confirm(`¿Estás seguro de que deseas cerrar el lote "${nombre}"? Esta acción lo pasará al historial.`)) {
-      handleArchivar(id);
-    }
+    if (window.confirm(`¿Estás seguro de que deseas cerrar el lote "${nombre}"? Esta acción lo pasará al historial.`)) handleArchivar(id);
   };
 
   return (
@@ -158,16 +87,8 @@ export default function LotesPage() {
         <h2>Gestión de Lotes</h2>
         <p>Control de etapas biológicas, inventario y mortalidad.</p>
       </header>
-
-      {/* PANEL DE CONTROL */}
       <div className="control-panel">
-        <input 
-          type="text" 
-          placeholder="Buscar lote o código..." 
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
-        />
+        <input type="text" placeholder="Buscar lote o código..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="search-input" />
         <select value={filterEstado} onChange={(e) => setFilterEstado(e.target.value)} className="sort-select">
           <option value="Todos">Todos los estados</option>
           <option value="Activo">Activos</option>
@@ -182,47 +103,24 @@ export default function LotesPage() {
           <option value="Gestación">Gestación</option>
           <option value="Lactancia">Lactancia</option>
         </select>
-        
-        <button className="btn-primary" style={{marginLeft: "auto"}} onClick={handleOpenCreate}>
-          + Nuevo Lote
-        </button>
+        <button className="btn-primary" style={{marginLeft: "auto"}} onClick={handleOpenCreate}>+ Nuevo Lote</button>
       </div>
 
-      {/* RENDERIZADO DEL CATÁLOGO */}
-      {loading ? (
-        <p>Cargando base de datos...</p>
-      ) : (
+      {loading ? ( <p>Cargando base de datos...</p> ) : (
         <div className="lotes-grid">
           {lotes.map((lote) => (
             <div key={lote.id} className="lote-card">
-              <span className={`card-badge ${lote.estado === 'Activo' ? 'badge-activo' : 'badge-historico'}`}>
-                {lote.estado}
-              </span>
-              
+              <span className={`card-badge ${lote.estado === 'Activo' ? 'badge-activo' : 'badge-historico'}`}>{lote.estado}</span>
               <div className="card-header">
                 <h3>{lote.nombre}</h3>
                 <p className="card-subtitle">Cód: {lote.codigo || 'N/A'}</p>
               </div>
-              
               <div className="card-body">
-                <div className="stat-row">
-                  <span className="stat-label">Población:</span> 
-                  <span className="stat-value">{lote.cantidad} cerdos</span>
-                </div>
-                <div className="stat-row">
-                  <span className="stat-label">Etapa:</span> 
-                  <span className="etapa-badge">{lote.etapa}</span>
-                </div>
-                <div className="stat-row">
-                  <span className="stat-label">Inicio:</span> 
-                  <span className="stat-value">{new Date(lote.fechaInicio).toLocaleDateString()}</span>
-                </div>
-                <div className="stat-row">
-                  <span className="stat-label">Mortalidad:</span> 
-                  <span className="stat-value" style={{color: '#e53e3e'}}>{lote.bajas?.length ? lote.bajas.reduce((acc, b) => acc + b.cantidad, 0) : 0}</span>
-                </div>
+                <div className="stat-row"><span className="stat-label">Población:</span> <span className="stat-value">{lote.cantidad} cerdos</span></div>
+                <div className="stat-row"><span className="stat-label">Etapa:</span> <span className="etapa-badge">{lote.etapa}</span></div>
+                <div className="stat-row"><span className="stat-label">Inicio:</span> <span className="stat-value">{new Date(lote.fechaInicio).toLocaleDateString()}</span></div>
+                <div className="stat-row"><span className="stat-label">Mortalidad:</span> <span className="stat-value" style={{color: '#e53e3e'}}>{lote.bajas?.length ? lote.bajas.reduce((acc, b) => acc + b.cantidad, 0) : 0}</span></div>
               </div>
-
               {lote.estado === 'Activo' && (
                 <div className="card-actions">
                   <button className="btn-action" onClick={() => openEtapaModal(lote)}>Cambiar Etapa</button>
@@ -235,54 +133,28 @@ export default function LotesPage() {
           {lotes.length === 0 && <p>No hay lotes que coincidan con los filtros.</p>}
         </div>
       )}
-
-      {/* MODAL CREAR LOTE */}
       {isCreateModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
             <h3>Registrar Nuevo Lote</h3>
             <form onSubmit={submitCreate}>
-              <div className="form-group">
-                <label>Nombre del Lote</label>
-                <input required className="form-input" value={formData.nombre} onChange={e => setFormData({...formData, nombre: e.target.value.replace(/[0-9]/g, "")})} />
-              </div>
-              <div className="form-group">
-                <label>Código Interno</label>
-                <input className="form-input" maxLength={15} value={formData.codigo} onChange={e => setFormData({...formData, codigo: e.target.value})} />
-              </div>
-              <div className="form-group">
-                <label>Fecha de Inicio</label>
-                <input required type="date" className="form-input" value={formData.fechaInicio} onChange={e => setFormData({...formData, fechaInicio: e.target.value})} />
-              </div>
-              <div className="form-group">
-                <label>Cantidad de Cerdos</label>
-                <input required type="number" min="1" className="form-input" value={formData.cantidad} onChange={e => setFormData({...formData, cantidad: e.target.value})} />
-              </div>
-              <div className="form-group">
-                <label>Raza (Opcional)</label>
-                <input className="form-input" value={formData.raza} onChange={e => setFormData({...formData, raza: e.target.value.replace(/[0-9]/g, "")})} />
-              </div>
+              <div className="form-group"><label>Nombre del Lote</label><input required className="form-input" value={formData.nombre} onChange={e => setFormData({...formData, nombre: e.target.value.replace(/[0-9]/g, "")})} /></div>
+              <div className="form-group"><label>Código Interno</label><input className="form-input" maxLength={15} value={formData.codigo} onChange={e => setFormData({...formData, codigo: e.target.value})} /></div>
+              <div className="form-group"><label>Fecha de Inicio</label><input required type="date" className="form-input" value={formData.fechaInicio} onChange={e => setFormData({...formData, fechaInicio: e.target.value})} /></div>
+              <div className="form-group"><label>Cantidad de Cerdos</label><input required type="number" min="1" className="form-input" value={formData.cantidad} onChange={e => setFormData({...formData, cantidad: e.target.value})} /></div>
+              <div className="form-group"><label>Raza (Opcional)</label><input className="form-input" value={formData.raza} onChange={e => setFormData({...formData, raza: e.target.value.replace(/[0-9]/g, "")})} /></div>
               <div className="form-group">
                 <label>Etapa Biológica Inicial</label>
                 <select className="form-input" value={formData.etapa} onChange={e => setFormData({...formData, etapa: e.target.value})}>
-                  <option value="Destete">Destete</option>
-                  <option value="Desarrollo">Desarrollo</option>
-                  <option value="Engorde">Engorde</option>
-                  <option value="Reproducción">Reproducción</option>
-                  <option value="Gestación">Gestación</option>
-                  <option value="Lactancia">Lactancia</option>
+                  <option value="Destete">Destete</option><option value="Desarrollo">Desarrollo</option><option value="Engorde">Engorde</option>
+                  <option value="Reproducción">Reproducción</option><option value="Gestación">Gestación</option><option value="Lactancia">Lactancia</option>
                 </select>
               </div>
-              <div className="modal-actions">
-                <button type="button" className="btn-cancel" onClick={() => setCreateModalOpen(false)}>Cancelar</button>
-                <button type="submit" className="btn-primary">Guardar</button>
-              </div>
+              <div className="modal-actions"><button type="button" className="btn-cancel" onClick={() => setCreateModalOpen(false)}>Cancelar</button><button type="submit" className="btn-primary">Guardar</button></div>
             </form>
           </div>
         </div>
       )}
-
-      {/* MODAL CAMBIO DE ETAPA */}
       {isEtapaModalOpen && selectedLote && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -291,56 +163,30 @@ export default function LotesPage() {
               <div className="form-group">
                 <label>Nueva Etapa Biológica</label>
                 <select className="form-input" value={nuevaEtapa} onChange={e => setNuevaEtapa(e.target.value)}>
-                  <option value="Destete">Destete</option>
-                  <option value="Desarrollo">Desarrollo</option>
-                  <option value="Engorde">Engorde</option>
-                  <option value="Reproducción">Reproducción</option>
-                  <option value="Gestación">Gestación</option>
-                  <option value="Lactancia">Lactancia</option>
+                  <option value="Destete">Destete</option><option value="Desarrollo">Desarrollo</option><option value="Engorde">Engorde</option>
+                  <option value="Reproducción">Reproducción</option><option value="Gestación">Gestación</option><option value="Lactancia">Lactancia</option>
                 </select>
-                {nuevaEtapa !== selectedLote.etapa && (
-                  <div className="alert-dieta">
-                    <strong>¡Atención!</strong> Este cambio de etapa requiere ajuste en la dieta de los cerdos.
-                  </div>
-                )}
+                {nuevaEtapa !== selectedLote.etapa && <div className="alert-dieta"><strong>¡Atención!</strong> Este cambio requiere ajuste en la dieta.</div>}
               </div>
-              <div className="modal-actions">
-                <button type="button" className="btn-cancel" onClick={() => setEtapaModalOpen(false)}>Cancelar</button>
-                <button type="submit" className="btn-primary">Actualizar</button>
-              </div>
+              <div className="modal-actions"><button type="button" className="btn-cancel" onClick={() => setEtapaModalOpen(false)}>Cancelar</button><button type="submit" className="btn-primary">Actualizar</button></div>
             </form>
           </div>
         </div>
       )}
-
-      {/* MODAL REGISTRAR BAJA */}
       {isBajaModalOpen && selectedLote && (
         <div className="modal-overlay">
           <div className="modal-content">
             <h3>Reportar Mortalidad: {selectedLote.nombre}</h3>
             <p style={{marginBottom: "1rem"}}>Población actual: {selectedLote.cantidad} cerdos</p>
             <form onSubmit={submitBaja}>
-              <div className="form-group">
-                <label>Fecha de Baja</label>
-                <input required type="date" className="form-input" value={bajaData.fecha} onChange={e => setBajaData({...bajaData, fecha: e.target.value})} />
-              </div>
-              <div className="form-group">
-                <label>Cantidad (Cerdos fallecidos)</label>
-                <input required type="number" min="1" max={selectedLote.cantidad} className="form-input" value={bajaData.cantidad} onChange={e => setBajaData({...bajaData, cantidad: e.target.value})} />
-              </div>
-              <div className="form-group">
-                <label>Causa</label>
-                <input required className="form-input" placeholder="Ej. Neumonía, Desconocida..." value={bajaData.causa} onChange={e => setBajaData({...bajaData, causa: e.target.value})} />
-              </div>
-              <div className="modal-actions">
-                <button type="button" className="btn-cancel" onClick={() => setBajaModalOpen(false)}>Cancelar</button>
-                <button type="submit" className="btn-danger">Registrar</button>
-              </div>
+              <div className="form-group"><label>Fecha de Baja</label><input required type="date" className="form-input" value={bajaData.fecha} onChange={e => setBajaData({...bajaData, fecha: e.target.value})} /></div>
+              <div className="form-group"><label>Cantidad (Cerdos fallecidos)</label><input required type="number" min="1" max={selectedLote.cantidad} className="form-input" value={bajaData.cantidad} onChange={e => setBajaData({...bajaData, cantidad: e.target.value})} /></div>
+              <div className="form-group"><label>Causa</label><input required className="form-input" placeholder="Ej. Neumonía..." value={bajaData.causa} onChange={e => setBajaData({...bajaData, causa: e.target.value})} /></div>
+              <div className="modal-actions"><button type="button" className="btn-cancel" onClick={() => setBajaModalOpen(false)}>Cancelar</button><button type="submit" className="btn-danger">Registrar</button></div>
             </form>
           </div>
         </div>
       )}
-
     </div>
   );
 }
