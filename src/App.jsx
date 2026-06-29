@@ -6,6 +6,7 @@ import { AuthProvider } from "./features/auth/logic/AuthContext";
 import LoginPage from "./pages/LoginPage";
 import LotesPage from "./pages/LotesPage";
 import MaximizadorPage from "./features/maximizador/ui/MaximizadorPage";
+import PesajesPage from "./pages/PesajesPage"; // <-- Importamos la nueva ruta
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
             <Route path="/" element={<WelcomePage />} />
             <Route path="/lotes" element={<LotesPage />} />
             <Route path="/maximizador" element={<MaximizadorPage />} />
+            <Route path="/monitoreo" element={<PesajesPage />} /> {/* <-- Ruta integrada */}
           </Route>
         </Route>
       </Routes>
