@@ -4,7 +4,8 @@ import WelcomePage from "./pages/WelcomePage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./features/auth/logic/AuthContext";
 import LoginPage from "./pages/LoginPage";
-import LotesPage from "./pages/LotesPage"; // Importamos Lotes
+import LotesPage from "./pages/LotesPage";
+import MaximizadorPage from "./features/maximizador/ui/MaximizadorPage";
 
 export default function App() {
   return (
@@ -13,12 +14,12 @@ export default function App() {
         {/* RUTA PÚBLICA */}
         <Route path="/login" element={<LoginPage />} />
 
-        {/* RUTAS PROTEGIDAS: Todo lo que esté aquí dentro requiere sesión */}
+        {/* RUTAS PROTEGIDAS */}
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
             <Route path="/" element={<WelcomePage />} />
-            {/* AQUÍ AGREGAMOS LA RUTA DE LOTES */}
             <Route path="/lotes" element={<LotesPage />} />
+            <Route path="/maximizador" element={<MaximizadorPage />} />
           </Route>
         </Route>
       </Routes>
