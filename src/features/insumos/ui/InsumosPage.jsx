@@ -2,11 +2,9 @@ import { useState, useEffect } from "react";
 import { useInsumos } from "../logic/useInsumos";
 import "./InsumosPage.css";
 
-
 // --- MINI-COMPONENTE PARA LA TARJETA ---
 const InsumoCard = ({ insumo, esDelSistema, handleUpdatePrecio, handleDelete }) => {
   const [precioBorrador, setPrecioBorrador] = useState(insumo.costoPorLibra);
-  // NUEVO: Estado para controlar si mostramos la advertencia de eliminación
   const [confirmarEliminar, setConfirmarEliminar] = useState(false);
 
   useEffect(() => {
@@ -15,11 +13,9 @@ const InsumoCard = ({ insumo, esDelSistema, handleUpdatePrecio, handleDelete }) 
 
   const hayCambios = parseFloat(precioBorrador) !== parseFloat(insumo.costoPorLibra);
 
-  
   const confirmarGuardado = () => {
-    // AHORA PASAMOS EL OBJETO COMPLETO, NO SOLO EL ID
     handleUpdatePrecio(insumo, parseFloat(precioBorrador));
-    setConfirmarEliminar(false); // Ocultar overlay por si acaso
+    setConfirmarEliminar(false);
   };
 
   const cancelarCambio = () => {
@@ -29,7 +25,6 @@ const InsumoCard = ({ insumo, esDelSistema, handleUpdatePrecio, handleDelete }) 
   return (
     <div className={`insumo-card ${hayCambios ? "card-editing" : ""}`}>
       
-      {/* CAPA DE CONFIRMACIÓN DE ELIMINACIÓN (OVERLAY) */}
       {confirmarEliminar && (
         <div className="delete-overlay">
           <div className="delete-overlay-content">
@@ -56,7 +51,6 @@ const InsumoCard = ({ insumo, esDelSistema, handleUpdatePrecio, handleDelete }) 
         </div>
         
         {!esDelSistema && (
-          // Cambiamos el onClick para que active nuestro nuevo panel en lugar de borrar directo
           <button onClick={() => setConfirmarEliminar(true)} className="btn-delete" title="Eliminar subproducto">
             ✕
           </button>
@@ -161,7 +155,6 @@ export default function InsumosPage() {
       ) : (
         <div className="insumos-grid">
           {insumos.map((insumo) => (
-            // Aquí llamamos a nuestro nuevo mini-componente
             <InsumoCard 
               key={insumo.id} 
               insumo={insumo} 
