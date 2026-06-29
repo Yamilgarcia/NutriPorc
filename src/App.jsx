@@ -8,7 +8,7 @@ import LotesPage from "./pages/LotesPage";
 import MaximizadorPage from "./features/maximizador/ui/MaximizadorPage";
 import PesajesPage from "./pages/PesajesPage";
 import FormuladorPage from "./features/formulador/ui/FormuladorPage";
-
+import Insumos from "./features/insumos/ui/InsumosPage";
 export default function App() {
   return (
     <AuthProvider>
@@ -24,6 +24,7 @@ export default function App() {
             <Route path="/maximizador" element={<MaximizadorPage />} />
             <Route path="/monitoreo" element={<PesajesPage />} />
             <Route path="/formulador" element={<FormuladorPage />} />
+             <Route path="/insumos" element={<Insumos />} />
           </Route>
         </Route>
       </Routes>

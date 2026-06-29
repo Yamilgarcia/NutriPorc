@@ -43,3 +43,10 @@ export const updatePesaje = async (id, nuevoPeso) => {
     editado: true // Marca de auditoría opcional
   });
 };
+
+
+// ELIMINAR (Añade esta función)
+export const deletePesaje = async (id) => {
+  const pesajeRef = doc(db, PESAJES_COLLECTION, id);
+  await deleteDoc(pesajeRef);
+};
