@@ -3,26 +3,29 @@ import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } 
 import { db } from "../../../../firebase.config"; 
 
 const PESAJES_COLLECTION = "pesajes";
-const MOCK_FINCA_ID = "finca_hackathon_01"; 
 
 // CREAR (Manual y Con IA)
-export const addPesaje = async (loteId, pesoPromedio, fecha, metodo = "manual") => {
+export const addPesaje = async (loteId, pesoPromedio, fecha, metodo = "manual", fincaId) => {
+  if (!fincaId) throw new Error("ID de finca requerido.");
+  
   const docRef = await addDoc(collection(db, PESAJES_COLLECTION), {
-    fincaId: MOCK_FINCA_ID,
+    fincaId: fincaId, // <-- Candado al crear
     loteId,
     pesoPromedio: parseFloat(pesoPromedio),
     fecha, // Formato esperado: YYYY-MM-DD
     metodo, // "manual" o "ia"
     timestamp: new Date().toISOString()
   });
-  return { id: docRef.id, fincaId: MOCK_FINCA_ID, loteId, pesoPromedio, fecha, metodo };
+  return { id: docRef.id, fincaId, loteId, pesoPromedio, fecha, metodo };
 };
 
 // LEER (Historial para la Curva de Crecimiento)
-export const getPesajesPorLote = async (loteId) => {
+export const getPesajesPorLote = async (loteId, fincaId) => {
+  if (!fincaId) return [];
+
   const q = query(
     collection(db, PESAJES_COLLECTION), 
-    where("fincaId", "==", MOCK_FINCA_ID),
+    where("fincaId", "==", fincaId), // <-- Candado al leer
     where("loteId", "==", loteId)
   );
   

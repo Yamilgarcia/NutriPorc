@@ -2,29 +2,34 @@ import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } 
 import { db } from "../../../../firebase.config";
 
 const LOTES_COLLECTION = "lotes";
-// Identificador temporal mientras se conecta el módulo de Autenticación
-const MOCK_FINCA_ID = "finca_hackathon_01"; 
 
 /**
- * Crea un nuevo lote en Firestore.
- * Inicializa el estado en "Activo" y crea el array vacío para futuras bajas.
+ * Crea un nuevo lote en Firestore vinculado a la finca del usuario actual.
  */
-export const addLote = async (loteData) => {
+export const addLote = async (loteData, fincaId) => {
+  if (!fincaId) throw new Error("ID de finca requerido para registrar un lote.");
+
   const docRef = await addDoc(collection(db, LOTES_COLLECTION), {
     ...loteData,
-    fincaId: MOCK_FINCA_ID,
-    estado: "Activo", // "Activo" o "Histórico"
-    bajas: [], // array para registrar bajas
+    fincaId: fincaId, // <-- Guardamos la llave de pertenencia real
+    estado: "Activo", 
+    bajas: [], 
     fechaCreacion: new Date().toISOString()
   });
   return { id: docRef.id, ...loteData, estado: "Activo", bajas: [] };
 };
 
 /**
- * Obtiene todos los lotes asociados a la finca actual.
+ * Obtiene únicamente los lotes asociados a la finca autenticada.
  */
-export const getLotes = async () => {
-  const q = query(collection(db, LOTES_COLLECTION), where("fincaId", "==", MOCK_FINCA_ID));
+export const getLotes = async (fincaId) => {
+  if (!fincaId) return []; // Si no hay ID, devolvemos un array vacío por seguridad
+
+  const q = query(
+    collection(db, LOTES_COLLECTION), 
+    where("fincaId", "==", fincaId) // <-- El candado de lectura multi-tenant
+  );
+  
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };

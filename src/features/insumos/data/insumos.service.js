@@ -2,27 +2,28 @@ import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } 
 import { db } from "../../../../firebase.config";
 
 const INSUMOS_COLLECTION = "insumos";
-// Identificador temporal mientras se conecta el módulo de Autenticación
-const MOCK_FINCA_ID = "finca_hackathon_01"; 
 
-export const addInsumo = async (insumoData) => {
+export const addInsumo = async (insumoData, fincaId) => {
+  if (!fincaId) throw new Error("ID de finca requerido para registrar un insumo.");
+
   const docRef = await addDoc(collection(db, INSUMOS_COLLECTION), {
     ...insumoData,
-    fincaId: MOCK_FINCA_ID,
+    fincaId: fincaId, // <-- El candado dinámico
     estado: "activo",
     fechaCreacion: new Date()
   });
-  return { id: docRef.id, ...insumoData };
+  return { id: docRef.id, ...insumoData, fincaId };
 };
 
+export const getInsumos = async (fincaId) => {
+  if (!fincaId) return [];
 
-
-export const getInsumos = async () => {
-  // Aquí está la magia: el "in" le dice que traiga AMBOS tipos de fincaId
+  // Trae AMBOS tipos: Los globales de la app ("sistema") y los creados por esta granja
   const q = query(
     collection(db, INSUMOS_COLLECTION), 
-    where("fincaId", "in", [MOCK_FINCA_ID, "sistema"])
+    where("fincaId", "in", [fincaId, "sistema"]) 
   );
+  
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };

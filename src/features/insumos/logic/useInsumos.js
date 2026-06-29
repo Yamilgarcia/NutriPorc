@@ -1,16 +1,23 @@
 import { useState, useEffect, useMemo } from "react";
 import { addInsumo, getInsumos, updatePrecioInsumo, deleteInsumo } from "../data/insumos.service";
+// 1. IMPORTAMOS EL CONTEXTO DE AUTENTICACIÓN
+import { useAuth } from "../../auth/logic/AuthContext"; 
 
 export const useInsumos = () => {
+  // 2. EXTRAEMOS LA SESIÓN DEL USUARIO
+  const { user } = useAuth();
+
   const [insumos, setInsumos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("nombre");
 
   const loadInsumos = async () => {
+    if (!user?.fincaId) return; // Evitamos peticiones antes de tener la sesión
+    
     setLoading(true);
     try {
-      const data = await getInsumos();
+      const data = await getInsumos(user.fincaId); // <-- PASAMOS LA LLAVE
       setInsumos(data);
     } catch (error) {
       console.error("Error al cargar insumos:", error);
@@ -21,11 +28,12 @@ export const useInsumos = () => {
 
   useEffect(() => {
     loadInsumos();
-  }, []);
+  }, [user?.fincaId]); // Recargamos si cambia el usuario
 
   const handleAdd = async (nuevoInsumo) => {
+    if (!user?.fincaId) return;
     try {
-      const added = await addInsumo(nuevoInsumo);
+      const added = await addInsumo(nuevoInsumo, user.fincaId); // <-- PASAMOS LA LLAVE
       setInsumos([...insumos, added]);
     } catch (error) {
       console.error("Error al añadir:", error);
@@ -33,21 +41,22 @@ export const useInsumos = () => {
   };
 
   const handleUpdatePrecio = async (insumo, nuevoPrecio) => {
+    if (!user?.fincaId) return;
+    
     try {
       if (insumo.fincaId === "sistema") {
-        // Es un insumo global. NO lo modificamos. Creamos una copia local.
+        // Es un insumo global. Creamos una copia local anclada al usuario actual.
         const copiaLocal = {
-          nombre: insumo.nombre, // Mantenemos el mismo nombre para que el algoritmo lo reconozca
+          nombre: insumo.nombre, 
           porcentajeProteina: insumo.porcentajeProteina,
           porcentajeEnergia: insumo.porcentajeEnergia,
           porcentajeFibra: insumo.porcentajeFibra,
           costoPorLibra: nuevoPrecio,
         };
         
-        await addInsumo(copiaLocal);
-        await loadInsumos(); // Recargamos para traer la nueva copia y aplicar el filtro de duplicados
+        await addInsumo(copiaLocal, user.fincaId); // <-- PASAMOS LA LLAVE AL CLONAR
+        await loadInsumos(); 
       } else {
-        // Es un insumo propio del usuario, lo actualizamos normalmente
         await updatePrecioInsumo(insumo.id, nuevoPrecio);
         setInsumos(insumos.map(item => item.id === insumo.id ? { ...item, costoPorLibra: nuevoPrecio } : item));
       }
@@ -65,12 +74,10 @@ export const useInsumos = () => {
     }
   };
 
-  // Motor de Búsqueda, Ordenamiento y FILTRO DE DUPLICADOS
   const filteredAndSortedInsumos = useMemo(() => {
     const insumosUnicos = [];
     const nombresLocales = new Set();
 
-    // 1A. Guardamos primero los insumos propios (locales) del usuario
     insumos.forEach(insumo => {
       if (insumo.fincaId !== "sistema") {
         nombresLocales.add(insumo.nombre.toLowerCase());
@@ -78,22 +85,19 @@ export const useInsumos = () => {
       }
     });
 
-    // 1B. Agregamos los del sistema SOLO si el usuario no ha creado una copia modificada
     insumos.forEach(insumo => {
       if (insumo.fincaId === "sistema" && !nombresLocales.has(insumo.nombre.toLowerCase())) {
         insumosUnicos.push(insumo);
       }
     });
 
-    // 2. Aplicamos la búsqueda del usuario
     let result = insumosUnicos.filter(insumo => 
       insumo.nombre.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // 3. Aplicamos el ordenamiento
     result.sort((a, b) => {
       if (sortBy === "precio") return a.costoPorLibra - b.costoPorLibra;
-      if (sortBy === "proteina") return b.porcentajeProteina - a.porcentajeProteina; // Mayor a menor
+      if (sortBy === "proteina") return b.porcentajeProteina - a.porcentajeProteina;
       return a.nombre.localeCompare(b.nombre);
     });
 
