@@ -3,9 +3,14 @@ import { usePesajes } from "../logic/usePesajes";
 import { useIA } from "../logic/useIA"; // <-- IMPORTAMOS LA IA
 import { CameraScanner } from "../../../components/CameraScanner";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+
+import { useAuth } from "../../auth/logic/AuthContext";
+
 import "./PesajesPage.css";
 
 export default function PesajesPage() {
+
+  const { user } = useAuth();
   const {
     lotes, loteSeleccionadoId, setLoteSeleccionadoId, pesajes,
     loadingLotes, loadingPesajes, handleAdd, handleUpdate, handleDelete
@@ -128,7 +133,13 @@ export default function PesajesPage() {
               </button>
               
               {/* ESTADOS VISUALES MIENTRAS LA IA PIENSA */}
-              {isModelLoading ? (
+              {/* 3. LÓGICA DE BLOQUEO SEGÚN LICENCIA */}
+              {user?.plan !== "Pro" ? (
+                <div style={{ marginTop: '15px', padding: '15px', backgroundColor: '#fef3c7', border: '1px dashed #fbbf24', borderRadius: '8px', textAlign: 'center' }}>
+                  <p style={{ color: '#b45309', margin: 0, fontSize: '0.9rem', fontWeight: 'bold' }}>⭐ Función Exclusiva Pro</p>
+                  <p style={{ color: '#d97706', margin: '5px 0 0 0', fontSize: '0.85rem' }}>Actualiza tu licencia para estimar el peso usando la cámara y visión artificial.</p>
+                </div>
+              ) : isModelLoading ? (
                 <p className="status-text" style={{textAlign: "center", color: "#3b82f6"}}>🧠 Cargando modelo neuronal...</p>
               ) : isAnalyzing ? (
                 <p className="status-text" style={{textAlign: "center", color: "#10b981"}}>👁️ Analizando imagen...</p>

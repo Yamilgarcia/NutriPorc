@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
-// Importamos la función de la rama de tu compañera
 import { getLotes } from "../../lotes/data/lotes.service"; 
 import { addPesaje, getPesajesPorLote, updatePesaje, deletePesaje } from "../data/pesajes.service";
+// 1. IMPORTAMOS EL CONTEXTO DE AUTENTICACIÓN
+import { useAuth } from "../../auth/logic/AuthContext";
 
 export const usePesajes = () => {
+  // 2. EXTRAEMOS LA SESIÓN DEL USUARIO
+  const { user } = useAuth();
+
   const [lotes, setLotes] = useState([]);
   const [loteSeleccionadoId, setLoteSeleccionadoId] = useState("");
   const [pesajes, setPesajes] = useState([]);
@@ -13,10 +17,11 @@ export const usePesajes = () => {
   // 1. Cargar los lotes activos al entrar al módulo
   useEffect(() => {
     const cargarLotes = async () => {
+      if (!user?.fincaId) return; // Evitamos ejecución si no hay sesión
       try {
         setLoadingLotes(true);
-        const listaLotes = await getLotes();
-        // Filtramos para mostrar solo los lotes con los que se puede trabajar
+        // PASAMOS EL FINCA ID PARA QUE EL SELECT SOLO MUESTRE LOTES DE ESTA GRANJA
+        const listaLotes = await getLotes(user.fincaId); 
         const activos = listaLotes.filter(lote => lote.estado === "Activo");
         setLotes(activos);
         
@@ -30,15 +35,16 @@ export const usePesajes = () => {
       }
     };
     cargarLotes();
-  }, []);
+  }, [user?.fincaId]); // Dependencia actualizada
 
   // 2. Cargar historial cuando el usuario cambia de lote en el select
   useEffect(() => {
-    if (!loteSeleccionadoId) return;
+    if (!loteSeleccionadoId || !user?.fincaId) return;
     const cargarHistorial = async () => {
       try {
         setLoadingPesajes(true);
-        const historial = await getPesajesPorLote(loteSeleccionadoId);
+        // PASAMOS EL FINCA ID A LA CONSULTA DE PESAJES
+        const historial = await getPesajesPorLote(loteSeleccionadoId, user.fincaId);
         setPesajes(historial);
       } catch (error) {
         console.error("Error al cargar historial de pesajes:", error);
@@ -47,13 +53,14 @@ export const usePesajes = () => {
       }
     };
     cargarHistorial();
-  }, [loteSeleccionadoId]);
+  }, [loteSeleccionadoId, user?.fincaId]); // Dependencia actualizada
 
   // 3. Crear Registro
   const handleAdd = async (pesoPromedio, fecha, metodo = "manual") => {
-    if (!loteSeleccionadoId) return false;
+    if (!loteSeleccionadoId || !user?.fincaId) return false;
     try {
-      const nuevoPesaje = await addPesaje(loteSeleccionadoId, pesoPromedio, fecha, metodo);
+      // PASAMOS EL FINCA ID AL CREAR
+      const nuevoPesaje = await addPesaje(loteSeleccionadoId, pesoPromedio, fecha, metodo, user.fincaId);
       setPesajes(prev => [...prev, nuevoPesaje].sort((a, b) => new Date(a.fecha) - new Date(b.fecha)));
       return true;
     } catch (error) {
