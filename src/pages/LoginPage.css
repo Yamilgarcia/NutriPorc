@@ -1,4 +1,6 @@
-/* src/pages/LoginPage.css */
+/* =========================================
+   src/pages/LoginPage.css (ACTUALIZADO)
+   ========================================= */
 .login-container {
   display: flex;
   justify-content: center;
@@ -78,6 +80,75 @@
   outline: none;
   border-color: #10b981;
 }
+
+/* =========================================
+   NUEVAS CLASES PARA EL CAMPO DE CONTRASEÑA
+   ========================================= */
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper input {
+  width: 100%;
+  padding-right: 45px; /* Espacio específico para el botón */
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+  /* El ancho/alto se controlará en la imagen, no en el botón */
+}
+
+.password-toggle-btn:hover {
+  transform: scale(1.1); /* Efecto de "latido" al hover */
+}
+
+/* ========================================= */
+/* 3. ESTILO ESPECÍFICO PARA TUS IMÁGENES PNG */
+/* Ajusta el tamaño aquí según necesites. */
+/* ========================================= */
+.password-toggle-img {
+  width: 40px; /* Ancho de la imagen (similar al SVG anterior) */
+  height: 40px; /* Alto de la imagen */
+  object-fit: contain; /* Asegura que la imagen no se estire */
+}
+/* ========================================= */
+
+/* Tooltip CSS Profesional (data-tooltip) */
+.password-toggle-btn[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  right: 50%;
+  transform: translate(50%, -8px);
+  background-color: #1e293b;
+  color: white;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  opacity: 0;
+  visibility: hidden;
+  white-space: nowrap;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: opacity 0.2s, visibility 0.2s;
+}
+
+.password-toggle-btn[data-tooltip]:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ========================================= */
 
 .btn-login-submit {
   background-color: #10b981;

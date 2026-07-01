@@ -1,10 +1,20 @@
 import { useState } from "react";
 import { Outlet, NavLink } from "react-router-dom";
+// 1. Importamos tu contexto de autenticación
+import { useAuth } from "../features/auth/logic/AuthContext";
 import "./AppLayout.css";
 import InstallPWAButton from "../components/InstallPWAButton";
 
 export default function AppLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
+  // 2. Extraemos la función logout
+  const { logout } = useAuth();
+
+  // Función manejadora para cerrar el menú antes de salir
+  const handleLogout = () => {
+    setMenuOpen(false);
+    logout();
+  };
 
   return (
     <div className="app-layout">
@@ -43,7 +53,11 @@ export default function AppLayout() {
       </header>
 
       {/* MENÚ LATERAL (SIDEBAR) */}
-      <aside className={`side-menu ${menuOpen ? "open" : ""}`}>
+      {/* Añadimos display flex en línea para garantizar que el botón se vaya al fondo */}
+      <aside 
+        className={`side-menu ${menuOpen ? "open" : ""}`}
+        style={{ display: 'flex', flexDirection: 'column' }}
+      >
         <div className="side-menu-header">
           <h2>Menú</h2>
           <button className="close-button" onClick={() => setMenuOpen(false)}>
@@ -60,7 +74,8 @@ export default function AppLayout() {
             </svg>
           </button>
         </div>
-        <nav className="side-menu-nav">
+        
+        <nav className="side-menu-nav" style={{ flex: 1 }}>
           <NavLink 
             to="/" 
             className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
@@ -109,6 +124,37 @@ export default function AppLayout() {
             Maximizador de Ganancia
           </NavLink>
         </nav>
+
+        {/* 3. BOTÓN DE CERRAR SESIÓN AL FINAL DEL MENÚ */}
+        <div style={{ padding: '20px', borderTop: '1px solid #e2e8f0', marginTop: 'auto' }}>
+          <button 
+            onClick={handleLogout}
+            style={{ 
+              width: '100%', 
+              backgroundColor: '#ef4444', 
+              color: 'white', 
+              border: 'none', 
+              padding: '12px', 
+              borderRadius: '8px', 
+              fontWeight: 'bold', 
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseOver={(e) => e.target.style.backgroundColor = '#dc2626'}
+            onMouseOut={(e) => e.target.style.backgroundColor = '#ef4444'}
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            Cerrar Sesión
+          </button>
+        </div>
       </aside>
 
       {/* OVERLAY OSCURO PARA CERRAR EL MENÚ */}
