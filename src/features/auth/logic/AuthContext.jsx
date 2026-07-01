@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginConRoles } from "../data/auth.service";
+// (Eliminamos la importación de auth.service de aquí porque ahora la controlaremos desde el LoginPage)
 
 const AuthContext = createContext();
 
@@ -18,7 +18,7 @@ const obtenerUsuarioGuardado = () => {
     }
     return datosSesion;
   } catch {
-    // Si los datos están corruptos, limpiamos y devolvemos null (resolviendo el unused error)
+    // Si los datos están corruptos, limpiamos y devolvemos null
     localStorage.removeItem("nutriporc_session");
     return null;
   }
@@ -35,19 +35,20 @@ export const AuthProvider = ({ children }) => {
     navigate("/login", { replace: true });
   }, [navigate]);
 
-  const login = useCallback(async (email, password) => {
-    const data = await loginConRoles(email, password);
-    setUser(data);
-    navigate("/"); // Redirige al inicio tras loguearse
+  // 3. NUEVO: Función que se ejecuta SOLO cuando el código 2FA de 6 dígitos fue correcto
+  const loginExitoso2FA = useCallback((sesionFinal) => {
+    setUser(sesionFinal);
+    navigate("/"); // Redirige al inicio tras loguearse exitosamente
   }, [navigate]);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    // Exponemos loginExitoso2FA en lugar del antiguo login
+    <AuthContext.Provider value={{ user, logout, loginExitoso2FA }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// 3. Silenciamos la advertencia estricta de Vite para esta única línea
+// 4. Silenciamos la advertencia estricta de Vite para esta única línea
 // eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext);
