@@ -4,11 +4,9 @@ import WelcomePage from "./pages/WelcomePage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./features/auth/logic/AuthContext";
 import LoginPage from "./pages/LoginPage";
-import LotesPage from "./pages/LotesPage";
-import MaximizadorPage from "./features/maximizador/ui/MaximizadorPage";
-import PesajesPage from "./pages/PesajesPage";
-import FormuladorPage from "./features/formulador/ui/FormuladorPage";
-import Insumos from "./features/insumos/ui/InsumosPage";
+
+// Importación EXCLUSIVA de su módulo
+import { DashboardFinanciero } from "./features/finanzas/ui/DashboardFinanciero";  
 
 // Atrapamos el parámetro antes de que React Router redireccione y lo borre
 if (window.location.search.includes("pago=exitoso")) {
@@ -17,11 +15,21 @@ if (window.location.search.includes("pago=exitoso")) {
 
 export default function App() {
   return (
-    <Routes>
-      <Route element={<AppLayout />}>
-        <Route path="/" element={<WelcomePage />} />
-       
-      </Route>
-    </Routes>
+    <AuthProvider>
+      <Routes>
+        {/* RUTA PÚBLICA */}
+        <Route path="/login" element={<LoginPage />} />
+
+        {/* RUTAS PROTEGIDAS: Requieren autenticación */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<WelcomePage />} />
+            
+            {/* RUTA DE SU MÓDULO */}
+            <Route path="/finanzas" element={<DashboardFinanciero />} />
+          </Route>
+        </Route>
+      </Routes>
+    </AuthProvider>
   );
 }
