@@ -1,4 +1,4 @@
-import { useState } from "react";
+import  { useState } from "react";
 
 export const FormCierreLote = ({ gastosTotales, onCerrarLote }) => {
   const [precioVenta, setPrecioVenta] = useState("");
