@@ -58,47 +58,84 @@
 
 ---
 
-## 📂 Estructura del proyecto
+## 🧩 Estructura Modular y Scripts de Arranque
+
+El proyecto sigue una arquitectura basada en características (*Feature Slices*) para mantener el código escalable, organizado y facilitar el trabajo colaborativo.
+
+### 📂 Árbol de Directorios y Módulos
+
+La lógica de negocio principal se aísla dentro de la carpeta `src/features/`. Cada módulo es independiente y contiene su propia UI y lógica.
 
 ```plaintext
 NutriPorc/
 ├─ public/
 ├─ src/
-│  ├─ assets/
-│  ├─ components/
-│  ├─ features/
-│  │  ├─ auth/
-│  │  ├─ finanzas/
-│  │  ├─ formulador/
-│  │  ├─ insumos/
-│  │  ├─ lotes/
-│  │  ├─ maximizador/
-│  │  ├─ monitoreoIA/
-│  │  └─ welcome/
-│  ├─ layout/
-│  │  ├─ AppLayout.css
-│  │  └─ AppLayout.jsx
-│  ├─ pages/
-│  │  ├─ LoginPage.css
-│  │  ├─ LoginPage.jsx
-│  │  ├─ LotesPage.jsx
-│  │  ├─ PesajesPage.jsx
-│  │  └─ WelcomePage.jsx
-│  ├─ utils/
-│  ├─ App.css
-│  ├─ App.jsx
-│  ├─ index.css
-│  └─ main.jsx
-├─ .env
-├─ .gitignore
-├─ eslint.config.js
-├─ firebase.config.js
-├─ index.html
-├─ package-lock.json
-├─ package.json
-├─ README.md
-└─ vite.config.js
+│  ├─ assets/         # Recursos estáticos (imágenes, iconos)
+│  ├─ components/     # Componentes UI reutilizables (botones, modales)
+│  ├─ features/       # 📦 Módulos principales del negocio
+│  │  ├─ auth/        # Autenticación 2FA y sistema multi-tenant
+│  │  ├─ finanzas/    # Control de gastos y presupuestos
+│  │  ├─ formulador/  # Lógica para cálculo de raciones
+│  │  ├─ insumos/     # Gestión de inventario de alimentos
+│  │  ├─ lotes/       # Agrupación y control de animales
+│  │  ├─ maximizador/ # Algoritmo de optimización de costos
+│  │  ├─ monitoreoIA/ # Visión computacional para estimar peso
+│  │  └─ welcome/     # Pantalla de bienvenida e inducción
+│  ├─ layout/         # Estructura visual base (Sidebar, Navbar)
+│  ├─ pages/          # Vistas principales que agrupan features
+│  ├─ utils/          # Funciones de ayuda generales
+│  ├─ App.jsx         # Enrutamiento principal
+│  └─ main.jsx        # Punto de entrada de la aplicación
+├─ .env               # Variables de entorno
+├─ firebase.config.js # Configuración de servicios Cloud
+└─ package.json       # Dependencias y scripts
+---
+
 ```
+
+### 🚀 Scripts de Arranque
+
+Los siguientes comandos están preconfigurados en el `package.json` para facilitar el flujo de desarrollo, pruebas y pase a producción:
+
+| Comando | Descripción |
+| :--- | :--- |
+| `npm run dev` | Inicia el servidor de desarrollo local con recarga rápida (HMR). |
+| `npm run build` | Compila y optimiza la aplicación para producción en la carpeta `dist`. |
+| `npm run preview` | Levanta un servidor local para probar la versión de producción antes de desplegarla. |
+| `npm run lint` | Ejecuta ESLint para analizar el código fuente y arreglar problemas de formato. |
+
+## 📡 Endpoints & Servicios de Datos (API)
+
+Dado que NutriPorc utiliza una arquitectura Serverless con Firebase, la interacción de datos se realiza a través de SDKs y Cloud Functions. A continuación, se detalla la estructura de datos y los servicios principales:
+
+### 1. Base de Datos (Firestore Collections)
+La estructura modular maneja las siguientes colecciones principales:
+* `usuarios`: Almacena perfiles, configuraciones de tenant y roles.
+* `lotes`: Agrupación de animales, línea genética y fechas de ingreso.
+* `pesajes`: Registro histórico del peso de los animales, vinculado a la IA.
+
+### 2. API de Visión Computacional (IA)
+Para el cálculo del peso mediante imágenes, el frontend se comunica con nuestro servicio de procesamiento (ejemplo de estructura de la petición):
+
+**Endpoint:** `POST /api/vision/estimate-weight`
+* **Headers:** `Authorization: Bearer <token_2fa>`
+* **Body:** 
+  ```json
+  {
+    "loteId": "Lote-001",
+    "imageBlob": "data:image/jpeg;base64,...",
+    "timestamp": "2026-05-29T10:30:00Z"
+  }
+---
+```
+{
+  "status": "success",
+  "estimatedWeight": 147.5,
+  "unit": "lbs",
+  "confidenceScore": 0.92
+}
+```
+
 ---
 ⚙️ Instalación local
 Requisitos
