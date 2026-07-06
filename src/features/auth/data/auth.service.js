@@ -2,7 +2,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "../../../../firebase.config";
 import emailjs from '@emailjs/browser';
-
+import { sendPasswordResetEmail } from "firebase/auth";
 /**
  * FASE 1: Validar credenciales (correo/contraseña) y enviar Token de Seguridad 2FA
  */
@@ -121,3 +121,26 @@ export const verificarCodigo2FA = async (datosTemporales, codigoIngresado) => {
   localStorage.setItem("nutriporc_session", JSON.stringify(sesionFinal));
   return sesionFinal;
 };
+
+/**
+ * FASE 3: Recuperación de Contraseña
+ */
+export const recuperarContrasena = async (email) => {
+  if (!email) throw new Error("Por favor, ingresa tu correo electrónico.");
+  
+  try {
+    // Firebase enviará automáticamente un correo con un link seguro para cambiar la clave
+    await sendPasswordResetEmail(auth, email);
+    return "Se ha enviado un enlace de recuperación a tu correo, Revise el apartado de Spam en caso de no encontrar su correo";
+  } catch (error) {
+    console.error("Error al recuperar contraseña:", error);
+    
+    // Le agregamos { cause: error } para complacer al linter y mantener buenas prácticas
+    if (error.code === 'auth/user-not-found') {
+      throw new Error("No hay ninguna cuenta registrada con este correo.", { cause: error });
+    }
+    throw new Error("Error al intentar enviar el correo de recuperación.", { cause: error });
+  }
+};
+
+
