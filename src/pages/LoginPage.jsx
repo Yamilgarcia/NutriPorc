@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { useAuth } from "../features/auth/logic/AuthContext";
-import { loginPrimerPaso, verificarCodigo2FA } from "../features/auth/data/auth.service";
+// 1. Añadimos recuperarContrasena a la importación
+import { loginPrimerPaso, verificarCodigo2FA, recuperarContrasena } from "../features/auth/data/auth.service";
 import "./LoginPage.css";
 
 // ============================================================
-// 1. IMPORTA TUS IMÁGENES PNG AQUÍ
-// Asegúrate de colocar las rutas correctas a tus archivos PNG.
+// IMPORTA TUS IMÁGENES PNG AQUÍ
 // ============================================================
-import pigOcultoPng from "../assets/pig_oculto.png"; // Reemplaza por tu archivo real
-import pigVisiblePng from "../assets/pig_visible.png"; // Reemplaza por tu archivo real
+import pigOcultoPng from "../assets/pig_oculto.png"; 
+import pigVisiblePng from "../assets/pig_visible.png"; 
 // ============================================================
 
 export default function LoginPage() {
@@ -22,11 +22,14 @@ export default function LoginPage() {
   const [datosTemporales, setDatosTemporales] = useState(null);
   
   const [error, setError] = useState("");
+  // 2. Nuevo estado para el mensaje de recuperación exitosa
+  const [resetMensaje, setResetMensaje] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleCredencialesSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setResetMensaje(""); // Limpiamos mensaje si lo hubiera
     setIsLoading(true);
 
     try {
@@ -48,6 +51,25 @@ export default function LoginPage() {
     try {
       const sesionActiva = await verificarCodigo2FA(datosTemporales, codigo2FA);
       loginExitoso2FA(sesionActiva); 
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 3. NUEVA FUNCIÓN: Manejador para recuperar la contraseña
+  const handleRecuperarPassword = async () => {
+    if (!email) {
+      setError("Escribe tu correo en el campo superior antes de recuperar la contraseña.");
+      return;
+    }
+    setError("");
+    setResetMensaje("");
+    setIsLoading(true);
+    try {
+      const mensaje = await recuperarContrasena(email);
+      setResetMensaje(mensaje);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -99,30 +121,42 @@ export default function LoginPage() {
                   title={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
                   data-tooltip={showPassword ? "Ocultar" : "Ver"} 
                 >
-                  {/* ============================================================ */}
-                  {/* 2. USA TUS IMÁGENES PNG AQUÍ */}
-                  {/* Condicional para mostrar la imagen correspondiente. */}
-                  {/* ============================================================ */}
                   <img 
                     src={showPassword ? pigVisiblePng : pigOcultoPng} 
                     alt={showPassword ? "Cerdo con los ojos abiertos" : "Cerdo tapándose los ojos"} 
                     className="password-toggle-img"
                   />
-                  {/* ============================================================ */}
                 </button>
               </div>
             </div>
 
+            {/* 4. NUEVO: Botón de olvido de contraseña y Mensaje de éxito */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '5px', marginBottom: '15px' }}>
+              <button 
+                type="button" 
+                onClick={handleRecuperarPassword}
+                disabled={isLoading}
+                style={{ background: 'none', border: 'none', color: '#10b981', fontSize: '0.85rem', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
+              >
+                ¿Olvidaste tu contraseña?
+              </button>
+            </div>
+
+            {resetMensaje && (
+              <div style={{ padding: '10px', backgroundColor: '#dcfce7', color: '#166534', borderRadius: '8px', marginBottom: '15px', fontSize: '0.85rem', textAlign: 'center' }}>
+                ✅ {resetMensaje}
+              </div>
+            )}
+
             <button type="submit" className="btn-login-submit" disabled={isLoading}>
-              {isLoading ? "Enviando código de seguridad..." : "Siguiente Paso ➔"}
+              {isLoading ? "Procesando..." : "Siguiente Paso ➔"}
             </button>
           </form>
         ) : (
           <form onSubmit={handleVerificarCodigoSubmit} className="login-form">
-            
             <div style={{ padding: '12px', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', marginBottom: '20px', textAlign: 'center' }}>
               <p style={{ margin: 0, fontSize: '0.9rem', color: '#166534' }}>
-                📧 Hemos enviado un código de 6 dígitos a tu correo. Por favor, revísalo para continuar.
+                📧 Hemos enviado un código de 6 dígitos a tu correo. Por favor, revísalo para continuar, en caso de no encontrarlo revise la carpeta spam de su correo.
               </p>
             </div>
 
