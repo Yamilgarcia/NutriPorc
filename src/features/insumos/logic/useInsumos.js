@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { addInsumo, getInsumos, updatePrecioInsumo, deleteInsumo } from "../data/insumos.service";
+import { addInsumo, updatePrecioInsumo, deleteInsumo, subscribeToInsumos } from "../data/insumos.service";
 import { useAuth } from "../../auth/logic/AuthContext"; 
 
 export const useInsumos = () => {
@@ -10,29 +10,24 @@ export const useInsumos = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("nombre");
 
-  const loadInsumos = async () => {
-    if (!user?.fincaId) return; // Evitamos peticiones antes de tener la sesión
+  // Suscripción en tiempo real a Firestore (Caché + Nube)
+  useEffect(() => {
+    if (!user?.fincaId) return; 
     
     setLoading(true);
-    try {
-      const data = await getInsumos(user.fincaId);
+    const unsubscribe = subscribeToInsumos(user.fincaId, (data) => {
       setInsumos(data);
-    } catch (error) {
-      console.error("Error al cargar insumos:", error);
-    } finally {
       setLoading(false);
-    }
-  };
+    });
 
-  useEffect(() => {
-    loadInsumos();
-  }, [user?.fincaId]); // Recargamos si cambia el usuario
+    return () => unsubscribe();
+  }, [user?.fincaId]); 
 
   const handleAdd = async (nuevoInsumo) => {
     if (!user?.fincaId) return;
     try {
-      const added = await addInsumo(nuevoInsumo, user.fincaId);
-      setInsumos([...insumos, added]);
+      // Firebase onSnapshot actualizará la UI inmediatamente
+      await addInsumo(nuevoInsumo, user.fincaId);
     } catch (error) {
       console.error("Error al añadir:", error);
     }
@@ -52,11 +47,17 @@ export const useInsumos = () => {
           costoPorLibra: nuevoPrecio,
         };
         
+        // Actualización Optimista: Añadimos el clon visualmente de inmediato
+        setInsumos((prev) => [...prev, { id: "temp-" + Date.now(), ...copiaLocal, fincaId: user.fincaId }]);
+        
+        // Guardamos en BD. ¡Ya no necesitamos loadInsumos()! onSnapshot lo manejará.
         await addInsumo(copiaLocal, user.fincaId);
-        await loadInsumos(); 
       } else {
+        // Actualización Optimista para insumo propio: Cambiamos precio en pantalla al instante
+        setInsumos((prev) => 
+          prev.map(item => item.id === insumo.id ? { ...item, costoPorLibra: nuevoPrecio } : item)
+        );
         await updatePrecioInsumo(insumo.id, nuevoPrecio);
-        setInsumos(insumos.map(item => item.id === insumo.id ? { ...item, costoPorLibra: nuevoPrecio } : item));
       }
     } catch (error) {
       console.error("Error al actualizar precio:", error);
@@ -64,9 +65,10 @@ export const useInsumos = () => {
   };
 
   const handleDelete = async (id) => {
+    // Eliminación Optimista: Borramos de la pantalla al instante
+    setInsumos((prev) => prev.filter(item => item.id !== id));
     try {
       await deleteInsumo(id);
-      setInsumos(insumos.filter(item => item.id !== id));
     } catch (error) {
       console.error("Error al eliminar:", error);
     }
@@ -76,6 +78,7 @@ export const useInsumos = () => {
     const insumosUnicos = [];
     const nombresLocales = new Set();
 
+    // Lógica para priorizar insumos locales sobre los del "sistema"
     insumos.forEach(insumo => {
       if (insumo.fincaId !== "sistema") {
         nombresLocales.add(insumo.nombre.toLowerCase());
@@ -89,6 +92,7 @@ export const useInsumos = () => {
       }
     });
 
+    // Filtramos. Como .filter crea un array NUEVO, ya es seguro usar .sort() después
     let result = insumosUnicos.filter(insumo => 
       insumo.nombre.toLowerCase().includes(searchTerm.toLowerCase())
     );
