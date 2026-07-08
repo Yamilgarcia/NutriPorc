@@ -1,4 +1,4 @@
-import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } from "firebase/firestore";
+import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where, onSnapshot } from "firebase/firestore";
 import { db } from "../../../../firebase.config";
 
 const LOTES_COLLECTION = "lotes";
@@ -44,4 +44,21 @@ export const registrarBajaLote = async (id, bajasActuales, nuevaBaja, cantidadRe
 export const deleteLote = async (id) => {
   const loteRef = doc(db, LOTES_COLLECTION, id);
   await deleteDoc(loteRef);
+};
+
+// NUEVA FUNCIÓN: Escucha cambios en tiempo real (Online y Offline)
+export const subscribeToLotes = (fincaId, callback) => {
+  if (!fincaId) return () => {};
+  
+  const q = query(collection(db, LOTES_COLLECTION), where("fincaId", "==", fincaId));
+  
+  // onSnapshot reacciona al instante a la caché local cuando estás offline
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    const lotesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    callback(lotesData);
+  }, (error) => {
+    console.error("Error al escuchar lotes:", error);
+  });
+
+  return unsubscribe;
 };

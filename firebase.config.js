@@ -1,8 +1,12 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { 
+  getFirestore, 
+  initializeFirestore, 
+  persistentLocalCache, 
+  persistentMultipleTabManager 
+} from "firebase/firestore";
 
-// Estas vienen del .env
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -13,10 +17,11 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-// Inicializamos firebase
 const app = initializeApp(firebaseConfig);
-
-
 export const auth = getAuth(app);
-// Exportamos la base de datos (Firestore)
-export const db = getFirestore(app);
+
+// INICIALIZACIÓN OFFLINE DE FIRESTORE
+// Esto habilita la caché local persistente para que la app funcione sin internet
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+});
