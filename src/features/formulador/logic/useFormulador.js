@@ -1,42 +1,54 @@
 import { useState, useEffect, useMemo } from "react";
-import { getLotes } from "../../lotes/data/lotes.service";
-import { getInsumos } from "../../insumos/data/insumos.service";
-import { saveFormula, getFormulas } from "../data/formulador.service";
+// IMPORTANTE: Traemos las funciones reactivas de los otros servicios
+import { subscribeToLotes } from "../../lotes/data/lotes.service";
+import { subscribeToInsumos } from "../../insumos/data/insumos.service";
+import { saveFormula, deleteFormula, subscribeToFormulas } from "../data/formulador.service";
 import { useAuth } from "../../auth/logic/AuthContext";
 
 export const useFormulador = () => {
   const { user } = useAuth();
+  
   const [lotes, setLotes] = useState([]);
   const [insumos, setInsumos] = useState([]);
+  const [historialFormulas, setHistorialFormulas] = useState([]); // Nuevo estado para las guardadas
   const [loading, setLoading] = useState(true);
 
   // Estado del creador de mezcla
   const [selectedLoteId, setSelectedLoteId] = useState("");
   const [selectedInsumoIds, setSelectedInsumoIds] = useState([]);
-  const [mezclaActual, setMezclaActual] = useState([]); // [{ insumo, porcentaje }]
+  const [mezclaActual, setMezclaActual] = useState([]); 
 
+  // Suscripción triple (Lotes, Insumos y Fórmulas)
   useEffect(() => {
     if (!user?.fincaId) return;
 
-    const loadData = async () => {
-      setLoading(true);
-      try {
-        const [lotesData, insumosData] = await Promise.all([
-          getLotes(user.fincaId),
-          getInsumos(user.fincaId)
-        ]);
-        setLotes(lotesData.filter(l => l.estado === "Activo"));
-        setInsumos(insumosData);
-      } catch (error) {
-        console.error("Error al cargar datos para el formulador:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    setLoading(true);
 
-    loadData();
+    // 1. Escuchamos Lotes activos
+    const unLotes = subscribeToLotes(user.fincaId, (data) => {
+      setLotes(data.filter(l => l.estado === "Activo"));
+    });
+
+    // 2. Escuchamos Insumos
+    const unInsumos = subscribeToInsumos(user.fincaId, (data) => {
+      setInsumos(data);
+    });
+
+    // 3. Escuchamos el Historial de Fórmulas
+    const unFormulas = subscribeToFormulas(user.fincaId, (data) => {
+      setHistorialFormulas(data);
+      setLoading(false); // Quitamos loading cuando cargan
+    });
+
+    // Limpiamos las 3 suscripciones al desmontar
+    return () => {
+      unLotes();
+      unInsumos();
+      unFormulas();
+    };
   }, [user?.fincaId]);
 
+  // --- LÓGICA DE FORMULACIÓN INTACTA ---
   const loteSeleccionado = useMemo(() => {
     return lotes.find(l => l.id === selectedLoteId) || null;
   }, [lotes, selectedLoteId]);
@@ -44,14 +56,8 @@ export const useFormulador = () => {
   const requerimientos = useMemo(() => {
     if (!loteSeleccionado) return { proteina: 0, energia: 0, consumoDiario: 0, semanasEdad: 0 };
     
-    // Calcular edad en semanas basado en fechaInicio real del lote
     let semanasEdad = 0;
     if (loteSeleccionado.fechaInicio) {
-      // Separamos la fecha (viene en formato DD/MM/YYYY del objeto lote)
-      // Ojo: en JS new Date("DD/MM/YYYY") no es estándar.
-      // Para estar seguros si es string de fecha local, pero sabemos que se guardó desde input type="date" o local date.
-      // Revisando en LotesPage, usa new Date(Date.now()).toLocaleDateString() para guardarlo.
-      // Es más robusto intentar parsearlo. En la UI actual el inicio viene de date.toLocaleDateString() que es "D/M/YYYY".
       const partes = loteSeleccionado.fechaInicio.split('/');
       let fechaObjeto = new Date();
       if (partes.length === 3) {
@@ -65,36 +71,24 @@ export const useFormulador = () => {
       semanasEdad = Math.floor(dias / 7);
     }
 
-    let proteina = 15;
-    let energia = 3000;
-    let consumoDiario = 2.0;
+    let proteina = 15; let energia = 3000; let consumoDiario = 2.0;
 
     switch (loteSeleccionado.etapa) {
       case "Destete": 
-        proteina = 20; energia = 3200; 
-        consumoDiario = 0.4 + (semanasEdad * 0.15);
-        break;
+        proteina = 20; energia = 3200; consumoDiario = 0.4 + (semanasEdad * 0.15); break;
       case "Desarrollo": 
-        proteina = 16; energia = 3000; 
-        consumoDiario = 1.2 + (semanasEdad * 0.15);
-        break;
+        proteina = 16; energia = 3000; consumoDiario = 1.2 + (semanasEdad * 0.15); break;
       case "Engorde": 
-        proteina = 14; energia = 3000; 
-        consumoDiario = Math.min(2.0 + (semanasEdad * 0.1), 3.2); // Toppe en 3.2 kg
-        break;
+        proteina = 14; energia = 3000; consumoDiario = Math.min(2.0 + (semanasEdad * 0.1), 3.2); break;
       case "Reproducción": 
-        proteina = 14; energia = 3000; consumoDiario = 2.5; 
-        break;
+        proteina = 14; energia = 3000; consumoDiario = 2.5; break;
       case "Gestación": 
-        proteina = 13; energia = 2900; consumoDiario = 2.2; 
-        break;
+        proteina = 13; energia = 2900; consumoDiario = 2.2; break;
       case "Lactancia": 
-        proteina = 16; energia = 3200; consumoDiario = 5.5; 
-        break;
+        proteina = 16; energia = 3200; consumoDiario = 5.5; break;
     }
 
     consumoDiario = Math.round(consumoDiario * 100) / 100;
-
     return { proteina, energia, consumoDiario, semanasEdad };
   }, [loteSeleccionado]);
 
@@ -102,8 +96,6 @@ export const useFormulador = () => {
     const insumosDisponibles = insumos.filter(i => selectedInsumoIds.includes(i.id));
     if (insumosDisponibles.length === 0) return;
 
-    // Algoritmo Heurístico Local (Aproximación de Mínimo Costo)
-    // Para no usar librerías externas pesadas, inicializamos dando prioridad a los insumos más baratos.
     let totalCostoInverso = insumosDisponibles.reduce((acc, ins) => acc + (1 / (ins.costoPorLibra || 1)), 0);
     
     let nuevaMezcla = insumosDisponibles.map(insumo => {
@@ -118,7 +110,6 @@ export const useFormulador = () => {
       };
     });
 
-    // Corrección para que sume exactamente 100%
     const sumaPorcentajes = nuevaMezcla.reduce((acc, item) => acc + item.porcentaje, 0);
     if (nuevaMezcla.length > 0 && sumaPorcentajes !== 100) {
       nuevaMezcla[0].porcentaje = parseFloat((nuevaMezcla[0].porcentaje + (100 - sumaPorcentajes)).toFixed(2));
@@ -135,16 +126,13 @@ export const useFormulador = () => {
   };
 
   const totalesMezcla = useMemo(() => {
-    let proteinaTotal = 0;
-    let energiaTotal = 0;
-    let costoTotal = 0; // Costo por cada 100 lbs (ya que usamos porcentajes)
-    let pesoTotal = 0;
+    let proteinaTotal = 0; let energiaTotal = 0; let costoTotal = 0; let pesoTotal = 0;
 
     mezclaActual.forEach(item => {
       const fraccion = item.porcentaje / 100;
       proteinaTotal += item.proteina * fraccion;
       energiaTotal += item.energia * fraccion;
-      costoTotal += item.costo * item.porcentaje; // Si costo es por lb, y porcentaje asume 100 lbs totales
+      costoTotal += item.costo * item.porcentaje; 
       pesoTotal += item.porcentaje;
     });
 
@@ -162,9 +150,39 @@ export const useFormulador = () => {
     );
   };
 
+  // --- NUEVAS FUNCIONES PARA GUARDAR Y ELIMINAR FÓRMULAS OPTIMISTAMENTE ---
+  const handleSaveFormula = async (nombreFormula) => {
+    if (!user?.fincaId || mezclaActual.length === 0) return;
+    
+    const nuevaFormula = {
+      nombre: nombreFormula,
+      loteId: selectedLoteId,
+      totales: totalesMezcla,
+      ingredientes: mezclaActual,
+    };
+
+    try {
+      await saveFormula(nuevaFormula, user.fincaId);
+      // No necesitamos actualizar el estado manualmente, onSnapshot lo hará al instante
+    } catch (error) {
+      console.error("Error al guardar la fórmula:", error);
+    }
+  };
+
+  const handleDeleteFormula = async (id) => {
+    // Actualización optimista: lo borramos de la pantalla al instante
+    setHistorialFormulas(prev => prev.filter(f => f.id !== id));
+    try {
+      await deleteFormula(id);
+    } catch (error) {
+      console.error("Error al eliminar la fórmula:", error);
+    }
+  };
+
   return {
     lotes,
     insumos,
+    historialFormulas, // Retornamos el historial para usarlo en tu componente
     loading,
     selectedLoteId,
     setSelectedLoteId,
@@ -174,6 +192,8 @@ export const useFormulador = () => {
     requerimientos,
     totalesMezcla,
     handleCalcularMezcla,
-    handleActualizarPorcentaje
+    handleActualizarPorcentaje,
+    handleSaveFormula,
+    handleDeleteFormula
   };
 };
