@@ -1,17 +1,17 @@
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } from "firebase/firestore";
 import { db } from "../../../../firebase.config";
 
+// Identificador de la colección de fórmulas
 const FORMULAS_COLLECTION = "formulas";
-// Identificador temporal mientras se conecta el módulo de Autenticación
-const MOCK_FINCA_ID = "finca_hackathon_01";
 
 /**
  * Guarda una nueva receta en Firestore.
  */
-export const saveFormula = async (formulaData) => {
+export const saveFormula = async (formulaData, fincaId) => {
+  if (!fincaId) throw new Error("ID de finca requerido para guardar la receta.");
   const docRef = await addDoc(collection(db, FORMULAS_COLLECTION), {
     ...formulaData,
-    fincaId: MOCK_FINCA_ID,
+    fincaId: fincaId,
     fechaCreacion: new Date().toISOString()
   });
   return { id: docRef.id, ...formulaData };
@@ -20,8 +20,9 @@ export const saveFormula = async (formulaData) => {
 /**
  * Obtiene el historial de recetas de la finca.
  */
-export const getFormulas = async () => {
-  const q = query(collection(db, FORMULAS_COLLECTION), where("fincaId", "==", MOCK_FINCA_ID));
+export const getFormulas = async (fincaId) => {
+  if (!fincaId) return [];
+  const q = query(collection(db, FORMULAS_COLLECTION), where("fincaId", "==", fincaId));
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
