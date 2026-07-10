@@ -2,16 +2,24 @@ import { useState, useEffect } from "react";
 import { getLotes } from "../../lotes/data/lotes.service"; 
 import { getPesajesPorLote } from "../../monitoreoIA/data/pesajes.service";
 import { calcularPuntoOptimoLote } from "../../maximizador/logic/calculadorOptimo";
+import { useAuth } from "../../auth/logic/AuthContext";
 
 export const useDashboardAlerts = () => {
+  const { user } = useAuth();
   const [alertasOptimas, setAlertasOptimas] = useState([]);
   const [loadingAlertas, setLoadingAlertas] = useState(true);
 
   useEffect(() => {
+    if (!user?.fincaId) {
+      setAlertasOptimas([]);
+      setLoadingAlertas(false);
+      return;
+    }
+
     const cargarAlertas = async () => {
       try {
         setLoadingAlertas(true);
-        const listaLotes = await getLotes();
+        const listaLotes = await getLotes(user.fincaId);
         const activos = listaLotes.filter(lote => lote.estado === "Activo");
         
         const alertas = [];
@@ -20,7 +28,7 @@ export const useDashboardAlerts = () => {
         const costoAlimentoDefault = 0.45;
 
         for (const lote of activos) {
-          const pesajes = await getPesajesPorLote(lote.id);
+          const pesajes = await getPesajesPorLote(lote.id, user.fincaId);
           const resultado = calcularPuntoOptimoLote(lote, pesajes, precioVentaDefault, costoAlimentoDefault);
           
           if (resultado && resultado.diaOptimo) {
@@ -50,7 +58,7 @@ export const useDashboardAlerts = () => {
     };
 
     cargarAlertas();
-  }, []);
+  }, [user?.fincaId]);
 
   return {
     alertasOptimas,

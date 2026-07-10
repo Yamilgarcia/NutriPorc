@@ -2,8 +2,10 @@ import { useState, useEffect, useMemo } from "react";
 import { getLotes } from "../../lotes/data/lotes.service";
 import { getInsumos } from "../../insumos/data/insumos.service";
 import { saveFormula, getFormulas } from "../data/formulador.service";
+import { useAuth } from "../../auth/logic/AuthContext";
 
 export const useFormulador = () => {
+  const { user } = useAuth();
   const [lotes, setLotes] = useState([]);
   const [insumos, setInsumos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,25 +15,27 @@ export const useFormulador = () => {
   const [selectedInsumoIds, setSelectedInsumoIds] = useState([]);
   const [mezclaActual, setMezclaActual] = useState([]); // [{ insumo, porcentaje }]
 
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const [lotesData, insumosData] = await Promise.all([
-        getLotes(),
-        getInsumos()
-      ]);
-      setLotes(lotesData.filter(l => l.estado === "Activo"));
-      setInsumos(insumosData);
-    } catch (error) {
-      console.error("Error al cargar datos para el formulador:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    if (!user?.fincaId) return;
+
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const [lotesData, insumosData] = await Promise.all([
+          getLotes(user.fincaId),
+          getInsumos(user.fincaId)
+        ]);
+        setLotes(lotesData.filter(l => l.estado === "Activo"));
+        setInsumos(insumosData);
+      } catch (error) {
+        console.error("Error al cargar datos para el formulador:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     loadData();
-  }, []);
+  }, [user?.fincaId]);
 
   const loteSeleccionado = useMemo(() => {
     return lotes.find(l => l.id === selectedLoteId) || null;

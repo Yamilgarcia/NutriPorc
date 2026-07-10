@@ -2,8 +2,10 @@ import { useState, useEffect, useMemo } from "react";
 import { getLotes } from "../../lotes/data/lotes.service"; 
 import { getPesajesPorLote } from "../../monitoreoIA/data/pesajes.service";
 import { calcularPuntoOptimoLote } from "./calculadorOptimo";
+import { useAuth } from "../../auth/logic/AuthContext";
 
 export const useMaximizador = () => {
+  const { user } = useAuth();
   const [lotes, setLotes] = useState([]);
   const [loteSeleccionadoId, setLoteSeleccionadoId] = useState("");
   const [pesajes, setPesajes] = useState([]);
@@ -16,10 +18,12 @@ export const useMaximizador = () => {
   const [diasSimulacion, setDiasSimulacion] = useState(0);
 
   useEffect(() => {
+    if (!user?.fincaId) return;
+
     const cargarLotes = async () => {
       try {
         setLoadingLotes(true);
-        const listaLotes = await getLotes();
+        const listaLotes = await getLotes(user.fincaId);
         const activos = listaLotes.filter(lote => 
           lote.estado === "Activo" &&
           (!lote.etapa || ['Destete', 'Desarrollo', 'Engorde', 'Reproducción', 'Gestación', 'Lactancia'].includes(lote.etapa))
@@ -28,6 +32,8 @@ export const useMaximizador = () => {
         
         if (activos.length > 0) {
           setLoteSeleccionadoId(activos[0].id);
+        } else {
+          setLoteSeleccionadoId("");
         }
       } catch (error) {
         console.error("Error al cargar lotes para maximizador:", error);
@@ -36,14 +42,17 @@ export const useMaximizador = () => {
       }
     };
     cargarLotes();
-  }, []);
+  }, [user?.fincaId]);
 
   useEffect(() => {
-    if (!loteSeleccionadoId) return;
+    if (!loteSeleccionadoId || !user?.fincaId) {
+      setPesajes([]);
+      return;
+    }
     const cargarHistorial = async () => {
       try {
         setLoadingPesajes(true);
-        const historial = await getPesajesPorLote(loteSeleccionadoId);
+        const historial = await getPesajesPorLote(loteSeleccionadoId, user.fincaId);
         setPesajes(historial);
       } catch (error) {
         console.error("Error al cargar historial de pesajes para maximizador:", error);
@@ -52,7 +61,7 @@ export const useMaximizador = () => {
       }
     };
     cargarHistorial();
-  }, [loteSeleccionadoId]);
+  }, [loteSeleccionadoId, user?.fincaId]);
 
   const simulacion = useMemo(() => {
     const lote = lotes.find(l => l.id === loteSeleccionadoId);
