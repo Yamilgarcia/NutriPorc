@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
-import { getLotes } from "../../lotes/data/lotes.service"; 
-import { addPesaje, getPesajesPorLote, updatePesaje, deletePesaje } from "../data/pesajes.service";
-// 1. IMPORTAMOS EL CONTEXTO DE AUTENTICACIÓN
+// IMPORTANTE: Traemos el suscriptor de lotes del otro módulo
+import { subscribeToLotes } from "../../lotes/data/lotes.service"; 
+import { addPesaje, updatePesaje, deletePesaje, subscribeToPesajes } from "../data/pesajes.service";
 import { useAuth } from "../../auth/logic/AuthContext";
 
 export const usePesajes = () => {
-  // 2. EXTRAEMOS LA SESIÓN DEL USUARIO
   const { user } = useAuth();
 
   const [lotes, setLotes] = useState([]);
@@ -14,54 +13,50 @@ export const usePesajes = () => {
   const [loadingLotes, setLoadingLotes] = useState(true);
   const [loadingPesajes, setLoadingPesajes] = useState(false);
 
-  // 1. Cargar los lotes activos al entrar al módulo
+  // 1. Cargar los lotes activos (Ahora con suscripción reactiva)
   useEffect(() => {
-    const cargarLotes = async () => {
-      if (!user?.fincaId) return; // Evitamos ejecución si no hay sesión
-      try {
-        setLoadingLotes(true);
-        // PASAMOS EL FINCA ID PARA QUE EL SELECT SOLO MUESTRE LOTES DE ESTA GRANJA
-        const listaLotes = await getLotes(user.fincaId); 
-        const activos = listaLotes.filter(lote => lote.estado === "Activo");
-        setLotes(activos);
-        
-        if (activos.length > 0) {
-          setLoteSeleccionadoId(activos[0].id);
-        }
-      } catch (error) {
-        console.error("Error al cargar lotes:", error);
-      } finally {
-        setLoadingLotes(false);
-      }
-    };
-    cargarLotes();
-  }, [user?.fincaId]); // Dependencia actualizada
+    if (!user?.fincaId) return; 
+    setLoadingLotes(true);
+    
+    const unsubscribe = subscribeToLotes(user.fincaId, (listaLotes) => {
+      const activos = listaLotes.filter(lote => lote.estado === "Activo");
+      setLotes(activos);
+      
+      // Auto-seleccionar el primer lote si no hay ninguno seleccionado
+      setLoteSeleccionadoId((prevId) => {
+        if (!prevId && activos.length > 0) return activos[0].id;
+        return prevId;
+      });
+      
+      setLoadingLotes(false);
+    });
 
-  // 2. Cargar historial cuando el usuario cambia de lote en el select
+    return () => unsubscribe();
+  }, [user?.fincaId]); 
+
+  // 2. Cargar historial reactivo cuando el usuario cambia de lote
   useEffect(() => {
-    if (!loteSeleccionadoId || !user?.fincaId) return;
-    const cargarHistorial = async () => {
-      try {
-        setLoadingPesajes(true);
-        // PASAMOS EL FINCA ID A LA CONSULTA DE PESAJES
-        const historial = await getPesajesPorLote(loteSeleccionadoId, user.fincaId);
-        setPesajes(historial);
-      } catch (error) {
-        console.error("Error al cargar historial de pesajes:", error);
-      } finally {
-        setLoadingPesajes(false);
-      }
-    };
-    cargarHistorial();
-  }, [loteSeleccionadoId, user?.fincaId]); // Dependencia actualizada
+    if (!loteSeleccionadoId || !user?.fincaId) {
+      setPesajes([]); // Limpiamos la gráfica si no hay lote
+      return;
+    }
+    
+    setLoadingPesajes(true);
+    
+    const unsubscribe = subscribeToPesajes(loteSeleccionadoId, user.fincaId, (historial) => {
+      setPesajes(historial);
+      setLoadingPesajes(false);
+    });
+
+    return () => unsubscribe();
+  }, [loteSeleccionadoId, user?.fincaId]); 
 
   // 3. Crear Registro
   const handleAdd = async (pesoPromedio, fecha, metodo = "manual") => {
     if (!loteSeleccionadoId || !user?.fincaId) return false;
     try {
-      // PASAMOS EL FINCA ID AL CREAR
-      const nuevoPesaje = await addPesaje(loteSeleccionadoId, pesoPromedio, fecha, metodo, user.fincaId);
-      setPesajes(prev => [...prev, nuevoPesaje].sort((a, b) => new Date(a.fecha) - new Date(b.fecha)));
+      // Firebase onSnapshot actualizará la gráfica inmediatamente
+      await addPesaje(loteSeleccionadoId, pesoPromedio, fecha, metodo, user.fincaId);
       return true;
     } catch (error) {
       console.error("Error al guardar pesaje:", error);
@@ -69,11 +64,11 @@ export const usePesajes = () => {
     }
   };
 
-  // 4. Actualizar Registro
+  // 4. Actualizar Registro (Estrategia Optimista)
   const handleUpdate = async (id, nuevoPeso) => {
+    setPesajes(prev => prev.map(p => p.id === id ? { ...p, pesoPromedio: parseFloat(nuevoPeso) } : p));
     try {
       await updatePesaje(id, nuevoPeso);
-      setPesajes(prev => prev.map(p => p.id === id ? { ...p, pesoPromedio: parseFloat(nuevoPeso) } : p));
       return true;
     } catch (error) {
       console.error("Error al actualizar pesaje:", error);
@@ -81,11 +76,11 @@ export const usePesajes = () => {
     }
   };
 
-  // 5. Eliminar Registro
+  // 5. Eliminar Registro (Estrategia Optimista)
   const handleDelete = async (id) => {
+    setPesajes(prev => prev.filter(p => p.id !== id));
     try {
       await deletePesaje(id);
-      setPesajes(prev => prev.filter(p => p.id !== id));
       return true;
     } catch (error) {
       console.error("Error al eliminar pesaje:", error);
