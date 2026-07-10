@@ -1,4 +1,4 @@
-import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } from "firebase/firestore";
+import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where, onSnapshot } from "firebase/firestore";
 // Ajusta la ruta de importación según dónde tengas tu firebase.config.js
 import { db } from "../../../../firebase.config"; 
 
@@ -42,4 +42,32 @@ export const updatePesaje = async (id, nuevoPeso) => {
     pesoPromedio: parseFloat(nuevoPeso),
     editado: true // Marca de auditoría opcional
   });
+};
+
+
+// ELIMINAR (Añade esta función)
+export const deletePesaje = async (id) => {
+  const pesajeRef = doc(db, PESAJES_COLLECTION, id);
+  await deleteDoc(pesajeRef);
+};
+
+// NUEVA FUNCIÓN: Escucha el historial de pesajes en tiempo real
+export const subscribeToPesajes = (loteId, fincaId, callback) => {
+  if (!fincaId || !loteId) return () => {};
+
+  const q = query(
+    collection(db, PESAJES_COLLECTION), 
+    where("fincaId", "==", fincaId),
+    where("loteId", "==", loteId)
+  );
+  
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    const pesajesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    // Ordenamos cronológicamente en memoria antes de enviar a la interfaz
+    callback(pesajesData.sort((a, b) => new Date(a.fecha) - new Date(b.fecha)));
+  }, (error) => {
+    console.error("Error al escuchar pesajes:", error);
+  });
+
+  return unsubscribe;
 };
