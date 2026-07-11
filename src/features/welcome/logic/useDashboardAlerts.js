@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { getLotes } from "../../lotes/data/lotes.service"; 
-import { getPesajesPorLote } from "../../monitoreoIA/data/pesajes.service";
+import { subscribeToLotes } from "../../lotes/data/lotes.service"; 
+import { subscribeToPesajes } from "../../monitoreoIA/data/pesajes.service"; // Importamos la versión reactiva
 import { calcularPuntoOptimoLote } from "../../maximizador/logic/calculadorOptimo";
 import { useAuth } from "../../auth/logic/AuthContext";
 
@@ -16,25 +16,35 @@ export const useDashboardAlerts = () => {
       return;
     }
 
-    const cargarAlertas = async () => {
-      try {
-        setLoadingAlertas(true);
-        const listaLotes = await getLotes(user.fincaId);
-        const activos = listaLotes.filter(lote => lote.estado === "Activo");
-        
-        const alertas = [];
-        // Costos y precios promedios por defecto (o se podrían sacar de alguna config)
-        const precioVentaDefault = 1.50;
-        const costoAlimentoDefault = 0.45;
+    setLoadingAlertas(true);
+    const unsubsPesajes = {}; // Almacén para las sub-suscripciones de pesajes por lote
 
-        for (const lote of activos) {
-          const pesajes = await getPesajesPorLote(lote.id, user.fincaId);
+    // Escuchamos los lotes en tiempo real
+    const unLotes = subscribeToLotes(user.fincaId, async (listaLotes) => {
+      const activos = listaLotes.filter(lote => lote.estado === "Activo");
+      const precioVentaDefault = 1.50;
+      const costoAlimentoDefault = 0.45;
+      
+      const mapaPesajesPorLote = {};
+
+      // Cancelamos suscripciones anteriores de pesajes para evitar fugas de memoria
+      Object.values(unsubsPesajes).forEach(unsub => unsub());
+
+      if (activos.length === 0) {
+        setAlertasOptimas([]);
+        setLoadingAlertas(false);
+        return;
+      }
+
+      // Creamos una función interna para recalcular las alertas globales del panel
+      const ejecutarCalculoAlertas = () => {
+        const alertas = [];
+        activos.forEach(lote => {
+          const pesajes = mapaPesajesPorLote[lote.id] || [];
           const resultado = calcularPuntoOptimoLote(lote, pesajes, precioVentaDefault, costoAlimentoDefault);
           
           if (resultado && resultado.diaOptimo) {
             const diasRestantes = resultado.diaOptimo.diaExt;
-            
-            // Si está en la semana óptima (0 a 7 días)
             if (diasRestantes >= 0 && diasRestantes <= 7) {
               alertas.push({
                 loteId: lote.id,
@@ -44,24 +54,29 @@ export const useDashboardAlerts = () => {
               });
             }
           }
-        }
-        
-        // Ordenar por urgencia (días restantes de menor a mayor)
+        });
+
         alertas.sort((a, b) => a.diasRestantes - b.diasRestantes);
         setAlertasOptimas(alertas);
-        
-      } catch (error) {
-        console.error("Error al cargar alertas del dashboard:", error);
-      } finally {
         setLoadingAlertas(false);
-      }
-    };
+      };
 
-    cargarAlertas();
+      // Para cada lote activo, nos suscribimos a sus pesajes en tiempo real
+      activos.forEach(lote => {
+        unsubsPesajes[lote.id] = subscribeToPesajes(lote.id, user.fincaId, (historialPesajes) => {
+          mapaPesajesPorLote[lote.id] = historialPesajes;
+          // Cada vez que un lote reciba un pesaje nuevo (online/offline), recalculamos el panel
+          ejecutarCalculoAlertas();
+        });
+      });
+    });
+
+    // Limpieza masiva al desmontar el Dashboard
+    return () => {
+      unLotes();
+      Object.values(unsubsPesajes).forEach(unsub => unsub());
+    };
   }, [user?.fincaId]);
 
-  return {
-    alertasOptimas,
-    loadingAlertas
-  };
+  return { alertasOptimas, loadingAlertas };
 };
