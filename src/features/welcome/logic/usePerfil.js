@@ -1,58 +1,70 @@
 import { useState, useEffect } from "react";
-import { actualizarPerfilFinca, purgarCuentaFinca, obtenerEstadisticasFinca, obtenerPerfilFinca } from "../data/perfil.service";
+import { actualizarPerfilFinca, purgarCuentaFinca, subscribeToPerfilFinca } from "../data/perfil.service";
+import { subscribeToLotes } from "../../lotes/data/lotes.service"; // Reutilizamos tu canal reactivo de lotes
 import { useAuth } from "../../auth/logic/AuthContext";
 
 export const usePerfil = () => {
   const { user, logout } = useAuth();
   
-  // Datos del perfil y estadísticas
   const [estadisticas, setEstadisticas] = useState({ totalCerdos: 0, lotesHistoricos: 0 });
   const [datosFinca, setDatosFinca] = useState(null);
   const [loadingDatos, setLoadingDatos] = useState(true);
 
-  // Estados para Edición
   const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState({
-    nombre: "",
-    productor: "",
-    ubicacion: ""
-  });
+  const [editData, setEditData] = useState({ nombre: "", productor: "", ubicacion: "" });
   
-  // Estados para Eliminación
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // 1. Escuchar Perfil y Lotes en tiempo real
   useEffect(() => {
-    const cargarDatos = async () => {
-      if (user?.fincaId) {
-        setLoadingDatos(true);
-        try {
-          const stats = await obtenerEstadisticasFinca(user.fincaId);
-          setEstadisticas(stats);
-          
-          const perfil = await obtenerPerfilFinca(user.fincaId);
-          if (perfil) {
-            setDatosFinca(perfil);
-            setEditData({
-              nombre: perfil.nombre || user.fincaNombre || "",
-              productor: perfil.productor || "",
-              ubicacion: perfil.ubicacion || ""
-            });
-          }
-        } catch (error) {
-          console.error("Error al cargar perfil:", error);
-        } finally {
-          setLoadingDatos(false);
-        }
-      }
-    };
-    cargarDatos();
-  }, [user]);
+    if (!user?.fincaId) return;
+    setLoadingDatos(true);
 
-  // Manejador para Guardar Cambios
+    // Suscripción al Perfil de la Finca
+    const unPerfil = subscribeToPerfilFinca(user.fincaId, (perfil) => {
+      if (perfil) {
+        setDatosFinca(perfil);
+        setEditData({
+          nombre: perfil.nombre || user.fincaNombre || "",
+          productor: perfil.productor || "",
+          ubicacion: perfil.ubicacion || ""
+        });
+      }
+      setLoadingDatos(false);
+    });
+
+    // Suscripción a Lotes para calcular estadísticas reactivas e instantáneas offline
+    const unStats = subscribeToLotes(user.fincaId, (listaLotes) => {
+      let totalCerdosActivos = 0;
+      let totalLotesHistoricos = 0;
+      
+      listaLotes.forEach(lote => {
+        if (lote.estado === "Activo") {
+          totalCerdosActivos += (lote.cantidad || 0);
+        } else {
+          totalLotesHistoricos += 1;
+        }
+      });
+      
+      setEstadisticas({ totalCerdos: totalCerdosActivos, lotesHistoricos: totalLotesHistoricos });
+    });
+
+    return () => {
+      unPerfil();
+      unStats();
+    };
+  }, [user?.fincaId, user?.fincaNombre]);
+
+  // Actualización optimista para guardar cambios de perfil
   const handleUpdate = async () => {
     if (!editData.nombre.trim() || !user?.fincaId) return;
     setIsProcessing(true);
+    
+    // Cambiamos la interfaz inmediatamente
+    setDatosFinca((prev) => ({ ...prev, ...editData }));
+    setIsEditing(false);
+
     try {
       await actualizarPerfilFinca(user.fincaId, editData);
       
@@ -61,10 +73,6 @@ export const usePerfil = () => {
         sesionGuardada.fincaNombre = editData.nombre;
         localStorage.setItem("nutriporc_session", JSON.stringify(sesionGuardada));
       }
-      
-      // Actualizamos los estados visuales sin recargar toda la página
-      setDatosFinca({ ...datosFinca, ...editData });
-      setIsEditing(false);
     } catch (error) {
       console.error("Error al actualizar perfil:", error);
       alert("Hubo un error al guardar los cambios.");
@@ -73,7 +81,6 @@ export const usePerfil = () => {
     }
   };
 
-  // Manejador para Eliminar Cuenta
   const handleDelete = async () => {
     if (!user?.fincaId || !user?.uid) return;
     setIsProcessing(true);
@@ -95,12 +102,7 @@ export const usePerfil = () => {
   };
 
   return {
-    isEditing, setIsEditing,
-    editData, setEditData,
-    estadisticas, datosFinca, loadingDatos,
-    showDeleteModal, setShowDeleteModal,
-    isProcessing,
-    handleUpdate,
-    handleDelete
+    isEditing, setIsEditing, editData, setEditData, estadisticas, datosFinca, loadingDatos,
+    showDeleteModal, setShowDeleteModal, isProcessing, handleUpdate, handleDelete
   };
 };

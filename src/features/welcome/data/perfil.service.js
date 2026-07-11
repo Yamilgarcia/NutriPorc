@@ -1,4 +1,4 @@
-import { doc, getDoc, updateDoc, deleteDoc, collection, getDocs, query, where } from "firebase/firestore";
+import { doc, getDoc, updateDoc, deleteDoc, collection, getDocs, query, where,onSnapshot } from "firebase/firestore";
 import { deleteUser } from "firebase/auth";
 import { auth, db } from "../../../../firebase.config";
 
@@ -51,4 +51,23 @@ export const purgarCuentaFinca = async (fincaId, uid) => {
   if (currentUser) {
     await deleteUser(currentUser);
   }
+};
+
+
+// NUEVA FUNCIÓN: Escucha los datos del perfil de la finca en tiempo real (Offline-First)
+export const subscribeToPerfilFinca = (fincaId, callback) => {
+  if (!fincaId) return () => {};
+  const fincaRef = doc(db, "fincas", fincaId);
+  
+  const unsubscribe = onSnapshot(fincaRef, (snapshot) => {
+    if (snapshot.exists()) {
+      callback(snapshot.data());
+    } else {
+      callback(null);
+    }
+  }, (error) => {
+    console.error("Error al escuchar perfil de finca:", error);
+  });
+
+  return unsubscribe;
 };
