@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }) => {
   }, [navigate]);
 
   return (
-    // Exponemos loginExitoso2FA en lugar del antiguo login
+    // Exponemos loginExitoso2FA 
     <AuthContext.Provider value={{ user, logout, loginExitoso2FA }}>
       {children}
     </AuthContext.Provider>

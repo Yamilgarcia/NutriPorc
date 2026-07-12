@@ -58,10 +58,10 @@ export const loginPrimerPaso = async (email, password) => {
 
     try {
       await emailjs.send(
-        "service_ejuml1o",      // Tu Service ID
-        "template_79vga2i",     // Tu Template ID
+        "service_ejuml1o",      //Service ID
+        "template_79vga2i",     //Template ID
         parametrosPlantilla,
-        "voWjHjK7IiuJZpcKp"     // Tu Public Key
+        "voWjHjK7IiuJZpcKp"     // Public Key
       );
       console.log(`✅ Correo enviado con éxito a ${email}`);
     } catch (errorEmail) {
@@ -111,7 +111,7 @@ export const verificarCodigo2FA = async (datosTemporales, codigoIngresado) => {
     expiracion2FA: null
   });
 
-  // Estructurar la sesión definitiva
+  // Cierre de sesion en 1 hora
   const sesionFinal = {
     ...datosTemporales,
     expiraEn: Date.now() + 3600000 
