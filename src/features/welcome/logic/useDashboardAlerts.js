@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { subscribeToLotes } from "../../lotes/data/lotes.service"; 
+import { subscribeToLotes } from "../../lotes/data/lotes.service";
 import { subscribeToPesajes } from "../../monitoreoIA/data/pesajes.service"; // Importamos la versión reactiva
 import { calcularPuntoOptimoLote } from "../../maximizador/logic/calculadorOptimo";
 import { useAuth } from "../../auth/logic/AuthContext";
@@ -24,7 +24,7 @@ export const useDashboardAlerts = () => {
       const activos = listaLotes.filter(lote => lote.estado === "Activo");
       const precioVentaDefault = 1.50;
       const costoAlimentoDefault = 0.45;
-      
+
       const mapaPesajesPorLote = {};
 
       // Cancelamos suscripciones anteriores de pesajes para evitar fugas de memoria
@@ -42,7 +42,7 @@ export const useDashboardAlerts = () => {
         activos.forEach(lote => {
           const pesajes = mapaPesajesPorLote[lote.id] || [];
           const resultado = calcularPuntoOptimoLote(lote, pesajes, precioVentaDefault, costoAlimentoDefault);
-          
+
           if (resultado && resultado.diaOptimo) {
             const diasRestantes = resultado.diaOptimo.diaExt;
             if (diasRestantes >= 0 && diasRestantes <= 7) {

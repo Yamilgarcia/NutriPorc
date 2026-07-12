@@ -1,125 +1,131 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../../auth/logic/AuthContext"; 
-// Importamos las funciones puras exactas que compartiste de tu finanzas.service
-import { 
-  obtenerLotesPorFinca, 
-  obtenerGastosPorLote, 
-  guardarGasto, 
-  eliminarGasto 
-} from "../data/finanzas.service";
+import { subscribeToLotesFinanzas, subscribeToGastos, guardarGasto, eliminarGasto, updateGastoInm, procesarCierreLote } from "../data/finanzas.service";
+import { subscribeToPesajes } from "../../monitoreoIA/data/pesajes.service"; 
 
-export const useFinanzas = (pesoTotalEstimado) => {
+export const useFinanzas = () => {
   const { user } = useAuth();
-  const fincaId = user?.fincaId; // Regla de Oro Multi-tenant
+  const fincaId = user?.fincaId;
 
-  // CRÍTICO: Inicializar siempre como arrays vacíos [] para evitar errores de 'undefined' en la UI
-  const [lotes, setLotes] = useState([]);
+  // ESTADOS SEPARADOS PARA LOTES
+  const [lotesActivos, setLotesActivos] = useState([]);
+  const [lotesHistoricos, setLotesHistoricos] = useState([]);
+  
   const [loteIdSeleccionado, setLoteIdSeleccionado] = useState("");
-  const [gastos, setGastos] = useState([]);
-  const [isLoteCerrado, setIsLoteCerrado] = useState(false);
-  const [resultadoFinal, setResultadoFinal] = useState(null);
+  const [transacciones, setTransacciones] = useState([]); 
+  const [pesajesLoteActivo, setPesajesLoteActivo] = useState([]);
+  const [procesandoCierre, setProcesandoCierre] = useState(false);
 
-  /**
-   * 1. Carga inicial de todos los lotes que pertenecen a la finca activa
-   */
   useEffect(() => {
-    const cargarLotes = async () => {
-      if (!fincaId) return;
-      try {
-        const listaLotes = await obtenerLotesPorFinca(fincaId);
-        // Garantizamos que si Firestore falla o viene vacío, guarde un array y no un undefined
-        setLotes(listaLotes || []);
-        
-        // Auto-seleccionar el primer lote disponible para agilizar la UX del productor
-        if (listaLotes && listaLotes.length > 0) {
-          setLoteIdSeleccionado(listaLotes[0].id);
-        }
-      } catch (error) {
-        console.error("Error en la carga inicial de lotes:", error);
-        setLotes([]);
-      }
-    };
-    cargarLotes();
+    if (!fincaId) return;
+    const unsubscribe = subscribeToLotesFinanzas(fincaId, (todosLosLotes) => {
+      // Separamos los lotes para las dos vistas del dashboard
+      const activos = todosLosLotes.filter(l => l.estado === "Activo");
+      const historicos = todosLosLotes.filter(l => l.estado === "Histórico");
+      
+      setLotesActivos(activos);
+      setLotesHistoricos(historicos);
+
+      // Auto-seleccionar lote activo
+      setLoteIdSeleccionado(prev => {
+        if (!prev && activos.length > 0) return activos[0].id;
+        if (prev && !activos.find(l => l.id === prev)) return activos.length > 0 ? activos[0].id : "";
+        return prev;
+      });
+    });
+    return () => unsubscribe();
   }, [fincaId]);
 
-  /**
-   * 2. Carga reactiva de los gastos del lote seleccionado
-   */
-  const cargarGastosDelLote = useCallback(async () => {
-    if (!fincaId || !loteIdSeleccionado) {
-      setGastos([]);
-      return;
-    }
-    try {
-      const datosGastos = await obtenerGastosPorLote(fincaId, loteIdSeleccionado);
-      setGastos(datosGastos || []);
-      
-      // Resetear estados de cierre al cambiar de lote de trabajo
-      setIsLoteCerrado(false);
-      setResultadoFinal(null);
-    } catch (error) {
-      console.error("Error al cargar los gastos del lote seleccionado:", error);
-      setGastos([]);
-    }
+  useEffect(() => {
+    if (!fincaId || !loteIdSeleccionado) { setTransacciones([]); return; }
+    const unsubscribe = subscribeToGastos(fincaId, loteIdSeleccionado, (lista) => setTransacciones(lista));
+    return () => unsubscribe();
   }, [fincaId, loteIdSeleccionado]);
 
   useEffect(() => {
-    cargarGastosDelLote();
-  }, [cargarGastosDelLote]);
+    if (!fincaId || !loteIdSeleccionado) { setPesajesLoteActivo([]); return; }
+    const unsubscribe = subscribeToPesajes(loteIdSeleccionado, fincaId, (historial) => setPesajesLoteActivo(historial));
+    return () => unsubscribe();
+  }, [fincaId, loteIdSeleccionado]);
 
-  /**
-   * 3. Cálculos financieros computados (useMemo para alto rendimiento)
-   */
-  const costoAcumulado = useMemo(() => {
-    return gastos.reduce((total, gasto) => total + Number(gasto.monto || 0), 0);
-  }, [gastos]);
+  const loteActivo = useMemo(() => lotesActivos.find(l => l.id === loteIdSeleccionado) || null, [lotesActivos, loteIdSeleccionado]);
 
+  const pesoPromedio = useMemo(() => {
+    if (pesajesLoteActivo.length > 0) return Number(pesajesLoteActivo[pesajesLoteActivo.length - 1].pesoPromedio || 0);
+    if (loteActivo) {
+      switch (loteActivo.etapa) {
+        case "Destete": return 25;
+        case "Desarrollo": return 70;
+        case "Engorde": return 160;
+        default: return 150;
+      }
+    }
+    return 0;
+  }, [pesajesLoteActivo, loteActivo]);
+
+  // MATEMÁTICA LOTE ACTIVO
+  const totalEgresos = useMemo(() => transacciones.filter(t => t.tipo !== "Ingreso").reduce((acc, t) => acc + Number(t.monto || 0), 0), [transacciones]);
+  const totalIngresosParciales = useMemo(() => transacciones.filter(t => t.tipo === "Ingreso").reduce((acc, t) => acc + Number(t.monto || 0), 0), [transacciones]);
   const costoPorLibra = useMemo(() => {
-    return pesoTotalEstimado > 0 ? costoAcumulado / pesoTotalEstimado : 0;
-  }, [costoAcumulado, pesoTotalEstimado]);
+    if (!loteActivo || loteActivo.cantidad <= 0 || pesoPromedio <= 0) return 0;
+    return totalEgresos / (loteActivo.cantidad * pesoPromedio); 
+  }, [totalEgresos, loteActivo, pesoPromedio]);
 
-  /**
-   * 4. Acciones de mutación expuestas a la interfaz
-   */
-  const handleAgregarGasto = async (nuevoGasto) => {
+  // NUEVO: KPI GLOBALES (Para la pestaña de reportes)
+  const metricasGlobales = useMemo(() => {
+    let gananciaTotal = 0;
+    let inversionTotal = 0;
+    let cerdosVendidos = 0;
+
+    lotesHistoricos.forEach(lote => {
+      if (lote.finanzas) {
+        gananciaTotal += (lote.finanzas.gananciaNeta || 0);
+        inversionTotal += (lote.finanzas.gastosTotales || 0);
+        cerdosVendidos += (lote.finanzas.poblacionFinal || 0);
+      }
+    });
+    return { gananciaTotal, inversionTotal, cerdosVendidos };
+  }, [lotesHistoricos]);
+
+  // MUTACIONES
+  const handleAgregarTransaccion = async (nuevaTransaccion) => {
     if (!fincaId || !loteIdSeleccionado) return;
-    try {
-      const guardado = await guardarGasto(fincaId, loteIdSeleccionado, nuevoGasto);
-      if (guardado) {
-        setGastos(prev => [...prev, guardado]);
-      }
-    } catch (error) {
-      console.error("Error en flujo handleAgregarGasto:", error);
-    }
+    try { await guardarGasto(fincaId, loteIdSeleccionado, nuevaTransaccion); } catch (error) { console.error(error); }
+  };
+  const handleEditarTransaccion = async (id, datosActualizados) => {
+    setTransacciones(prev => prev.map(t => t.id === id ? { ...t, ...datosActualizados, monto: Number(datosActualizados.monto) } : t));
+    try { await updateGastoInm(id, datosActualizados); } catch (error) { console.error(error); }
+  };
+  const handleEliminarTransaccion = async (id) => {
+    setTransacciones(prev => prev.filter(t => t.id !== id));
+    try { await eliminarGasto(id); } catch (error) { console.error(error); }
   };
 
-  const handleEliminarGasto = async (id) => {
+  const handleCerrarLote = async (ingresoFinal) => {
+    if (!loteActivo) return;
+    setProcesandoCierre(true);
+    const gananciaNeta = (ingresoFinal + totalIngresosParciales) - totalEgresos;
+    const resumenFinanciero = {
+      gastosTotales: totalEgresos,
+      ingresosParciales: totalIngresosParciales,
+      ingresoVentaFinal: ingresoFinal,
+      gananciaNeta: gananciaNeta,
+      costoPorLibraCierre: costoPorLibra,
+      poblacionFinal: loteActivo.cantidad
+    };
     try {
-      const exito = await eliminarGasto(id);
-      if (exito) {
-        setGastos(prev => prev.filter(g => g.id !== id));
-      }
+      await procesarCierreLote(loteIdSeleccionado, resumenFinanciero);
+      alert(`¡Lote archivado exitosamente!`);
     } catch (error) {
-      console.error("Error en flujo handleEliminarGasto:", error);
+      console.error(error);
+    } finally {
+      setProcesandoCierre(false);
     }
-  };
-
-  const handleCerrarLote = (datos) => {
-    setIsLoteCerrado(true);
-    setResultadoFinal(datos);
   };
 
   return {
-    lotes,
-    loteIdSeleccionado,
-    setLoteIdSeleccionado,
-    gastos,
-    isLoteCerrado,
-    resultadoFinal,
-    costoAcumulado,
-    costoPorLibra,
-    handleAgregarGasto,
-    handleEliminarGasto,
-    handleCerrarLote
+    lotesActivos, lotesHistoricos, loteActivo, loteIdSeleccionado, setLoteIdSeleccionado, transacciones,
+    pesoPromedio, totalEgresos, totalIngresosParciales, costoPorLibra, procesandoCierre, metricasGlobales,
+    handleAgregarTransaccion, handleEliminarTransaccion, handleEditarTransaccion, handleCerrarLote
   };
 };
