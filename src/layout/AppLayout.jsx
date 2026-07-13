@@ -145,6 +145,16 @@ export default function AppLayout() {
           >
             Control Financiero
           </NavLink>
+
+          <NavLink
+            to="/Semaforo"
+            className={({ isActive }) =>
+              isActive ? "nav-link active" : "nav-link"
+            }
+            onClick={() => setMenuOpen(false)}
+          >
+            Semáforo Epidemiológico
+          </NavLink>
         </nav>
 
         {/* 3. BOTÓN DE CERRAR SESIÓN AL FINAL DEL MENÚ */}
