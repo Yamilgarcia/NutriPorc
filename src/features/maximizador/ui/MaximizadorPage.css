@@ -1,3 +1,4 @@
+/* Contenedor principal (Namespace) */
 .maximizador-page {
   padding: 1.5rem;
   max-width: 1200px;
@@ -7,11 +8,12 @@
   color: #2d3748;
 }
 
-.module-header {
+/* Ahora todas las clases genéricas solo aplican DENTRO de .maximizador-page */
+.maximizador-page .module-header {
   margin-bottom: 2rem;
 }
 
-.module-header h2 {
+.maximizador-page .module-header h2 {
   font-size: 2.5rem;
   color: #1a202c;
   margin-bottom: 0.5rem;
@@ -19,18 +21,18 @@
   letter-spacing: -0.02em;
 }
 
-.module-header p {
+.maximizador-page .module-header p {
   color: #718096;
   font-size: 1.1rem;
 }
 
-.maximizador-layout {
+.maximizador-page .maximizador-layout {
   display: flex;
   flex-direction: column;
   gap: 2rem;
 }
 
-.card {
+.maximizador-page .card {
   background: white;
   border-radius: 16px;
   padding: 1.5rem;
@@ -38,7 +40,7 @@
   border: 1px solid #edf2f7;
 }
 
-.card h3 {
+.maximizador-page .card h3 {
   font-size: 1.25rem;
   color: #1a202c;
   margin-bottom: 1.5rem;
@@ -47,30 +49,11 @@
   font-weight: 700;
 }
 
-.lote-select {
-  width: 100%;
-  padding: 0.75rem 1.2rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background-color: #f9fafb;
-  font-size: 1rem;
-  color: #1a202c;
-  transition: all 0.2s;
-  cursor: pointer;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-}
-
-.lote-select:focus {
-  outline: none;
-  border-color: #38b2ac;
-  box-shadow: 0 0 0 3px rgba(56, 178, 172, 0.2);
-}
-
-.widget-wrapper {
+.maximizador-page .widget-wrapper {
   margin-top: 0.5rem;
 }
 
-.status-text {
+.maximizador-page .status-text {
   color: #718096;
   font-weight: 500;
   font-size: 1.1rem;
@@ -81,13 +64,13 @@
   border: 1px solid #edf2f7;
 }
 
-/* Custom Searchable Select */
-.custom-select-wrapper {
+/* Custom Searchable Select aislado */
+.maximizador-page .custom-select-wrapper {
   position: relative;
   width: 100%;
 }
 
-.custom-select-trigger {
+.maximizador-page .custom-select-trigger {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -101,20 +84,20 @@
   transition: all 0.2s;
 }
 
-.custom-select-trigger:hover {
+.maximizador-page .custom-select-trigger:hover {
   border-color: #cbd5e0;
 }
 
-.custom-select-trigger.open {
+.maximizador-page .custom-select-trigger.open {
   border-color: #38b2ac;
   box-shadow: 0 0 0 3px rgba(56, 178, 172, 0.2);
 }
 
-.custom-select-trigger svg {
+.maximizador-page .custom-select-trigger svg {
   color: #a0aec0;
 }
 
-.custom-select-dropdown {
+.maximizador-page .custom-select-dropdown {
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
@@ -128,13 +111,13 @@
   animation: fadeIn 0.2s ease-out;
 }
 
-.custom-select-search {
+.maximizador-page .custom-select-search {
   padding: 0.5rem;
   border-bottom: 1px solid #e2e8f0;
   background: #f8fafc;
 }
 
-.custom-select-search input {
+.maximizador-page .custom-select-search input {
   width: 100%;
   padding: 0.5rem 0.75rem;
   border: 1px solid #e2e8f0;
@@ -145,11 +128,11 @@
   box-sizing: border-box;
 }
 
-.custom-select-search input:focus {
+.maximizador-page .custom-select-search input:focus {
   border-color: #38b2ac;
 }
 
-.custom-select-options {
+.maximizador-page .custom-select-options {
   max-height: 220px;
   overflow-y: auto;
   list-style: none;
@@ -157,7 +140,7 @@
   padding: 0;
 }
 
-.custom-select-options li {
+.maximizador-page .custom-select-options li {
   padding: 0.75rem 1rem;
   font-size: 0.95rem;
   color: #4a5568;
@@ -169,55 +152,32 @@
   justify-content: space-between;
 }
 
-.custom-select-options li:last-child {
+.maximizador-page .custom-select-options li:last-child {
   border-bottom: none;
 }
 
-.custom-select-options li:hover,
-.custom-select-options li.selected {
+.maximizador-page .custom-select-options li:hover,
+.maximizador-page .custom-select-options li.selected {
   background-color: #e6fffa;
   color: #2c7a7b;
 }
 
-.custom-select-options li span.etapa-badge {
+.maximizador-page .custom-select-options li span.etapa-badge {
   display: inline-block;
   padding: 0.15rem 0.6rem;
   border-radius: 999px;
-  background: #f1f5f9; /* Default background */
-  color: #475569; /* Default text */
+  background: #f1f5f9;
+  color: #475569;
   font-size: 0.75rem;
   font-weight: 700;
 }
 
- /* Colores por etapas */
-.etapa-destete {
-  background: #e7fafc !important; 
-  color: #2b7b7b !important;
-}
-
-.etapa-desarrollo {
-  background: #fef3c7 !important; 
-  color: #b45309 !important;
-}
-
-.etapa-engorde {
-  background: #e0e7ff !important;
-  color: #4338ca !important;
-}
-
-.etapa-reproducción,
-.etapa-reproduccion {
-  background: #fae8ff !important;
-  color: #86198f !important;
-}
-
-.etapa-gestación,
-.etapa-gestacion {
-  background: #dcfce7 !important;
-  color: #166534 !important;
-}
-
-.etapa-lactancia {
-  background: #fee2e2 !important;
-  color: #991b1b !important;
-}
+/* Colores por etapas */
+.maximizador-page .etapa-destete { background: #e7fafc !important; color: #2b7b7b !important; }
+.maximizador-page .etapa-desarrollo { background: #fef3c7 !important; color: #b45309 !important; }
+.maximizador-page .etapa-engorde { background: #e0e7ff !important; color: #4338ca !important; }
+.maximizador-page .etapa-reproducción,
+.maximizador-page .etapa-reproduccion { background: #fae8ff !important; color: #86198f !important; }
+.maximizador-page .etapa-gestación,
+.maximizador-page .etapa-gestacion { background: #dcfce7 !important; color: #166534 !important; }
+.maximizador-page .etapa-lactancia { background: #fee2e2 !important; color: #991b1b !important; }

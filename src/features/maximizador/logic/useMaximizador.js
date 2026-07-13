@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
-import { getLotes } from "../../lotes/data/lotes.service"; 
-import { getPesajesPorLote } from "../../monitoreoIA/data/pesajes.service";
+// REUTILIZAMOS tus suscriptores en tiempo real (Caché + Nube)
+import { subscribeToLotes } from "../../lotes/data/lotes.service"; 
+import { subscribeToPesajes } from "../../monitoreoIA/data/pesajes.service";
 import { calcularPuntoOptimoLote } from "./calculadorOptimo";
 import { useAuth } from "../../auth/logic/AuthContext";
 
@@ -12,57 +13,53 @@ export const useMaximizador = () => {
   const [loadingLotes, setLoadingLotes] = useState(true);
   const [loadingPesajes, setLoadingPesajes] = useState(false);
 
-  // Configuración del simulador
-  const [precioVenta, setPrecioVenta] = useState(41); // C$ 41 promedio en pie (C$ 33 - 49)
-  const [costoAlimento, setCostoAlimento] = useState(16.50); // C$ 16.50 aprox por lb de alimento
+  // Configuración del simulador predictivo
+  const [precioVenta, setPrecioVenta] = useState(41); 
+  const [costoAlimento, setCostoAlimento] = useState(16.50); 
   const [diasSimulacion, setDiasSimulacion] = useState(0);
 
+  // 1. ESCUCHA DE LOTES ACTIVO EN TIEMPO REAL (Offline-First)
   useEffect(() => {
     if (!user?.fincaId) return;
+    setLoadingLotes(true);
 
-    const cargarLotes = async () => {
-      try {
-        setLoadingLotes(true);
-        const listaLotes = await getLotes(user.fincaId);
-        const activos = listaLotes.filter(lote => 
-          lote.estado === "Activo" &&
-          (!lote.etapa || ['Destete', 'Desarrollo', 'Engorde', 'Reproducción', 'Gestación', 'Lactancia'].includes(lote.etapa))
-        );
-        setLotes(activos);
-        
-        if (activos.length > 0) {
-          setLoteSeleccionadoId(activos[0].id);
-        } else {
-          setLoteSeleccionadoId("");
-        }
-      } catch (error) {
-        console.error("Error al cargar lotes para maximizador:", error);
-      } finally {
-        setLoadingLotes(false);
-      }
-    };
-    cargarLotes();
+    const unsubscribe = subscribeToLotes(user.fincaId, (listaLotes) => {
+      const activos = listaLotes.filter(lote => 
+        lote.estado === "Activo" &&
+        (!lote.etapa || ['Destete', 'Desarrollo', 'Engorde', 'Reproducción', 'Gestación', 'Lactancia'].includes(lote.etapa))
+      );
+      setLotes(activos);
+      
+      // Auto-selección inteligente del primer lote disponible
+      setLoteSeleccionadoId((prevId) => {
+        if (!prevId && activos.length > 0) return activos[0].id;
+        if (prevId && !activos.find(l => l.id === prevId)) return activos.length > 0 ? activos[0].id : "";
+        return prevId;
+      });
+      setLoadingLotes(false);
+    });
+
+    return () => unsubscribe();
   }, [user?.fincaId]);
 
+  // 2. ESCUCHA DE PESAJES DEL LOTE SELECCIONADO EN TIEMPO REAL (Offline-First)
   useEffect(() => {
     if (!loteSeleccionadoId || !user?.fincaId) {
       setPesajes([]);
+      setLoadingPesajes(false);
       return;
     }
-    const cargarHistorial = async () => {
-      try {
-        setLoadingPesajes(true);
-        const historial = await getPesajesPorLote(loteSeleccionadoId, user.fincaId);
-        setPesajes(historial);
-      } catch (error) {
-        console.error("Error al cargar historial de pesajes para maximizador:", error);
-      } finally {
-        setLoadingPesajes(false);
-      }
-    };
-    cargarHistorial();
+    setLoadingPesajes(true);
+
+    const unsubscribe = subscribeToPesajes(loteSeleccionadoId, user.fincaId, (historialPesajes) => {
+      setPesajes(historialPesajes);
+      setLoadingPesajes(false);
+    });
+
+    return () => unsubscribe();
   }, [loteSeleccionadoId, user?.fincaId]);
 
+  // 3. CÁLCULO PREDICTIVO EN MEMORIA LOCAL (Latencia 0ms)
   const simulacion = useMemo(() => {
     const lote = lotes.find(l => l.id === loteSeleccionadoId);
     const resultado = calcularPuntoOptimoLote(lote, pesajes, precioVenta, costoAlimento);
