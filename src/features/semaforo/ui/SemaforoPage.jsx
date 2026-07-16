@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useSemaforo } from "../logic/useSemaforo";
+import ProPaywall from "../../../components/ProPaywall";
 import "./SemaforoPage.css";
 
 export default function SemaforoPage() {
@@ -60,6 +61,13 @@ export default function SemaforoPage() {
   };
 
   return (
+
+  <ProPaywall 
+      tituloFeature="Semáforo Epidemiológico 🚨" 
+      descripcion="Anticípate a los brotes de enfermedades. El sistema Pro analiza la mortalidad de tus corrales en tiempo real y te alerta antes de que sea crítico."
+    >
+
+
     <div className="semaforo-page" style={{ padding: "24px", maxWidth: "1200px", margin: "0 auto" }}>
       <header className="module-header" style={{ marginBottom: "30px" }}>
         <h2 style={{ fontSize: "26px", color: "#1e293b", display: "flex", alignItems: "center", gap: "10px" }}>
@@ -231,5 +239,7 @@ export default function SemaforoPage() {
         </div>
       )}
     </div>
+
+    </ProPaywall>
   );
 }
