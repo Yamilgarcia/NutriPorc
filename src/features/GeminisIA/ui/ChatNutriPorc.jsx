@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { iniciarChatPorcino } from '../data/geminiService'; 
+import ProPaywall from "../../../components/ProPaywall";
 import './ChatNutriPorc.css';
 
 const formatearTexto = (texto) => {
@@ -60,6 +61,11 @@ export default function ChatNutriPorc() {
   };
 
   return (
+
+    <ProPaywall 
+      tituloFeature="Inteligencia Artificial  🐷" 
+      descripcion="Resuelve tus dudas del día a día sobre manejo, alimentación y cuidado con nuestro asistente inteligente.."
+    >
     <div className="chat-wrapper">
       <div className="chat-container">
         
@@ -136,5 +142,6 @@ export default function ChatNutriPorc() {
 
       </div>
     </div>
+    </ProPaywall>
   );
 }
