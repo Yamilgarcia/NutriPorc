@@ -102,117 +102,143 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 300px; /* Un poco más ancho para respirar */
+  width: 320px; /* Un poco más de espacio para comodidad táctil */
   height: 100vh;
   background-color: var(--np-surface);
-  box-shadow: 10px 0 25px rgba(0,0,0,0.08);
+  box-shadow: 15px 0 30px rgba(0,0,0,0.1); /* Sombra más pronunciada para separarlo del fondo */
   z-index: 30;
   transform: translateX(-100%);
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
+  font-family: 'Inter', system-ui, sans-serif; 
+}
+
+.side-menu::before {
+  content: '';
+  position: absolute;
+  top: 0; 
+  left: 0; 
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, var(--np-red-dark) 0%, var(--np-pink) 50%, var(--np-green) 100%); /*[cite: 1]*/
 }
 
 .side-menu.open {
   transform: translateX(0);
 }
 
+
 .side-menu-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px 20px;
-  border-bottom: 1px solid var(--np-bg-app);
+  padding: 28px 24px 20px 24px; /* Más espacio superior por la línea decorativa */
+  border-bottom: 1px solid rgba(226, 232, 240, 0.6);
 }
 
 .side-menu-header h2 {
   margin: 0;
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: var(--np-red-dark);
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--np-text-dark);
+  letter-spacing: -0.5px;
 }
 
 .close-button {
-  background: rgba(143, 25, 20, 0.05);
+  background: rgba(143, 25, 20, 0.05); /* Tinte muy sutil del rojo oscuro[cite: 1]*/
   border: none;
-  color: var(--np-red-dark);
-  border-radius: 8px;
+  color: var(--np-red-dark); /*[cite: 1]*/
+  border-radius: 10px;
   cursor: pointer;
   padding: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
 
 .close-button:hover {
-  background: rgba(143, 25, 20, 0.15);
+  background: var(--np-red-dark); /*[cite: 1]*/
+  color: white;
+  transform: rotate(90deg); /* Pequeña interacción visual al cerrar */
 }
 
 .close-button svg {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
 }
 
 /* --- NAVEGACIÓN DEL SIDEBAR --- */
 .side-menu-nav {
   display: flex;
   flex-direction: column;
-  padding: 20px 16px;
-  gap: 6px;
-  overflow-y: auto; /* Por si el menú crece mucho */
+  padding: 24px 16px;
+  gap: 8px;
+  overflow-y: auto; 
 }
 
 .side-menu-nav .nav-link {
+  display: flex;
+  align-items: center;
   text-decoration: none;
   color: var(--np-text-muted);
   font-weight: 600;
-  padding: 12px 16px;
-  border-radius: 10px;
-  transition: all 0.2s ease;
-  border-left: 3px solid transparent;
+  font-size: 1.05rem;
+  padding: 14px 20px;
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  background-color: transparent;
+  border-left: 4px solid transparent;
 }
 
 /* Estado normal hover (Tono crema/cálido de la marca) */
 .side-menu-nav .nav-link:hover:not(.active) {
-  background-color: rgba(237, 221, 153, 0.15); /*[cite: 1] */
+  background-color: rgba(237, 221, 153, 0.2); /* Crema NutriPorc[cite: 1]*/
   color: var(--np-text-dark);
-  border-left: 3px solid var(--np-cream);
+  border-left: 4px solid var(--np-pink); /* Toque del acento rosa suave[cite: 1]*/
+  transform: translateX(6px); /* Efecto de desplazamiento a la derecha */
 }
 
 /* Estado activo (Verde agropecuario) */
 .side-menu-nav .nav-link.active {
-  background-color: rgba(19, 126, 53, 0.1); 
-  color: var(--np-green); /*[cite: 1] */
-  border-left: 3px solid var(--np-green);
+  background-color: rgba(19, 126, 53, 0.08); 
+  color: var(--np-green); /* Verde agropecuario[cite: 1]*/
+  border-left: 4px solid var(--np-green); /*[cite: 1]*/
   font-weight: 700;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
 }
 
 /* --- BOTÓN DE CERRAR SESIÓN --- */
 .logout-container {
-  padding: 20px;
-  border-top: 1px solid var(--np-bg-app);
+  padding: 24px;
+  border-top: 1px solid rgba(226, 232, 240, 0.6);
   margin-top: auto;
 }
 
 .logout-container button {
   width: 100%;
-  background-color: var(--np-red-dark); /*[cite: 1] */
-  color: white;
-  border: none;
-  padding: 14px;
-  border-radius: 10px;
-  font-weight: bold;
+  /* Botón invertido: fondo claro, texto rojo. Destaca pero no abruma */
+  background-color: #fff0f0; 
+  color: var(--np-red-dark); /*[cite: 1]*/
+  border: 1px solid rgba(143, 25, 20, 0.2); /*[cite: 1]*/
+  padding: 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1.05rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  transition: background-color 0.2s, transform 0.2s;
+  gap: 10px;
+  transition: all 0.2s ease;
+  font-family: inherit; /* Hereda tipografía moderna */
 }
 
 .logout-container button:hover {
-  background-color: #6a120e; /* Un tono más oscuro del rojo para el hover */
+  background-color: var(--np-red-dark); /* Al hacer hover se vuelve rojo sólido[cite: 1]*/
+  color: white;
+  box-shadow: 0 8px 16px -4px rgba(143, 25, 20, 0.25); /*[cite: 1]*/
   transform: translateY(-2px);
 }
 
@@ -223,8 +249,8 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(15, 23, 42, 0.3);
-  backdrop-filter: blur(4px);
+  background-color: rgba(15, 23, 42, 0.4); /* Un poco más oscuro para que el menú resalte */
+  backdrop-filter: blur(6px); /* Efecto cristal en el fondo */
   z-index: 20;
   opacity: 0;
   animation: fadeInOverlay 0.3s forwards;
