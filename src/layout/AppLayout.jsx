@@ -169,33 +169,8 @@ export default function AppLayout() {
         </nav>
 
         {/* 3. BOTÓN DE CERRAR SESIÓN AL FINAL DEL MENÚ */}
-        <div
-          style={{
-            padding: "20px",
-            borderTop: "1px solid #e2e8f0",
-            marginTop: "auto",
-          }}
-        >
-          <button
-            onClick={handleLogout}
-            style={{
-              width: "100%",
-              backgroundColor: "#ef4444",
-              color: "white",
-              border: "none",
-              padding: "12px",
-              borderRadius: "8px",
-              fontWeight: "bold",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "8px",
-              transition: "background-color 0.2s",
-            }}
-            onMouseOver={(e) => (e.target.style.backgroundColor = "#dc2626")}
-            onMouseOut={(e) => (e.target.style.backgroundColor = "#ef4444")}
-          >
+        <div className="logout-container">
+          <button onClick={handleLogout}>
             <svg
               viewBox="0 0 24 24"
               width="20"
