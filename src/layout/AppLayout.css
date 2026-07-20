@@ -1,10 +1,35 @@
 /* src/layout/AppLayout.css */
 
+/* =========================================
+   VARIABLES GLOBALES (Si no las tienes en index.css)
+   ========================================= */
+:root {
+  --np-red-dark: #8F1914;  /*[cite: 1] */
+  --np-pink: #F49F97;      /*[cite: 1] */
+  --np-cream: #EDDD99;     /*[cite: 1] */
+  --np-green: #137E35;     /*[cite: 1] */
+  
+  --np-bg-app: #eef2f6;    /* Fondo ligeramente gris/azulado para contraste */
+  --np-surface: #ffffff;
+  --np-text-dark: #1e293b;
+  --np-text-muted: #64748b;
+  --np-border-light: rgba(226, 232, 240, 0.8);
+}
+
 .app-layout {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #f8fafc; /* Fondo general limpio */
+  /* Fondo base un tono más oscuro para que resalte el blanco */
+  background-color: #eef2f6; 
+  
+  /* Manchas de color más intensas y grandes aplicadas globalmente */
+  background-image: 
+    radial-gradient(circle at 85% 10%, rgba(244, 159, 151, 0.45) 0px, transparent 40%), /* Rosa NutriPorc[cite: 1] */
+    radial-gradient(circle at 15% 90%, rgba(19, 126, 53, 0.20) 0px, transparent 45%),  /* Verde Agro[cite: 1] */
+    radial-gradient(circle at 10% 20%, rgba(237, 221, 153, 0.50) 0px, transparent 40%); /* Crema Cerdos[cite: 1] */
+  
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
 /* --- BARRA SUPERIOR (APPBAR) --- */
@@ -12,55 +37,64 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  background-color: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid #e2e8f0;
+  
+  /* Efecto Cristal (Glassmorphism) para que combine con el Welcome */
+  background-color: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  
+  border-bottom: 1px solid rgba(255, 255, 255, 0.9);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 16px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  padding: 12px 20px;
+  box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05);
 }
 
 .header-content {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 .menu-button {
-  background-color: #dcfce7;
-  color: #166534;
-  border: none;
-  border-radius: 8px;
-  width: 40px;
-  height: 40px;
+  background-color: rgba(19, 126, 53, 0.1); /* Fondo translúcido verde agro */
+  color: var(--np-green);
+  border: 1px solid rgba(19, 126, 53, 0.15);
+  border-radius: 10px;
+  width: 42px;
+  height: 42px;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .menu-button:hover {
-  background-color: #bbf7d0;
+  background-color: var(--np-green);
+  color: white;
+  transform: scale(1.05);
 }
 
 .menu-button svg {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
 }
 
+/* Tipografía del logo en la barra usando los tonos de las razas de cerdos */
 .header-title {
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: #1e293b;
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--np-red-dark); /*[cite: 1] */
   margin: 0;
-  letter-spacing: 0.5px;
+  letter-spacing: -0.5px;
 }
 
+/* Opcional: Diferenciador de color para "Nutri" y "Porc" si lo deseas, 
+   o mantener todo en rojo oscuro para coherencia con tu logo imagen */
 .header-title span {
-  color: #16a34a; /* Verde acento NutriPorc */
+  color: var(--np-red-dark); 
 }
 
 /* --- MENÚ LATERAL (SIDEBAR) --- */
@@ -68,67 +102,118 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 280px;
+  width: 300px; /* Un poco más ancho para respirar */
   height: 100vh;
-  background-color: #ffffff;
-  box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+  background-color: var(--np-surface);
+  box-shadow: 10px 0 25px rgba(0,0,0,0.08);
   z-index: 30;
-  transform: translateX(-100%); /* Oculto por defecto */
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
 }
 
 .side-menu.open {
-  transform: translateX(0); /* Mostrar menú */
+  transform: translateX(0);
 }
 
 .side-menu-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
-  border-bottom: 1px solid #f1f5f9;
+  padding: 24px 20px;
+  border-bottom: 1px solid var(--np-bg-app);
 }
 
 .side-menu-header h2 {
   margin: 0;
-  font-size: 1.2rem;
-  color: #0f172a;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--np-red-dark);
 }
 
 .close-button {
-  background: none;
+  background: rgba(143, 25, 20, 0.05);
   border: none;
-  color: #64748b;
+  color: var(--np-red-dark);
+  border-radius: 8px;
   cursor: pointer;
-  padding: 4px;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.close-button:hover {
+  background: rgba(143, 25, 20, 0.15);
 }
 
 .close-button svg {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
 }
 
+/* --- NAVEGACIÓN DEL SIDEBAR --- */
 .side-menu-nav {
   display: flex;
   flex-direction: column;
-  padding: 16px;
-  gap: 8px;
+  padding: 20px 16px;
+  gap: 6px;
+  overflow-y: auto; /* Por si el menú crece mucho */
 }
 
-.side-menu-nav a {
+.side-menu-nav .nav-link {
   text-decoration: none;
-  color: #334155;
+  color: var(--np-text-muted);
   font-weight: 600;
   padding: 12px 16px;
-  border-radius: 8px;
-  transition: background-color 0.2s, color 0.2s;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
 }
 
-.side-menu-nav a:hover {
-  background-color: #f0fdf4;
-  color: #166534;
+/* Estado normal hover (Tono crema/cálido de la marca) */
+.side-menu-nav .nav-link:hover:not(.active) {
+  background-color: rgba(237, 221, 153, 0.15); /*[cite: 1] */
+  color: var(--np-text-dark);
+  border-left: 3px solid var(--np-cream);
+}
+
+/* Estado activo (Verde agropecuario) */
+.side-menu-nav .nav-link.active {
+  background-color: rgba(19, 126, 53, 0.1); 
+  color: var(--np-green); /*[cite: 1] */
+  border-left: 3px solid var(--np-green);
+  font-weight: 700;
+}
+
+/* --- BOTÓN DE CERRAR SESIÓN --- */
+.logout-container {
+  padding: 20px;
+  border-top: 1px solid var(--np-bg-app);
+  margin-top: auto;
+}
+
+.logout-container button {
+  width: 100%;
+  background-color: var(--np-red-dark); /*[cite: 1] */
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.logout-container button:hover {
+  background-color: #6a120e; /* Un tono más oscuro del rojo para el hover */
+  transform: translateY(-2px);
 }
 
 /* --- OVERLAY OSCURO --- */
@@ -138,39 +223,25 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(15, 23, 42, 0.4);
-  backdrop-filter: blur(2px);
+  background-color: rgba(15, 23, 42, 0.3);
+  backdrop-filter: blur(4px);
   z-index: 20;
+  opacity: 0;
+  animation: fadeInOverlay 0.3s forwards;
+}
+
+@keyframes fadeInOverlay {
+  to { opacity: 1; }
 }
 
 /* --- CONTENEDOR PRINCIPAL --- */
 .app-main {
   flex-grow: 1;
-  padding: 16px;
   width: 100%;
+  /* Max width ajustado para centrar contenido ancho en pantallas grandes */
   max-width: 1200px;
   margin: 0 auto;
   box-sizing: border-box;
-}
-
-/* Ajustes para pantallas grandes */
-@media (min-width: 768px) {
-  .app-main {
-    padding: 32px;
-  }
-}
-
-
-.side-menu-nav .nav-link {
-  text-decoration: none;
-  color: #334155;
-  font-weight: 600;
-  padding: 12px 16px;
-  border-radius: 8px;
-  transition: background-color 0.2s, color 0.2s;
-}
-
-.side-menu-nav .nav-link.active {
-  background-color: #dcfce7; /* Verde claro */
-  color: #166534; /* Verde oscuro */
+  /* El padding se maneja directamente en los componentes hijos (como Welcome) 
+     para que el Mesh Gradient ocupe toda la pantalla si es necesario */
 }
