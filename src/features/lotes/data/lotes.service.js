@@ -28,9 +28,10 @@ export const updateLote = async (id, loteData) => {
   await updateDoc(loteRef, loteData);
 };
 
-export const archivarLote = async (id) => {
+export const archivarLote = async (id, datosCierre) => {
   const loteRef = doc(db, LOTES_COLLECTION, id);
-  await updateDoc(loteRef, { estado: "Histórico" });
+  // Le sumamos los datos de cierre (peso, dieta, ingredientes) al guardar
+  await updateDoc(loteRef, { estado: "Histórico", ...datosCierre });
 };
 
 export const registrarBajaLote = async (id, bajasActuales, nuevaBaja, cantidadRestante) => {
@@ -61,4 +62,13 @@ export const subscribeToLotes = (fincaId, callback) => {
   });
 
   return unsubscribe;
+};
+
+
+// NUEVA FUNCIÓN: Registrar un control de peso sin cerrar el lote
+export const registrarPesajeLote = async (id, pesajesActuales, nuevoPesaje) => {
+  const loteRef = doc(db, LOTES_COLLECTION, id);
+  await updateDoc(loteRef, { 
+    pesajes: [...(pesajesActuales || []), nuevoPesaje]
+  });
 };
