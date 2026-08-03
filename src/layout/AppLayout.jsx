@@ -156,8 +156,17 @@ export default function AppLayout() {
             Semáforo Epidemiológico
           </NavLink>
 
+          <NavLink
+            to="/inteligencia"
+            className={({ isActive }) =>
+              isActive ? "nav-link active" : "nav-link"
+            }
+            onClick={() => setMenuOpen(false)}
+          >
+            Inteligencia
+          </NavLink>
 
-           <NavLink
+          <NavLink
             to="/ChatIA"
             className={({ isActive }) =>
               isActive ? "nav-link active" : "nav-link"
