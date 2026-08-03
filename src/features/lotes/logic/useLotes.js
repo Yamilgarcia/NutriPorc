@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { addLote, updateLote, archivarLote, registrarBajaLote, deleteLote, subscribeToLotes } from "../data/lotes.service";
+import { addLote, updateLote, archivarLote, registrarBajaLote, deleteLote, subscribeToLotes, registrarPesajeLote } from "../data/lotes.service";
 import { useAuth } from "../../auth/logic/AuthContext"; 
 
 export const useLotes = () => {
@@ -45,13 +45,13 @@ export const useLotes = () => {
     }
   };
 
-  // ARCHIVADO OPTIMISTA: Cambia el estado a "Histórico" de inmediato
-  const handleArchivar = async (id) => {
+  // ARCHIVADO OPTIMISTA CON DATOS DE CIERRE
+  const handleArchivar = async (id, datosCierre) => {
     setLotes((prevLotes) =>
-      prevLotes.map((item) => (item.id === id ? { ...item, estado: "Histórico" } : item))
+      prevLotes.map((item) => (item.id === id ? { ...item, estado: "Histórico", ...datosCierre } : item))
     );
     try {
-      await archivarLote(id);
+      await archivarLote(id, datosCierre);
     } catch (error) {
       console.error("Error al archivar lote:", error);
     }
@@ -75,6 +75,24 @@ export const useLotes = () => {
       await registrarBajaLote(id, bajasActuales, nuevaBaja, cantidadRestante);
     } catch (error) {
       console.error("Error al registrar baja:", error);
+    }
+  };
+
+
+  // REGISTRO DE PESAJE OPTIMISTA (Para evaluar dietas sin cerrar lote)
+  const handleRegistrarPesaje = async (id, pesajesActuales, nuevoPesaje) => {
+    setLotes((prevLotes) =>
+      prevLotes.map((item) => {
+        if (item.id === id) {
+          return { ...item, pesajes: [...(item.pesajes || []), nuevoPesaje] };
+        }
+        return item;
+      })
+    );
+    try {
+      await registrarPesajeLote(id, pesajesActuales, nuevoPesaje);
+    } catch (error) {
+      console.error("Error al registrar pesaje:", error);
     }
   };
 
@@ -108,6 +126,6 @@ export const useLotes = () => {
 
   return {
     lotes: filteredLotes, loading, searchTerm, setSearchTerm, filterEstado, setFilterEstado, filterEtapa, setFilterEtapa,
-    handleAdd, handleUpdate, handleArchivar, handleRegistrarBaja, handleDelete
+    handleAdd, handleUpdate, handleArchivar, handleRegistrarBaja, handleDelete, handleRegistrarPesaje
   };
 };
