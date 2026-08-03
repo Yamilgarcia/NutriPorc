@@ -22,6 +22,93 @@ export default function FormuladorPage() {
   const [loteSearch, setLoteSearch] = React.useState("");
   const [insumoSearch, setInsumoSearch] = React.useState("");
 
+  // Estados para análisis de duración y planificación
+  const [vecesAlDia, setVecesAlDia] = React.useState(2);
+  const [calcMode, setCalcMode] = React.useState("cantidad"); // "duracion" o "cantidad"
+  const [cantidadPreparar, setCantidadPreparar] = React.useState(10);
+  const [unidadPreparar, setUnidadPreparar] = React.useState("quintales"); // "kg", "lbs", "quintales"
+  const [duracionObjetivo, setDuracionObjetivo] = React.useState(2);
+  const [unidadDuracionObjetivo, setUnidadDuracionObjetivo] = React.useState("semanas"); // "dias", "semanas"
+
+  const selectedLote = lotes.find(l => l.id === selectedLoteId);
+
+  const analisisPlanificacion = React.useMemo(() => {
+    if (!selectedLote || !requerimientos.consumoDiario || mezclaActual.length === 0) {
+      return null;
+    }
+
+    const cantidadCerdos = selectedLote.cantidad || 0;
+    const consumoDiarioLoteKg = requerimientos.consumoDiario * cantidadCerdos;
+    const consumoDiarioLoteLbs = consumoDiarioLoteKg * 2.20462;
+    const costoPorLibra = (totalesMezcla.costoCienLibras || 0) / 100;
+
+    // Consumo por comida/ración
+    const consumoPorComidaKg = vecesAlDia > 0 ? (consumoDiarioLoteKg / vecesAlDia) : 0;
+    const consumoPorComidaLbs = vecesAlDia > 0 ? (consumoDiarioLoteLbs / vecesAlDia) : 0;
+
+    // --- MODO 1: CALCULAR DURACIÓN ---
+    let cantidadLbs = 0;
+    if (unidadPreparar === "kg") {
+      cantidadLbs = cantidadPreparar * 2.20462;
+    } else if (unidadPreparar === "lbs") {
+      cantidadLbs = cantidadPreparar;
+    } else if (unidadPreparar === "quintales") {
+      cantidadLbs = cantidadPreparar * 100;
+    }
+
+    const diasEstimados = consumoDiarioLoteLbs > 0 ? (cantidadLbs / consumoDiarioLoteLbs) : 0;
+    const racionesTotales = diasEstimados * vecesAlDia;
+    const costoPreparacion = cantidadLbs * costoPorLibra;
+
+    // --- MODO 2: CALCULAR CANTIDAD REQUERIDA ---
+    const diasObjetivo = unidadDuracionObjetivo === "semanas" ? duracionObjetivo * 7 : duracionObjetivo;
+    const totalLbsRequeridas = consumoDiarioLoteLbs * diasObjetivo;
+    const totalKgRequeridos = consumoDiarioLoteKg * diasObjetivo;
+    const totalQuintalesRequeridos = totalLbsRequeridas / 100;
+    const costoTotalRequerido = totalLbsRequeridas * costoPorLibra;
+
+    // Breakdown de ingredientes necesarios
+    const ingredientesRequeridos = mezclaActual.map(item => {
+      const porcentaje = item.porcentaje || 0;
+      const ingLbs = (porcentaje / 100) * totalLbsRequeridas;
+      const ingKg = ingLbs / 2.20462;
+      return {
+        ...item,
+        lbs: parseFloat(ingLbs.toFixed(1)),
+        kg: parseFloat(ingKg.toFixed(1)),
+        quintales: parseFloat((ingLbs / 100).toFixed(2))
+      };
+    });
+
+    return {
+      consumoDiarioLoteKg: parseFloat(consumoDiarioLoteKg.toFixed(1)),
+      consumoDiarioLoteLbs: parseFloat(consumoDiarioLoteLbs.toFixed(1)),
+      consumoPorComidaKg: parseFloat(consumoPorComidaKg.toFixed(1)),
+      consumoPorComidaLbs: parseFloat(consumoPorComidaLbs.toFixed(1)),
+      // Modo 1
+      diasEstimados: parseFloat(diasEstimados.toFixed(1)),
+      racionesTotales: Math.round(racionesTotales),
+      costoPreparacion: parseFloat(costoPreparacion.toFixed(2)),
+      // Modo 2
+      diasObjetivo,
+      totalLbsRequeridas: parseFloat(totalLbsRequeridas.toFixed(1)),
+      totalKgRequeridos: parseFloat(totalKgRequeridos.toFixed(1)),
+      totalQuintalesRequeridos: parseFloat(totalQuintalesRequeridos.toFixed(2)),
+      costoTotalRequerido: parseFloat(costoTotalRequerido.toFixed(2)),
+      ingredientesRequeridos
+    };
+  }, [
+    selectedLote,
+    requerimientos,
+    totalesMezcla,
+    mezclaActual,
+    vecesAlDia,
+    cantidadPreparar,
+    unidadPreparar,
+    duracionObjetivo,
+    unidadDuracionObjetivo
+  ]);
+
   const handlePrint = () => {
     window.print();
   };
@@ -38,8 +125,6 @@ export default function FormuladorPage() {
       insumo.nombre.toLowerCase().includes(insumoSearch.toLowerCase())
     );
   }, [insumos, insumoSearch]);
-
-  const selectedLote = lotes.find(l => l.id === selectedLoteId);
 
   if (loading) {
     return <div className="formulador-page"><p>Cargando datos del formulador...</p></div>;
@@ -270,6 +355,189 @@ export default function FormuladorPage() {
                       {['Destete', 'Desarrollo', 'Engorde'].includes(selectedLote.etapa) && ` (Edad real: ${requerimientos.semanasEdad} semanas)`}
                     </strong>
                     <p>Preparar aprox. <span className="highlight-text">{((requerimientos.consumoDiario * selectedLote.cantidad) / 45.3592).toFixed(2)} quintales</span> (100 lbs) de esta mezcla al día.</p>
+                  </div>
+                </div>
+              )}
+
+              {/* ANÁLISIS DE RENDIMIENTO Y PLANIFICACIÓN */}
+              {selectedLote && mezclaActual.length > 0 && analisisPlanificacion && (
+                <div className="analisis-duracion">
+                  <h4>Análisis de Duración y Planificación</h4>
+                  
+                  {/* Frecuencia de Alimentación */}
+                  <div className="analisis-frecuencia">
+                    <label>Frecuencia de alimentación al día:</label>
+                    <div className="frecuencia-control">
+                      <button 
+                        type="button" 
+                        onClick={() => setVecesAlDia(prev => Math.max(1, prev - 1))}
+                        disabled={vecesAlDia <= 1}
+                        className="frecuencia-btn"
+                      >
+                        -
+                      </button>
+                      <span className="frecuencia-valor">{vecesAlDia} {vecesAlDia === 1 ? 'comida' : 'comidas'} al día</span>
+                      <button 
+                        type="button" 
+                        onClick={() => setVecesAlDia(prev => Math.min(6, prev + 1))}
+                        disabled={vecesAlDia >= 6}
+                        className="frecuencia-btn"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Tabs para seleccionar el Modo */}
+                  <div className="analisis-tabs">
+                    <button 
+                      type="button" 
+                      className={`tab-btn ${calcMode === "cantidad" ? "active" : ""}`}
+                      onClick={() => setCalcMode("cantidad")}
+                    >
+                      Planificar lote
+                    </button>
+                    <button 
+                      type="button" 
+                      className={`tab-btn ${calcMode === "duracion" ? "active" : ""}`}
+                      onClick={() => setCalcMode("duracion")}
+                    >
+                      ¿Cuánto durará?
+                    </button>
+                  </div>
+
+                  <div className="analisis-body">
+                    {calcMode === "cantidad" ? (
+                      <div className="tab-content">
+                        <p className="tab-desc">Calcula cuánto alimento preparar y qué cantidad de cada insumo comprar para una duración objetivo.</p>
+                        
+                        <div className="analisis-inputs">
+                          <div className="input-group-calc">
+                            <label>Duración deseada:</label>
+                            <div className="input-with-select">
+                              <input 
+                                type="number" 
+                                min="1" 
+                                value={duracionObjetivo}
+                                onChange={(e) => setDuracionObjetivo(Math.max(1, parseInt(e.target.value) || 1))}
+                                className="number-input-calc"
+                              />
+                              <select 
+                                value={unidadDuracionObjetivo} 
+                                onChange={(e) => setUnidadDuracionObjetivo(e.target.value)}
+                                className="select-input-calc"
+                              >
+                                <option value="dias">Día(s)</option>
+                                <option value="semanas">Semana(s)</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Resultados del Lote Planificado */}
+                        <div className="resultado-principal card-plan">
+                          <span className="resultado-label">Total de mezcla a preparar:</span>
+                          <span className="resultado-valor">
+                            {analisisPlanificacion.totalQuintalesRequeridos} qq
+                            <small className="resultado-subvalor">
+                              ({analisisPlanificacion.totalLbsRequeridas} lbs / {analisisPlanificacion.totalKgRequeridos} kg)
+                            </small>
+                          </span>
+                          
+                          <div className="resultado-detalles-row">
+                            <div className="detalle-calc-item">
+                              <span className="detalle-calc-label">Costo estimado</span>
+                              <span className="detalle-calc-val highlight-val">C$ {analisisPlanificacion.costoTotalRequerido.toLocaleString()}</span>
+                            </div>
+                            <div className="detalle-calc-item">
+                              <span className="detalle-calc-label">Raciones totales</span>
+                              <span className="detalle-calc-val">{analisisPlanificacion.diasObjetivo * vecesAlDia} comidas</span>
+                            </div>
+                          </div>
+
+                          <div className="detalle-calc-item" style={{ marginTop: '0.75rem', borderTop: '1px solid #e2e8f0', paddingTop: '0.75rem' }}>
+                            <span className="detalle-calc-label">Ración para el lote por comida:</span>
+                            <span className="detalle-calc-val">
+                              {analisisPlanificacion.consumoPorComidaKg} kg / {analisisPlanificacion.consumoPorComidaLbs} lbs
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Desglose de Insumos */}
+                        <div className="desglose-insumos">
+                          <h5>Ingredientes para preparar (Mezcla de lote):</h5>
+                          <div className="insumos-grid-calc">
+                            {analisisPlanificacion.ingredientesRequeridos.map(item => (
+                              <div key={item.id} className="insumo-calc-card">
+                                <span className="insumo-calc-nombre">{item.nombre}</span>
+                                <span className="insumo-calc-porcentaje">{item.porcentaje}% de la mezcla</span>
+                                <div className="insumo-calc-valores">
+                                  <span className="insumo-calc-peso-qq">{item.quintales} qq</span>
+                                  <span className="insumo-calc-peso-lbs">({item.lbs} lbs / {item.kg} kg)</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="tab-content">
+                        <p className="tab-desc">Calcula cuántos días durará una cantidad específica de alimento preparado.</p>
+                        
+                        <div className="analisis-inputs">
+                          <div className="input-group-calc">
+                            <label>Cantidad de alimento preparado:</label>
+                            <div className="input-with-select">
+                              <input 
+                                type="number" 
+                                min="1" 
+                                value={cantidadPreparar}
+                                onChange={(e) => setCantidadPreparar(Math.max(1, parseFloat(e.target.value) || 1))}
+                                className="number-input-calc"
+                              />
+                              <select 
+                                value={unidadPreparar} 
+                                onChange={(e) => setUnidadPreparar(e.target.value)}
+                                className="select-input-calc"
+                              >
+                                <option value="quintales">Quintal(es) (100 lbs)</option>
+                                <option value="lbs">Libra(s)</option>
+                                <option value="kg">Kilogramo(s)</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Resultados de Durabilidad */}
+                        <div className="resultado-principal card-duracion">
+                          <span className="resultado-label">Duración estimada del alimento:</span>
+                          <span className="resultado-valor text-duracion">
+                            {analisisPlanificacion.diasEstimados} días
+                            <small className="resultado-subvalor text-duracion-sub">
+                              (~ {(analisisPlanificacion.diasEstimados / 7).toFixed(1)} semanas)
+                            </small>
+                          </span>
+
+                          <div className="resultado-detalles-row">
+                            <div className="detalle-calc-item">
+                              <span className="detalle-calc-label">Costo del lote preparado</span>
+                              <span className="detalle-calc-val highlight-val">C$ {analisisPlanificacion.costoPreparacion.toLocaleString()}</span>
+                            </div>
+                            <div className="detalle-calc-item">
+                              <span className="detalle-calc-label">Comidas que rinde</span>
+                              <span className="detalle-calc-val">{analisisPlanificacion.racionesTotales} raciones</span>
+                            </div>
+                          </div>
+
+                          <div className="detalle-calc-item" style={{ marginTop: '0.75rem', borderTop: '1px solid #e2e8f0', paddingTop: '0.75rem' }}>
+                            <span className="detalle-calc-label">Ración para el lote por comida:</span>
+                            <span className="detalle-calc-val">
+                              {analisisPlanificacion.consumoPorComidaKg} kg / {analisisPlanificacion.consumoPorComidaLbs} lbs
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
