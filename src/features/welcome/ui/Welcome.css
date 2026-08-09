@@ -482,12 +482,61 @@
 }
 
 @media (max-width: 768px) {
-  .welcome-content {
-    padding: 2rem 1.5rem;
+  /* 1. Reducir paddings generales para recuperar espacio horizontal */
+  .welcome-container {
+    padding: 20px 10px; 
   }
   
+  .welcome-content {
+    padding: 1.5rem 1rem;
+  }
+
+  .profile-card {
+    padding: 1.5rem 1rem;
+  }
+
+  /* 2. Ajustar el tamaño del logo */
+  .logo-wrapper {
+    width: 140px;
+    height: 140px;
+  }
+
+  /* 3. Forzar que los inputs del formulario se apilen en 1 sola columna */
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  /* 4. Apilar los botones de acción (Guardar arriba, Cancelar abajo) */
+  .form-actions {
+    flex-direction: column-reverse;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .btn-save-profile, 
+  .btn-cancel-profile {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+    padding: 12px;
+  }
+
+  /* 5. Asegurar que el botón de modificar también tome el 100% si falta espacio */
+  .profile-card-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-edit-link {
+    width: 100%;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  /* 6. Mantener las métricas y banners en 1 columna */
   .stats-dashboard-grid {
-    grid-template-columns: 1fr; /* Apila las métricas en móviles */
+    grid-template-columns: 1fr;
   }
   
   .upgrade-premium-banner {

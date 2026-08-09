@@ -38,6 +38,7 @@
 /* Formulario */
 .lote-select {
   width: 100%;
+  max-width: 100%; /* Candado extra de seguridad */
   padding: 12px;
   border: 1px solid #cbd5e1;
   border-radius: 6px;
@@ -45,6 +46,11 @@
   background-color: #f8fafc;
   font-weight: 600;
   color: #1e293b;
+  
+  /* ESTAS 3 LÍNEAS ARREGLAN EL DESBORDAMIENTO */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .form-pesaje {
@@ -213,4 +219,67 @@
   border-radius: 6px;
   font-weight: bold;
   font-size: 1rem;
+}
+
+
+/* =========================================
+   CORRECCIONES Y DISEÑO RESPONSIVO (MÓVILES)
+   ========================================= */
+
+/* 1. Prevenir el desbordamiento horizontal (Box Model) en todos los inputs */
+.lote-select, 
+.input-group input,
+.edit-input {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  /* 2. Márgenes generales de la página para pantallas pequeñas */
+  .pesajes-page {
+    padding: 1rem 0.75rem;
+    box-sizing: border-box;
+  }
+
+  /* 3. Reducir los márgenes internos de las tarjetas */
+  .card {
+    padding: 1rem;
+  }
+
+  /* 4. Apilar los elementos del historial para que no choquen en 320px */
+  .pesaje-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .pesaje-info {
+    width: 100%;
+    justify-content: space-between; /* Distribuye el peso y la fecha */
+  }
+
+  .acciones-row {
+    width: 100%;
+    justify-content: flex-end;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 10px;
+  }
+
+  /* 5. Asegurar que los botones principales no desborden */
+  .btn-guardar, 
+  .btn-ia-camara {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* 6. Adaptar el modo de edición en línea para móviles */
+  .edit-mode {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .edit-mode button {
+    flex: 1; /* Los botones de guardar/cancelar se dividirán el espacio */
+  }
 }

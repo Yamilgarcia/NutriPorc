@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { usePesajes } from "../logic/usePesajes";
-import { useIA } from "../logic/useIA"; // <-- IMPORTAMOS LA IA
+import { useIA } from "../logic/useIA"; 
 import { CameraScanner } from "../../../components/CameraScanner";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
@@ -9,14 +9,12 @@ import { useAuth } from "../../auth/logic/AuthContext";
 import "./PesajesPage.css";
 
 export default function PesajesPage() {
-
   const { user } = useAuth();
   const {
     lotes, loteSeleccionadoId, setLoteSeleccionadoId, pesajes,
     loadingLotes, loadingPesajes, handleAdd, handleUpdate, handleDelete
   } = usePesajes();
 
-  // <-- INICIALIZAMOS LA IA
   const { analizarImagen, isModelLoading, isAnalyzing } = useIA(); 
 
   const [pesoInput, setPesoInput] = useState("");
@@ -24,22 +22,45 @@ export default function PesajesPage() {
   const [editandoId, setEditandoId] = useState(null);
   const [pesoEditado, setPesoEditado] = useState("");
   const [mostrarScanner, setMostrarScanner] = useState(false);
+  
+  // ==========================================
+  // NUEVO: ESTADO PARA NUESTRO MODAL PERSONALIZADO
+  // ==========================================
+  const [alertaIA, setAlertaIA] = useState({
+    mostrar: false,
+    exito: false,
+    titulo: "",
+    mensaje: "",
+    pesoResultante: null
+  });
 
   // ==========================================
   // EL PUENTE ENTRE LA CÁMARA Y LA IA
   // ==========================================
   const procesarFotoIA = async (imageBase64) => {
-    setMostrarScanner(false); // 1. Cerramos la cámara
+    setMostrarScanner(false); 
     
-    // 2. Enviamos la foto al motor de TensorFlow
     const resultado = await analizarImagen(imageBase64);
 
-    // 3. Reaccionamos al resultado
     if (resultado.exito) {
-      alert(`✅ ¡Animal detectado! (Confianza: ${resultado.confianza}%)\nPeso estimado: ${resultado.peso} lbs`);
-      setPesoInput(resultado.peso); // ¡MAGIA! Rellenamos el input automáticamente
+      // En vez de alert(), abrimos nuestro modal de éxito
+      setAlertaIA({
+        mostrar: true,
+        exito: true,
+        titulo: "¡Análisis Completado!",
+        mensaje: `Precisión biométrica: ${resultado.confianza}%\nEspecie detectada: ${resultado.objeto}`,
+        pesoResultante: resultado.peso
+      });
+      setPesoInput(resultado.peso); 
     } else {
-      alert(`❌ ${resultado.mensaje}`);
+      // Abrimos el modal de error
+      setAlertaIA({
+        mostrar: true,
+        exito: false,
+        titulo: "Error de Escaneo",
+        mensaje: resultado.mensaje,
+        pesoResultante: null
+      });
     }
   };
 
@@ -47,13 +68,7 @@ export default function PesajesPage() {
     e.preventDefault();
     if (!pesoInput || pesoInput <= 0) return alert("Ingresa un peso válido");
     
-    // Guardamos indicando que el método fue manual (si el usuario lo tecleó) o IA (si lo calculó TensorFlow)
-    // Para saberlo rápido, verificamos si el pesoInput tiene muchos decimales o algo específico, 
-    // pero por ahora dejaremos que el usuario decida si fue con IA o manual. 
-    // Simplificamos: si usó el botón de IA justo antes, lo marcamos como IA.
-    // Como es un MVP de hackathon, lo guardaremos como "manual" a menos que lo detectemos diferente.
-    // Para hacerlo perfecto, añadimos el parámetro estático "ia" si vino de la cámara.
-    const metodoReal = isAnalyzing ? "ia" : "manual"; // Un pequeño hack visual
+    const metodoReal = isAnalyzing ? "ia" : "manual"; 
     
     const exito = await handleAdd(pesoInput, fechaInput, metodoReal);
     if (exito) setPesoInput("");
@@ -132,8 +147,6 @@ export default function PesajesPage() {
                 💾 Guardar Peso
               </button>
               
-              {/* ESTADOS VISUALES MIENTRAS LA IA PIENSA */}
-              {/* 3. LÓGICA DE BLOQUEO SEGÚN LICENCIA */}
               {user?.plan !== "Pro" ? (
                 <div style={{ marginTop: '15px', padding: '15px', backgroundColor: '#fef3c7', border: '1px dashed #fbbf24', borderRadius: '8px', textAlign: 'center' }}>
                   <p style={{ color: '#b45309', margin: 0, fontSize: '0.9rem', fontWeight: 'bold' }}>⭐ Función Exclusiva Pro</p>
@@ -234,6 +247,41 @@ export default function PesajesPage() {
           onClose={() => setMostrarScanner(false)} 
         />
       )}
+
+      {/* ========================================== */}
+      {/* NUEVO MODAL DE RESULTADO IA */}
+      {/* ========================================== */}
+      {alertaIA.mostrar && (
+        <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, backdropFilter: 'blur(4px)' }}>
+          <div className="modal-content" style={{ background: 'white', padding: '30px', borderRadius: '20px', maxWidth: '350px', width: '90%', textAlign: 'center', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)' }}>
+            
+            <div style={{ fontSize: '4rem', marginBottom: '10px' }}>
+              {alertaIA.exito ? '✅' : '⚠️'}
+            </div>
+            
+            <h3 style={{ color: '#0f172a', margin: '0 0 10px 0', fontSize: '1.4rem' }}>{alertaIA.titulo}</h3>
+            
+            <p style={{ color: '#64748b', margin: '0 0 20px 0', whiteSpace: 'pre-line', fontSize: '0.95rem', lineHeight: '1.5' }}>
+              {alertaIA.mensaje}
+            </p>
+
+            {alertaIA.exito && (
+              <div style={{ background: '#ecfdf5', border: '1px solid #10b981', color: '#047857', padding: '15px', borderRadius: '12px', marginBottom: '20px' }}>
+                <span style={{ display: 'block', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '5px' }}>Peso Estimado</span>
+                <span style={{ fontSize: '2rem', fontWeight: '900' }}>{alertaIA.pesoResultante} <span style={{fontSize: '1rem'}}>lbs</span></span>
+              </div>
+            )}
+
+            <button 
+              onClick={() => setAlertaIA({ ...alertaIA, mostrar: false })}
+              style={{ width: '100%', background: alertaIA.exito ? '#10b981' : '#f59e0b', color: 'white', padding: '14px', borderRadius: '10px', fontWeight: 'bold', border: 'none', cursor: 'pointer', fontSize: '1rem', transition: 'all 0.2s' }}
+            >
+              {alertaIA.exito ? "Confirmar y Continuar" : "Entendido"}
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

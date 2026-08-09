@@ -396,11 +396,51 @@
 }
 
 @media (max-width: 768px) {
+  /* 1. Reducir el padding excesivo del contenedor principal */
+  .maximizador-page {
+    padding: 1rem 0.5rem; 
+  }
+  
+  .punto-optimo-widget {
+    padding: 1.2rem;
+  }
+
+  /* 2. Apilar el ícono de alerta y su contenido */
+  .punto-optimo-widget .optimo-alert-container {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  /* 3. Asegurar que textos y métricas vayan en columnas completas */
+  .punto-optimo-widget .alert-content-grid {
+    flex-direction: column;
+    align-items: stretch; /* Estira los elementos al 100% */
+    gap: 1.2rem;
+  }
+
+  /* 4. Las dos métricas (Ganancia y Margen) apiladas ocupando todo el ancho */
+  .punto-optimo-widget .alert-metrics-aside {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.8rem;
+  }
+
+  .punto-optimo-widget .metric-box {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* 5. Inputs en una sola columna (ya lo tenías) */
   .punto-optimo-widget .inputs-row {
     grid-template-columns: 1fr;
   }
-  .punto-optimo-widget .alert-content-grid {
+  
+  /* 6. Apilar la leyenda del gráfico por si acaso choca */
+  .punto-optimo-widget .chart-legend-top {
     flex-direction: column;
     align-items: flex-start;
+    gap: 0.5rem;
   }
 }

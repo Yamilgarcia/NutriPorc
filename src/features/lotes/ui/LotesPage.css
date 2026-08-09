@@ -25,7 +25,7 @@
 }
 
 /* Panel de Filtros y Control */
-.control-panel {
+.control-panelLotes {
   display: flex;
   gap: 1rem;
   margin-bottom: 2rem;
@@ -48,6 +48,7 @@
   font-size: 1rem;
   transition: all 0.2s ease;
   background: white;
+  box-sizing: border-box; /* AGREGA ESTA LÍNEA */
 }
 
 .search-input:focus {
@@ -333,4 +334,57 @@
   color: #dd6b20;
   border-radius: 4px;
   font-size: 0.85rem;
+}
+
+/* =========================================
+   RESPONSIVE DESIGN (MÓVILES Y TABLETS)
+   ========================================= */
+@media (max-width: 768px) {
+  /* 1. Reducir el padding general de la página para ganar espacio */
+  .lotes-page {
+    padding: 1rem 0.75rem;
+  }
+
+  /* 2. Apilar el panel de control verticalmente y forzar ancho completo */
+  .control-panel {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+
+  /* 3. Quitar el ancho mínimo del buscador para que no desborde */
+  .search-input {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .sort-select {
+    width: 100%;
+  }
+
+  /* 4. Sobrescribir el estilo en línea (marginLeft: "auto") del botón */
+  .control-panel .btn-primary {
+    margin-left: 0 !important;
+    width: 100%;
+  }
+
+  /* 5. CORRECCIÓN CRÍTICA: Evitar que las tarjetas exijan 320px de ancho */
+  .lotes-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  /* 6. Reducir padding de las tarjetas y reorganizar los botones de acción */
+  .lote-card {
+    padding: 1rem;
+  }
+
+  .card-actions {
+    flex-direction: column;
+  }
+
+  .btn-action {
+    width: 100%;
+  }
 }

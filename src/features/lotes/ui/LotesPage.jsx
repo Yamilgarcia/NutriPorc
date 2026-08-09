@@ -235,7 +235,7 @@ export default function LotesPage() {
         <h2>Gestión de Lotes</h2>
         <p>Control de etapas biológicas, inventario y mortalidad.</p>
       </header>
-      <div className="control-panel">
+      <div className="control-panelLotes">
         <input
           type="text"
           placeholder="Buscar lote o código..."
