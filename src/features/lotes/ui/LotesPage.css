@@ -31,7 +31,7 @@
   margin-bottom: 2rem;
   flex-wrap: wrap;
   align-items: center;
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(19, 126, 53, 0.507);
   backdrop-filter: blur(10px);
   padding: 1.5rem;
   border-radius: 16px;
@@ -73,8 +73,8 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #38b2ac 0%, #319795 100%);
-  color: white;
+  background: linear-gradient(135deg, #F49F97 0%, #F49F97 100%);
+  color: rgb(0, 0, 0);
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
@@ -194,8 +194,8 @@
 }
 
 .etapa-badge {
-  background: #ebf8ff;
-  color: #2b6cb0;
+  background: #f49f9763;
+  color: #F49F97;
   padding: 0.25rem 0.5rem;
   border-radius: 6px;
   font-weight: 600;
@@ -252,11 +252,12 @@
 .modal-content {
   background: white;
   padding: 2rem;
-  border-radius: 16px;
   width: 90%;
-  max-width: 500px;
+  max-width: 800px; 
+  border-radius: 0px; 
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   animation: slideUp 0.3s ease-out;
+  border: 2px solid #F19B91; 
 }
 
 .modal-content h3 {

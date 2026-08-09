@@ -62,7 +62,7 @@
   display: block;
   font-size: 0.9rem;
   font-weight: 600;
-  color: #4a5568;
+  color: #000000;
   margin-bottom: 0.5rem;
 }
 
@@ -281,7 +281,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.6rem;
-  background: #f8fafc;
+  background: #f49f9763;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   cursor: pointer;
@@ -299,8 +299,8 @@
 
 .insumo-checkbox.selected {
   background: #e6fffa;
-  border-color: #319795;
-  color: #234e52;
+  border-color: #137E35;
+  color: #137e359d;
 }
 
 .insumo-checkbox input {
@@ -312,8 +312,8 @@
 
 .btn-calcular {
   width: 100%;
-  background: linear-gradient(135deg, #38b2ac 0%, #319795 100%);
-  color: white;
+  background: linear-gradient(135deg, #137e35bd 0%, #137e35bd 100%);
+  color: rgb(0, 0, 0);
   border: none;
   padding: 1rem;
   font-size: 1.1rem;
@@ -349,21 +349,21 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #e6fffa;
+  background: #edde998c;
   padding: 1rem;
   border-radius: 8px;
-  border-left: 4px solid #38b2ac;
+  border-left: 4px solid #EDDD99;
 }
 
 .mezcla-header h4 {
-  color: #234e52;
+  color: #000000;
   margin: 0;
   font-size: 1.1rem;
   font-weight: 700;
 }
 
 .mezcla-header p {
-  color: #319795;
+  color: #000000;
   font-weight: 700;
   margin: 0;
 }
@@ -416,7 +416,7 @@
   background: #ed8936;
 }
 .progreso-exceso {
-  background: #e53e3e;
+  background: #137E35;
 }
 
 .ajustes-lista {
@@ -441,7 +441,7 @@
 
 .ajuste-item input[type="range"] {
   width: 100%;
-  accent-color: #38b2ac;
+  accent-color: #F49F97;
 }
 
 .ajuste-item input[type="number"] {
@@ -458,8 +458,8 @@
 .resumen-total {
   margin-top: 1rem;
   padding: 1.2rem;
-  background: #1a202c;
-  color: white;
+  background: #EDDD99;
+  color: rgb(0, 0, 0);
   border-radius: 12px;
   display: flex;
   justify-content: space-between;
@@ -473,26 +473,26 @@
 }
 
 .total-peso.error {
-  color: #fc8181;
+  color: #f50505;
 }
 
 .total-costo {
   font-size: 1.75rem;
   font-weight: 800;
-  color: #4fd1c5;
+  color: #000000;
 }
 
 /* Plan de Alimentación */
 .plan-alimentacion {
   margin-top: 1.5rem;
   padding: 1.5rem;
-  background: #f0fdfa;
-  border: 1px solid #ccfbf1;
+  background: #137e359d;
+  border: 1px solid #137e359d;
   border-radius: 12px;
 }
 
 .plan-alimentacion h4 {
-  color: #115e59;
+  color: #000000;
   font-size: 1.1rem;
   margin-bottom: 1rem;
   margin-top: 0;
@@ -502,9 +502,7 @@
   gap: 0.5rem;
 }
 
-.plan-alimentacion h4::before {
-  content: "🌾";
-}
+
 
 .plan-grid {
   display: grid;
@@ -524,29 +522,29 @@
 }
 
 .plan-card.highlight {
-  background: #115e59;
-  color: white;
-  border-color: #0f766e;
+  background: #f49f97cc;
+  color: rgb(0, 0, 0);
+  border-color: #F49F97;
 }
 
 .plan-label {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #64748b;
+  color: #F49F97;
 }
 
 .plan-card.highlight .plan-label {
-  color: #ccfbf1;
+  color: #000000;
 }
 
 .plan-value {
   font-size: 1.5rem;
   font-weight: 800;
-  color: #0f766e;
+  color: #F49F97;
 }
 
 .plan-card.highlight .plan-value {
-  color: white;
+  color: rgb(0, 0, 0);
 }
 
 .plan-note {
@@ -560,7 +558,7 @@
 
 .plan-note strong {
   display: block;
-  color: #0f766e;
+  color: #000000;
   margin-bottom: 0.25rem;
 }
 
@@ -570,7 +568,7 @@
 
 .highlight-text {
   font-weight: 700;
-  color: #0f766e;
+  color: #000000;
 }
 
 .btn-exportar {
@@ -579,8 +577,8 @@
   justify-content: center;
   gap: 0.5rem;
   background: white;
-  color: #319795;
-  border: 2px solid #319795;
+  color: #137E35;
+  border: 2px solid #137E35;
   padding: 0.75rem;
   font-weight: 700;
   border-radius: 8px;
@@ -698,7 +696,7 @@
   /* Impresión para análisis de duración */
   .analisis-duracion {
     border: 2px solid #000 !important;
-    background: #fff !important;
+    background: #ffffff !important;
     color: #000 !important;
     border-radius: 0 !important;
     margin-top: 2rem !important;
@@ -744,14 +742,14 @@
 .analisis-duracion {
   margin-top: 1.5rem;
   padding: 1.5rem;
-  background: #f0fdfa;
+  background: #f49f978a;
   border: 1px solid #ccfbf1;
   border-radius: 12px;
   animation: fadeIn 0.3s ease-out;
 }
 
 .analisis-duracion h4 {
-  color: #115e59;
+  color: #000000;
   font-size: 1.1rem;
   margin-bottom: 1rem;
   margin-top: 0;
@@ -779,7 +777,7 @@
 .analisis-frecuencia label {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #334155;
+  color: #000000;
 }
 
 .frecuencia-control {
@@ -850,13 +848,13 @@
 
 .tab-btn.active {
   background: white;
-  color: #0f766e;
+  color: #137E35;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .tab-desc {
   font-size: 0.85rem;
-  color: #64748b;
+  color: #000000;
   margin-top: 0;
   margin-bottom: 1.25rem;
   line-height: 1.4;
@@ -875,7 +873,7 @@
 .input-group-calc label {
   font-size: 0.85rem;
   font-weight: 700;
-  color: #475569;
+  color: #000000;
 }
 
 .input-with-select {
@@ -926,7 +924,7 @@
 }
 
 .resultado-principal.card-plan {
-  border-left: 5px solid #0d9488;
+  border-left: 5px solid #137E35;
 }
 
 .resultado-principal.card-duracion {
@@ -937,7 +935,7 @@
   display: block;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #64748b;
+  color: #000000;
   margin-bottom: 0.25rem;
 }
 
@@ -946,7 +944,7 @@
   flex-direction: column;
   font-size: 1.75rem;
   font-weight: 800;
-  color: #0f766e;
+  color: #137E35;
   line-height: 1.2;
   margin-bottom: 0.75rem;
 }
@@ -954,7 +952,7 @@
 .resultado-subvalor {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #64748b;
+  color: #000000;
   margin-top: 0.25rem;
 }
 
@@ -975,7 +973,7 @@
 .detalle-calc-label {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #64748b;
+  color: #000000;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -983,11 +981,11 @@
 .detalle-calc-val {
   font-size: 1.05rem;
   font-weight: 800;
-  color: #1e293b;
+  color: #137E35;
 }
 
 .detalle-calc-val.highlight-val {
-  color: #0d9488;
+  color: #137E35;
   font-size: 1.15rem;
 }
 
@@ -1001,7 +999,7 @@
 .desglose-insumos h5 {
   margin-top: 0;
   margin-bottom: 0.75rem;
-  color: #334155;
+  color: #000000;
   font-size: 0.95rem;
   font-weight: 700;
   border-bottom: 1px solid #f1f5f9;
@@ -1046,7 +1044,7 @@
 .insumo-calc-peso-qq {
   font-size: 1.1rem;
   font-weight: 800;
-  color: #0f766e;
+  color: #137E35;
 }
 
 .insumo-calc-peso-lbs {

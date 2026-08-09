@@ -37,7 +37,7 @@
 .control-panel {
   display: flex;
   gap: 10px;
-  background: #f1f5f9;
+  background: rgba(19, 126, 53, 0.507);
   padding: 15px;
   border-radius: 8px;
 }
@@ -57,7 +57,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  background: #ffffff;
+  background: rgba(19, 126, 53, 0.507);
   padding: 20px;
   border: 1px dashed #cbd5e1;
   border-radius: 8px;
@@ -66,7 +66,7 @@
 .form-header h3 {
   margin: 0 0 10px 0;
   font-size: 1.1rem;
-  color: #334155;
+  color: #000000;
   width: 100%;
 }
 
@@ -86,8 +86,8 @@
 
 .btn-add {
   padding: 10px 20px;
-  background: #1e293b;
-  color: #fff;
+  background: #F49F97;
+  color: #000000;
   border: none;
   border-radius: 6px;
   font-weight: bold;
@@ -185,8 +185,8 @@
 }
 
 .badge-sistema {
-  background-color: #e0f2fe;
-  color: #0284c7;
+  background-color: #8f181462;
+  color: #8F1914;
 }
 
 .badge-propio {

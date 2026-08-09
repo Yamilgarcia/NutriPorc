@@ -87,8 +87,8 @@
 
 /* Botones */
 .btn-guardar {
-  background-color: #0f172a;
-  color: white;
+  background-color: #137e3593;
+  color: #137E35;
   border: none;
   padding: 14px;
   border-radius: 6px;
@@ -98,12 +98,12 @@
   transition: background-color 0.2s;
 }
 
-.btn-guardar:hover { background-color: #1e293b; }
+.btn-guardar:hover { background-color: #d1fae5; }
 
 .btn-ia-camara {
-  background-color: #ecfdf5;
-  color: #059669;
-  border: 2px dashed #34d399;
+  background-color: #f49f977e;
+  color: #f49f97ef;
+  border: 2px dashed #F49F97;
   padding: 14px;
   border-radius: 6px;
   cursor: pointer;
@@ -146,9 +146,9 @@
   justify-content: space-between;
   align-items: center;
   padding: 14px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #EDDD99;
   border-radius: 8px;
-  background-color: #f8fafc;
+  background-color: #edde9979;
   transition: all 0.2s;
 }
 
@@ -170,7 +170,7 @@
   font-size: 1.1rem;
 }
 
-.fecha-valor { color: #64748b; font-size: 0.95rem; }
+.fecha-valor { color: #000000; font-size: 0.95rem; }
 
 .badge {
   padding: 4px 10px;
@@ -179,7 +179,7 @@
   font-weight: bold;
 }
 
-.badge-manual { background-color: #e2e8f0; color: #475569; }
+.badge-manual { background-color: #137e3580; color: #137E35; }
 .badge-ia { background-color: #dcfce7; color: #166534; border: 1px solid #86efac; }
 
 /* Acciones CRUD */
