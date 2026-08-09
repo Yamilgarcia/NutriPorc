@@ -85,13 +85,13 @@ export const DashboardFinanciero = () => {
       <div style={{ display: "flex", gap: "10px", marginBottom: "30px", borderBottom: "2px solid #e2e8f0" }}>
         <button 
           onClick={() => setVistaActiva("operacion")}
-          style={{ padding: "10px 20px", fontSize: "15px", fontWeight: "bold", border: "none", backgroundColor: "transparent", borderBottom: vistaActiva === "operacion" ? "3px solid #3b82f6" : "3px solid transparent", color: vistaActiva === "operacion" ? "#3b82f6" : "#64748b", cursor: "pointer", transition: "all 0.2s" }}
+          style={{ padding: "10px 20px", fontSize: "15px", fontWeight: "bold", border: "none", backgroundColor: "transparent", borderBottom: vistaActiva === "operacion" ? "3px solid #8F1914" : "3px solid transparent", color: vistaActiva === "operacion" ? "#8F1914" : "#64748b", cursor: "pointer", transition: "all 0.2s" }}
         >
           🐖 Operación Actual
         </button>
         <button 
           onClick={() => setVistaActiva("reportes")}
-          style={{ padding: "10px 20px", fontSize: "15px", fontWeight: "bold", border: "none", backgroundColor: "transparent", borderBottom: vistaActiva === "reportes" ? "3px solid #10b981" : "3px solid transparent", color: vistaActiva === "reportes" ? "#10b981" : "#64748b", cursor: "pointer", transition: "all 0.2s" }}
+          style={{ padding: "10px 20px", fontSize: "15px", fontWeight: "bold", border: "none", backgroundColor: "transparent", borderBottom: vistaActiva === "reportes" ? "3px solid #137E35" : "3px solid transparent", color: vistaActiva === "reportes" ? "#137E35" : "#64748b", cursor: "pointer", transition: "all 0.2s" }}
         >
           📊 Historial y Reportes
         </button>
@@ -118,18 +118,18 @@ export const DashboardFinanciero = () => {
           {loteActivo ? (
             <>
               <div style={{ display: "flex", gap: "20px", marginBottom: "30px", flexWrap: "wrap" }}>
-                <div className="np-card" style={{ flex: 1, backgroundColor: "#f8fafc" }}>
-                  <p className="np-label" style={{ color: "#3b82f6" }}>Estado de Biomasa Real</p>
-                  <h4 style={{ margin: "12px 0 6px 0", fontSize: "16px", color: "#334155" }}>
-                    Peso Actual: <strong style={{ color: "#3b82f6" }}>{pesoPromedio} lbs</strong> / cerdo
+                <div className="np-card" style={{ flex: 1, backgroundColor: "#ffffff" }}>
+                  <p className="np-label" style={{ color: "#000000" }}>Estado de Biomasa Real</p>
+                  <h4 style={{ margin: "12px 0 6px 0", fontSize: "16px", color: "#000000a9" }}>
+                    Peso Actual: <strong style={{ color: "#000000" }}>{pesoPromedio} lbs</strong> / cerdo
                   </h4>
                   <p style={{ fontSize: "13px", color: "#64748b", margin: 0 }}>
                     Masa estimada: <strong>{loteActivo.cantidad * pesoPromedio} lbs</strong> en corral.
                   </p>
-                  <span style={{ fontSize: "11px", display: "inline-block", marginTop: "10px", backgroundColor: "#e0f2fe", color: "#0369a1", padding: "2px 6px", borderRadius: "4px", fontWeight: "500" }}>Sincronizado con Monitoreo</span>
+                  <span style={{ fontSize: "11px", display: "inline-block", marginTop: "10px", backgroundColor: "#8f181480", color: "#000000", padding: "2px 6px", borderRadius: "4px", fontWeight: "500" }}>Sincronizado con Monitoreo</span>
                 </div>
 
-                <div className="np-card" style={{ borderLeft: "4px solid #ef4444", flex: 1 }}>
+                <div className="np-card" style={{ borderLeft: "4px solid #8f1814d0", flex: 1 }}>
                   <p className="np-label">Inversión Total (Gastos)</p>
                   <h2 style={{ fontSize: "32px", color: "#0f172a", margin: "10px 0" }}>C$ {totalEgresos.toFixed(2)}</h2>
                   {totalIngresosParciales > 0 && (
@@ -137,7 +137,7 @@ export const DashboardFinanciero = () => {
                   )}
                 </div>
 
-                <div className="np-card" style={{ borderLeft: "4px solid #3b82f6", flex: 1 }}>
+                <div className="np-card" style={{ borderLeft: "4px solid #137e35de", flex: 1 }}>
                   <p className="np-label" title="Gastos / Libras Totales">Costo de Prod. por Libra</p>
                   <h2 style={{ fontSize: "32px", color: "#0f172a", margin: "10px 0" }}>C$ {costoPorLibra.toFixed(2)}</h2>
                 </div>
@@ -163,7 +163,7 @@ export const DashboardFinanciero = () => {
       {vistaActiva === "reportes" && (
         <div>
           {/* BARRA DE FILTROS DE REPORTES */}
-          <div className="np-card" style={{ marginBottom: "20px", display: "flex", gap: "15px", flexWrap: "wrap", alignItems: "flex-end", backgroundColor: "#f8fafc" }}>
+          <div className="np-card" style={{ marginBottom: "20px", display: "flex", gap: "15px", flexWrap: "wrap", alignItems: "flex-end", backgroundColor: "#137e3571" }}>
             <div style={{ flex: 1, minWidth: "150px" }}>
               <label className="np-label">Filtrar por Año</label>
               <select className="np-input" value={filtroAnio} onChange={e => setFiltroAnio(e.target.value)}>
@@ -195,19 +195,19 @@ export const DashboardFinanciero = () => {
           </div>
 
           <div style={{ display: "flex", gap: "20px", marginBottom: "30px", flexWrap: "wrap" }}>
-            <div className="np-card" style={{ flex: 1, borderTop: "4px solid #10b981", backgroundColor: "#ecfdf5" }}>
-              <p className="np-label" style={{ color: "#065f46" }}>Ganancia Neta (Periodo)</p>
-              <h2 style={{ fontSize: "32px", color: metricasFiltradas.gananciaTotal >= 0 ? "#064e3b" : "#991b1b", margin: "10px 0" }}>
+            <div className="np-card" style={{ flex: 1, borderTop: "4px solid #8F1914", backgroundColor: "#ffd0ce70" }}>
+              <p className="np-label" style={{ color: "#000000" }}>Ganancia Neta (Periodo)</p>
+              <h2 style={{ fontSize: "32px", color: metricasFiltradas.gananciaTotal >= 0 ? "#8F1914" : "#991b1b", margin: "10px 0" }}>
                 C$ {metricasFiltradas.gananciaTotal.toFixed(2)}
               </h2>
             </div>
-            <div className="np-card" style={{ flex: 1, borderTop: "4px solid #f59e0b", backgroundColor: "#fffbeb" }}>
-              <p className="np-label" style={{ color: "#b45309" }}>Total Invertido (Periodo)</p>
-              <h2 style={{ fontSize: "32px", color: "#78350f", margin: "10px 0" }}>C$ {metricasFiltradas.inversionTotal.toFixed(2)}</h2>
+            <div className="np-card" style={{ flex: 1, borderTop: "4px solid #137E35", backgroundColor: "#c7ffd8" }}>
+              <p className="np-label" style={{ color: "#000000" }}>Total Invertido (Periodo)</p>
+              <h2 style={{ fontSize: "32px", color: "#137E35", margin: "10px 0" }}>C$ {metricasFiltradas.inversionTotal.toFixed(2)}</h2>
             </div>
-            <div className="np-card" style={{ flex: 1, borderTop: "4px solid #3b82f6", backgroundColor: "#eff6ff" }}>
-              <p className="np-label" style={{ color: "#1e40af" }}>Cerdos Vendidos (Periodo)</p>
-              <h2 style={{ fontSize: "32px", color: "#1e3a8a", margin: "10px 0" }}>{metricasFiltradas.cerdosVendidos} 🐷</h2>
+            <div className="np-card" style={{ flex: 1, borderTop: "4px solid #F49F97", backgroundColor: "#ffc8c3" }}>
+              <p className="np-label" style={{ color: "#000000" }}>Cerdos Vendidos (Periodo)</p>
+              <h2 style={{ fontSize: "32px", color: "#F49F97", margin: "10px 0" }}>{metricasFiltradas.cerdosVendidos} 🐷</h2>
             </div>
           </div>
 
@@ -284,7 +284,7 @@ const FormTransaccion = ({ onAgregar }) => {
     <div className="np-card" style={{ borderStyle: "dashed", borderColor: tipo === "Egreso" ? "#fca5a5" : "#86efac" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
         <h3 style={{ margin: 0, fontSize: "18px", display: "flex", alignItems: "center", gap: "8px", color: "#334155" }}>
-          <span style={{ color: tipo === "Egreso" ? "#ef4444" : "#10b981" }}>{tipo === "Egreso" ? "📉" : "📈"}</span> 
+          <span style={{ color: tipo === "Egreso" ? "#8F1914" : "#137E35" }}>{tipo === "Egreso" ? "📉" : "📈"}</span> 
           Registrar Transacción
         </h3>
         <div style={{ display: "flex", gap: "5px", backgroundColor: "#f1f5f9", padding: "4px", borderRadius: "8px" }}>
@@ -462,7 +462,7 @@ const FormCierreLote = ({ gastosTotales, ingresosPrevios, onCerrarLote, isProces
           <label className="np-label">Ingreso Final por Venta (C$)</label>
           <input type="number" step="0.01" className="np-input" style={{ width: "250px" }} value={precioVenta} onChange={(e) => { setPrecioVenta(e.target.value); if (previsualizacion) setPrevisualizacion(null); }} placeholder="Ej. 45000.00" required disabled={isProcessing} min="1" />
         </div>
-        <button type="submit" className="np-btn-primary" style={{ backgroundColor: "#475569", height: "42px" }} disabled={isProcessing}>
+        <button type="submit" className="np-btn-primary" style={{ backgroundColor: "#F49F97", height: "42px" }} disabled={isProcessing}>
           Calcular Rendimiento
         </button>
       </form>
