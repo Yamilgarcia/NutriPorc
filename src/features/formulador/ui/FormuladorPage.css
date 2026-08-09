@@ -1054,3 +1054,233 @@
   color: #64748b;
   font-weight: 600;
 }
+
+
+/* ========================================================
+   RESPONSIVIDAD MÓVIL - CORRECCIÓN DE OVERFLOW
+   ======================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.formulador-page {
+  width: 100%;
+  max-width: 1200px;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+.formulador-grid {
+  min-width: 0;
+}
+
+.panel {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Evita que inputs/selects se salgan del panel */
+.form-group,
+.custom-select-wrapper,
+.insumo-search-input,
+.insumos-list,
+.hoja-mezcla,
+.graficos-container,
+.ajustes-lista,
+.plan-alimentacion,
+.analisis-duracion {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* ========================================================
+   MÓVIL
+   ======================================================== */
+
+@media (max-width: 768px) {
+
+  .formulador-page {
+    width: 100%;
+    max-width: 100%;
+    padding: 1rem;
+    margin: 0;
+    overflow-x: hidden;
+  }
+
+  .formulador-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .panel {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding: 1rem;
+    overflow: hidden;
+  }
+
+  .module-header {
+    margin-bottom: 1.25rem;
+  }
+
+  .module-header h2 {
+    font-size: 1.75rem;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+
+  .module-header p {
+    font-size: 0.95rem;
+  }
+
+  /* Lista de insumos */
+  .insumos-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .insumo-checkbox {
+    min-width: 0;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .insumo-checkbox span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  /* Ajustes de la mezcla */
+  .ajuste-item {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .ajuste-item input[type="range"],
+  .ajuste-item input[type="number"] {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* Encabezado de mezcla */
+  .mezcla-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  /* Resumen */
+  .resumen-total {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .total-costo {
+    font-size: 1.4rem;
+  }
+
+  /* Plan */
+  .plan-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Análisis */
+  .analisis-frecuencia {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .frecuencia-control {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .analisis-tabs {
+    flex-direction: column;
+  }
+
+  .tab-btn {
+    width: 100%;
+  }
+
+  .resultado-detalles-row {
+    grid-template-columns: 1fr;
+  }
+
+  .input-with-select {
+    flex-direction: column;
+  }
+
+  .number-input-calc,
+  .select-input-calc {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .resultado-valor {
+    font-size: 1.4rem;
+  }
+
+  .desglose-insumos {
+    padding: 1rem;
+  }
+}
+
+/* ========================================================
+   MÓVILES PEQUEÑOS - 320px / 360px
+   ======================================================== */
+
+@media (max-width: 380px) {
+
+  .formulador-page {
+    padding: 0.75rem;
+  }
+
+  .panel {
+    padding: 0.75rem;
+    border-radius: 10px;
+  }
+
+  .module-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .module-header p {
+    font-size: 0.85rem;
+  }
+
+  .insumos-list {
+    grid-template-columns: 1fr;
+  }
+
+  .panel h3 {
+    font-size: 1.1rem;
+  }
+
+  .mezcla-header {
+    padding: 0.75rem;
+  }
+
+  .graficos-container {
+    padding: 0.75rem;
+  }
+
+  .plan-alimentacion,
+  .analisis-duracion {
+    padding: 0.75rem;
+  }
+}
