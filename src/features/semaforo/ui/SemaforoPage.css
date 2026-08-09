@@ -112,3 +112,33 @@
   max-height: 500px; /* Tamaño máximo holgado */
   opacity: 1;
 }
+
+/* =========================================
+   DISEÑO RESPONSIVO (MÓVILES)
+   ========================================= */
+@media (max-width: 768px) {
+  /* 1. Reducir padding lateral para ganar espacio en pantallas pequeñas */
+  .semaforo-page {
+    padding: 15px 10px;
+    box-sizing: border-box;
+  }
+
+  /* 2. ELIMINAR la restricción de 320px en móviles */
+  .semaforo-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  /* 3. Reducir un poco el padding interno de la tarjeta */
+  .alerta-card {
+    padding: 15px;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  /* 4. Asegurar que el encabezado no empuje el contenido si el texto es largo */
+  .alerta-header {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}

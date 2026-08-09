@@ -106,7 +106,7 @@
   height: 100vh;
   background-color: var(--np-surface);
   box-shadow: 15px 0 30px rgba(0,0,0,0.1); /* Sombra más pronunciada para separarlo del fondo */
-  z-index: 30;
+ z-index: 9999 !important;
   transform: translateX(-100%);
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;

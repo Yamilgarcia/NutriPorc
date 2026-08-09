@@ -118,3 +118,48 @@
   border: none;
   cursor: pointer;
 }
+
+/* =========================================
+   DISEÑO RESPONSIVO PARA FINANZAS (MÓVILES)
+   ========================================= */
+
+/* 1. Candado de seguridad para el módulo entero */
+.modulo-finanzas {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+  /* 2. Reducir márgenes internos para ganar espacio en celular */
+  .np-card {
+    padding: 16px;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  /* 3. Forzar que los encabezados con botones (Flexbox) salten de línea */
+  /* Busca todos los contenedores flexibles directos de las tarjetas */
+  .np-card > div {
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+  }
+
+  /* 4. Hacer que los grupos de botones ocupen el ancho completo */
+  .np-card > div > button,
+  .np-card > div > div {
+    flex: 1 1 auto;
+  }
+
+  /* 5. Ajustar los botones para que el texto no los obligue a ensancharse */
+  .np-btn-primary,
+  .np-btn-danger,
+  .modulo-finanzas button {
+    white-space: normal; /* Permite que el texto del botón baje a otra línea si es muy largo */
+    text-align: center;
+    padding: 10px 8px;
+    font-size: 13px;
+    width: 100%; /* Forzar botones al 100% en móviles si están muy apretados */
+  }
+}
