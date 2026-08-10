@@ -39,7 +39,7 @@ export default function ProPaywall({ children, tituloFeature, descripcion }) {
         
         <button 
           onClick={() => {
-            const stripeLink = "https://buy.stripe.com/test_7sY8wP14i67J4XyeUe7ss00";
+            const stripeLink = "https://buy.stripe.com/test_aFa8wP4gu7bN9dOdQa7ss01";
             window.location.href = `${stripeLink}?prefilled_email=${encodeURIComponent(user?.email || '')}&client_reference_id=${user?.fincaId || ''}`;
           }}
           style={{ 
