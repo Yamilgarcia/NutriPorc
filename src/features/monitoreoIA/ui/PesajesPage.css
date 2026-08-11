@@ -185,25 +185,77 @@
 /* Acciones CRUD */
 .acciones-row {
   display: flex;
-  gap: 8px;
+  gap: 6px;
 }
 
 .btn-icon {
-  background: white;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  width: 32px;
-  height: 32px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 5px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+  color: #475569;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  line-height: 1;
 }
 
-.btn-icon:hover { background: #f1f5f9; }
-.btn-icon.delete:hover { border-color: #fca5a5; background: #fef2f2; }
-.btn-icon.save { border-color: #86efac; background: #ecfdf5; }
+.btn-icon svg {
+  flex-shrink: 0;
+}
+
+.btn-icon:hover {
+  background-color: #e2e8f0;
+  border-color: #cbd5e0;
+}
+
+.btn-icon.edit {
+  background-color: #fef3c7;
+  color: #92400e;
+  border-color: #fcd34d;
+}
+
+.btn-icon.edit:hover {
+  background-color: #fde68a;
+}
+
+.btn-icon.delete {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+.btn-icon.delete:hover {
+  background-color: #fca5a5;
+  color: #991b1b;
+}
+
+.btn-icon.save {
+  background-color: #d1fae5;
+  color: #065f46;
+  border-color: #6ee7b7;
+}
+
+.btn-icon.save:hover {
+  background-color: #a7f3d0;
+}
+
+.btn-icon.cancel {
+  background-color: #f1f5f9;
+  color: #64748b;
+  border-color: #e2e8f0;
+}
+
+.btn-icon.cancel:hover {
+  background-color: #e2e8f0;
+}
 
 .edit-mode {
   display: flex;
