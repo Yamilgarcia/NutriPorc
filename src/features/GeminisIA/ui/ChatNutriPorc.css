@@ -1,0 +1,314 @@
+:root {
+  --np-primary: #009951;     /* Verde más vibrante y tecnológico */
+  --np-primary-dark: #006636;
+  --np-accent: #ff4785;      /* Rosa neón para destacar */
+  --bg-main: #f3f5f8;
+  --bg-panel: #ffffff;
+  --text-main: #1a202c;
+  --text-muted: #718096;
+}
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #a0aec0; }
+
+.chat-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 20px;
+  background-color: var(--bg-main);
+}
+
+.chat-container {
+  width: 100%;
+  max-width: 950px;
+  height: 80vh;
+  min-height: 600px;
+  background: var(--bg-panel);
+  border-radius: 24px;
+  /* Sombra expansiva espectacular */
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Header Oscuro Ultra Premium */
+.chat-header {
+  background: #0f2a21; /* Azul noche profundo casi negro */
+  background-image: radial-gradient(circle at top right, rgba(0, 153, 81, 0.3), transparent 50%);
+  padding: 20px 30px;
+  color: white;
+  z-index: 10;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.header-glass {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.ai-avatar {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 12px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emoji-pig { font-size: 2rem; }
+
+.pulse-glow {
+  box-shadow: 0 0 15px rgba(255, 71, 133, 0.4);
+  animation: gentleGlow 2s infinite alternate;
+}
+
+@keyframes gentleGlow {
+  from { box-shadow: 0 0 10px rgba(255, 71, 133, 0.3); }
+  to { box-shadow: 0 0 25px rgba(255, 71, 133, 0.6); }
+}
+
+.header-titles h2 {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.header-titles h2 span {
+  background: linear-gradient(to right, var(--np-accent), #ff8a65);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 4px 10px;
+  background: rgba(0, 153, 81, 0.2);
+  border: 1px solid rgba(0, 153, 81, 0.4);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  color: #6ee7b7;
+  font-weight: 600;
+}
+
+.dot.pulse-animation {
+  width: 8px;
+  height: 8px;
+  background-color: #34d399;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #34d399;
+  animation: blink 1.5s infinite;
+}
+
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+/* Área de conversación con patrón de fondo */
+.chat-history {
+  flex: 1;
+  padding: 30px;
+  /* Fondo tecnológico de puntitos */
+  background-color: #fafbfc;
+  background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+  background-size: 20px 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Quick Actions (Botones de sugerencia) */
+.quick-actions {
+  margin-bottom: 20px;
+  animation: fadeUp 0.5s ease-out;
+}
+
+.actions-title {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.actions-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.actions-grid button {
+  background: #ffffff;
+  border: 1px solid #cbd5e0;
+  padding: 8px 16px;
+  border-radius: 20px;
+  color: var(--np-primary-dark);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.actions-grid button:hover {
+  background: var(--np-primary);
+  color: white;
+  border-color: var(--np-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 153, 81, 0.2);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Burbujas de Chat Mejoradas */
+.message-row { display: flex; align-items: flex-end; gap: 12px; max-width: 85%; }
+.row-user { align-self: flex-end; justify-content: flex-end; }
+.row-model { align-self: flex-start; }
+
+.msg-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  color: var(--np-accent);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 800;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.message-bubble {
+  padding: 18px 24px;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.bubble-user {
+  background: var(--np-primary);
+  background: linear-gradient(135deg, var(--np-primary) 0%, var(--np-primary-dark) 100%);
+  color: white;
+  border-radius: 24px 24px 4px 24px;
+  box-shadow: 0 10px 20px rgba(0, 153, 81, 0.25);
+}
+
+.bubble-model {
+  background: #ffffff;
+  color: var(--text-main);
+  border-radius: 24px 24px 24px 4px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+}
+
+.bubble-model strong { color: var(--np-primary-dark); font-weight: 700; }
+.bubble-model li { margin-bottom: 8px; margin-left: 15px; }
+
+.ia-subtitle {
+  color: var(--np-accent);
+  font-size: 1.15rem;
+  margin-top: 15px;
+  margin-bottom: 8px;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 4px;
+}
+
+/* Indicador de escritura animado */
+.typing-indicator { display: flex; gap: 6px; padding: 20px 24px; }
+.typing-indicator span {
+  width: 8px; height: 8px;
+  background-color: var(--np-primary);
+  border-radius: 50%;
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+.typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+.typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+
+/* 🚀 LA CAJA DE TEXTO (Super Visible) 🚀 */
+.chat-input-wrapper {
+  padding: 24px 30px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid #e2e8f0;
+  /* Esta sombra la hace resaltar brutalmente sobre el fondo */
+  box-shadow: 0 -10px 30px rgba(0,0,0,0.03); 
+}
+
+.chat-input-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 15px;
+  background: #ffffff;
+  border-radius: 28px;
+  padding: 12px 12px 12px 24px;
+  /* Borde grueso y marcado */
+  border: 2px solid #09c528; 
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+}
+
+.chat-input-form:focus-within {
+  border-color: var(--np-primary);
+  box-shadow: 0 0 0 5px rgba(0, 153, 81, 0.15), 0 10px 25px rgba(0,0,0,0.05);
+  transform: translateY(-2px);
+}
+
+.prompt-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 12px 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-main);
+  resize: none;
+  outline: none;
+  max-height: 120px;
+  font-family: inherit;
+}
+
+.prompt-input::placeholder { color: #94a3b8; font-weight: 400; }
+
+.send-button {
+  background: var(--np-primary);
+  color: white;
+  border: none;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  box-shadow: 0 6px 15px rgba(0, 153, 81, 0.3);
+}
+
+.send-button svg { width: 22px; height: 22px; }
+
+.send-button:hover:not(:disabled) {
+  transform: scale(1.1) rotate(5deg);
+  background: var(--np-accent);
+  box-shadow: 0 8px 20px rgba(255, 71, 133, 0.4);
+}
+
+.send-button:disabled {
+  background: #e2e8f0;
+  color: #94a3b8;
+  box-shadow: none;
+  cursor: not-allowed;
+}
