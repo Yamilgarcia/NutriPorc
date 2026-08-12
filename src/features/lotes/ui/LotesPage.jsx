@@ -218,7 +218,7 @@ export default function LotesPage() {
               {lote.estado === "Activo" && (
                 <div className="card-actions" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '15px' }}>
                   {/* NUEVO BOTÓN DE EDITAR */}
-                  <button className="btn-action" onClick={() => openEditModal(lote)}>✏️ Editar</button>
+                  <button className="btn-action" onClick={() => openEditModal(lote)}>Editar</button>
                   <button className="btn-action" onClick={() => openEtapaModal(lote)}>Cambiar Etapa</button>
                   <button className="btn-action" onClick={() => openBajaModal(lote)}>Reportar Baja</button>
                   <button className="btn-action" onClick={() => openPesajeModal(lote)}>Control Peso</button>

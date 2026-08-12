@@ -407,14 +407,26 @@ const TablaTransacciones = ({ transacciones = [], onEliminar, onEditar }) => {
                     </td>
                     <td style={{ textAlign: "center", padding: "12px" }}>
                       {esFilaEditable ? (
-                        <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
-                          <button className="np-btn-primary" style={{ height: "28px", padding: "4px 10px", fontSize: "12px", backgroundColor: "#10b981" }} onClick={() => guardarEdicion(t.id)}>💾</button>
-                          <button className="np-btn-danger" style={{ backgroundColor: "#e2e8f0", color: "#475569" }} onClick={() => setEditandoId(null)}>❌</button>
+                        <div style={{ display: "flex", gap: "6px", justifyContent: "center" }}>
+                          <button className="np-btn-action-table success" onClick={() => guardarEdicion(t.id)}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            Guardar
+                          </button>
+                          <button className="np-btn-action-table" onClick={() => setEditandoId(null)}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            Cancelar
+                          </button>
                         </div>
                       ) : (
-                        <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
-                          <button className="np-btn-primary" style={{ height: "28px", padding: "4px 10px", fontSize: "12px", backgroundColor: "#f59e0b" }} onClick={() => iniciarEdicion(t)}>✏️</button>
-                          <button className="np-btn-danger" onClick={() => onEliminar(t.id)}>Anular</button>
+                        <div style={{ display: "flex", gap: "6px", justifyContent: "center" }}>
+                          <button className="np-btn-action-table warning" onClick={() => iniciarEdicion(t)}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            Editar
+                          </button>
+                          <button className="np-btn-action-table danger" onClick={() => onEliminar(t.id)}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                            Anular
+                          </button>
                         </div>
                       )}
                     </td>

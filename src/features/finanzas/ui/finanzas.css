@@ -102,21 +102,68 @@
   color: #4b5563;
 }
 
-/* Asegúrate de tener esto en tu finanzas.css */
-.np-input {
-  padding: 8px;
-  border: 1px solid #cbd5e1;
+/* =========================================
+   BOTONES DE ACCIÓN EN TABLA (UNIFICADOS)
+   ========================================= */
+.np-btn-action-table {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 32px;
+  padding: 0 12px;
   border-radius: 6px;
-  width: 100%;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  line-height: 1;
 }
 
-.np-btn-primary {
-  background-color: #3b82f6;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
+.np-btn-action-table:hover {
+  background-color: #e2e8f0;
+  border-color: #cbd5e0;
+}
+
+.np-btn-action-table.warning {
+  background-color: #fef3c7;
+  color: #92400e;
+  border-color: #fcd34d;
+}
+
+.np-btn-action-table.warning:hover {
+  background-color: #fde68a;
+}
+
+.np-btn-action-table.danger {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+.np-btn-action-table.danger:hover {
+  background-color: #fca5a5;
+  color: #991b1b;
+}
+
+.np-btn-action-table.success {
+  background-color: #d1fae5;
+  color: #065f46;
+  border-color: #6ee7b7;
+}
+
+.np-btn-action-table.success:hover {
+  background-color: #a7f3d0;
+}
+
+.np-btn-action-table svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }
 
 /* =========================================
