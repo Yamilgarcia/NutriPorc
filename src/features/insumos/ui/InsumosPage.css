@@ -1,0 +1,450 @@
+/* =========================================
+   1. LAYOUT BASE Y TIPOGRAFÍA
+   ========================================= */
+.insumos-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-family: sans-serif;
+  max-width: 1200px; /* Limita el ancho en monitores de PC */
+  margin: 0 auto;    /* ESTA ES LA MAGIA: Centra todo horizontalmente */
+  width: 100%;
+  box-sizing: border-box; /* Evita que el padding sume ancho extra */
+}
+
+.module-header h2 {
+  margin: 0 0 5px 0;
+  font-size: 1.5rem;
+  color: #1e293b;
+}
+
+.module-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.status-text {
+  text-align: center;
+  color: #64748b;
+  padding: 30px;
+  font-size: 1.1rem;
+}
+
+/* =========================================
+   2. PANEL DE BÚSQUEDA Y FILTROS
+   ========================================= */
+.control-panel {
+  display: flex;
+  gap: 10px;
+  background: #f1f5f9;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.search-input, .sort-select {
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  flex: 1;
+  font-size: 0.95rem;
+}
+
+/* =========================================
+   3. FORMULARIO DE AÑADIR INSUMO
+   ========================================= */
+.add-insumo-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: #ffffff;
+  padding: 20px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+}
+
+.form-header h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.1rem;
+  color: #334155;
+  width: 100%;
+}
+
+.form-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+}
+
+.form-inputs input {
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  flex: 1 1 120px;
+}
+
+.btn-add {
+  padding: 10px 20px;
+  background: #1e293b;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-add:hover {
+  background: #0f172a;
+}
+
+/* =========================================
+   4. GRID Y TARJETAS (CARDS)
+   ========================================= */
+.insumos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.insumo-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  transition: all 0.3s ease;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+}
+
+.title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #0f172a;
+}
+
+.btn-delete {
+  background: #fee2e2;
+  color: #ef4444;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.btn-delete:hover {
+  background: #fecaca;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.stat {
+  display: flex;
+  justify-content: space-between;
+}
+
+.stat strong {
+  color: #1e293b;
+}
+
+/* =========================================
+   5. ETIQUETAS VISUALES (BADGES)
+   ========================================= */
+.badge {
+  font-size: 0.7rem;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.badge-sistema {
+  background-color: #e0f2fe;
+  color: #0284c7;
+}
+
+.badge-propio {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+/* =========================================
+   6. EDICIÓN CRÍTICA DE PRECIOS
+   ========================================= */
+.card-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 15px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.price-control-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.price-control-group label {
+  font-size: 0.9rem;
+  color: #475569;
+  font-weight: 600;
+}
+
+.price-input {
+  width: 90px;
+  padding: 8px;
+  text-align: right;
+  border: 2px solid #cbd5e1;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #1e293b;
+  transition: all 0.2s ease;
+}
+
+.price-input:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* Estado de advertencia visual cuando hay cambios sin guardar */
+.card-editing {
+  border: 2px solid #f59e0b !important; 
+  box-shadow: 0 8px 16px rgba(245, 158, 11, 0.12);
+  transform: translateY(-2px);
+}
+
+.input-changed {
+  background-color: #fffbeb !important;
+  border-color: #f59e0b !important;
+  color: #b45309 !important;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2) !important;
+  outline: none;
+}
+
+/* =========================================
+   7. BOTONES DE ACCIÓN (CANCELAR / CONFIRMAR)
+   ========================================= */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+  animation: slideDown 0.3s ease-out forwards;
+}
+
+.btn-confirm-price {
+  flex: 2; /* Toma más espacio */
+  padding: 10px;
+  background-color: #10b981;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+}
+
+.btn-confirm-price:hover {
+  background-color: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 10px rgba(16, 185, 129, 0.3);
+}
+
+.btn-cancel-price {
+  flex: 1; /* Toma menos espacio */
+  padding: 10px;
+  background-color: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cancel-price:hover {
+  background-color: #e2e8f0;
+  color: #334155;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================
+   8. PANEL DE ELIMINACIÓN (OVERLAY) RESPONSIVO
+   ========================================= */
+
+.insumo-card {
+  position: relative;
+  overflow: hidden; 
+}
+
+.delete-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(254, 226, 226, 0.95);
+  backdrop-filter: blur(2px);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 15px; /* Reducimos un poco el padding */
+  box-sizing: border-box; /* CRÍTICO: Evita que el padding expanda el 100% del ancho */
+  text-align: center;
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* Contenedor interno para manejar el texto sin que se corte */
+.delete-overlay-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.delete-overlay-content h4 {
+  margin: 0 0 8px 0;
+  color: #dc2626;
+  font-size: 1.1rem;
+}
+
+.delete-overlay-content p {
+  margin: 0 0 15px 0;
+  color: #7f1d1d;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  width: 100%;
+  white-space: normal; /* Asegura que el texto baje a la siguiente línea */
+}
+
+/* Modificamos los botones solo dentro de este overlay */
+.delete-overlay-content .action-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  width: 100%;
+  margin-top: 0;
+}
+
+.btn-cancel-delete, .btn-confirm-delete {
+  flex: 1;
+  padding: 8px 4px; /* Padding lateral menor para que quepan bien */
+  font-size: 0.85rem; /* Letra un pelín más pequeña */
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  text-align: center;
+  border: none;
+  transition: all 0.2s;
+}
+
+.btn-cancel-delete {
+  background-color: #ffffff;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.btn-cancel-delete:hover {
+  background-color: #f1f5f9;
+}
+
+.btn-confirm-delete {
+  background-color: #dc2626;
+  color: white;
+  box-shadow: 0 4px 6px rgba(220, 38, 38, 0.2);
+}
+
+.btn-confirm-delete:hover {
+  background-color: #b91c1c;
+}
+
+/* RESPONSIVE EXTREMO: Si la tarjeta se encoge mucho (celulares pequeños), apilamos los botones */
+@media (max-width: 320px) {
+  .delete-overlay-content .action-buttons {
+    flex-direction: column;
+  }
+  .btn-cancel-delete, .btn-confirm-delete {
+    width: 100%;
+    padding: 10px;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* =========================================
+   9. RESPONSIVE (MÓVILES Y TABLETS)
+   ========================================= */
+
+@media (max-width: 600px) {
+  /* En teléfonos, forzamos 1 sola columna que ocupe todo el ancho */
+  .insumos-grid {
+    grid-template-columns: 1fr; 
+    gap: 12px;
+  }
+
+  /* El buscador y el filtro también los apilamos para que no se aplasten */
+  .control-panel {
+    flex-direction: column;
+  }
+
+  /* El formulario se adapta mejor en pantallas muy pequeñas */
+  .add-insumo-form {
+    padding: 15px;
+  }
+  
+  .form-inputs input, .btn-add {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+}
