@@ -1,61 +1,501 @@
+/* =========================================
+   VARIABLES DE MARCA NUTRIPORC
+   ========================================= */
+:root {
+  --np-red-dark: #8F1914;  /* Principal, Énfasis, Logo[cite: 1] */
+  --np-pink: #F49F97;      /* Acentos suaves, interacciones[cite: 1] */
+  --np-cream: #EDDD99;     /* Fondos cálidos, banners[cite: 1] */
+  --np-green: #137E35;     /* Agro, Éxito, Botones, Métricas[cite: 1] */
+  
+  --np-bg-app: #f4f5f7;
+  --np-surface: #ffffff;
+  --np-text-dark: #1e293b;
+  --np-text-muted: #64748b;
+  --np-border-light: #e2e8f0;
+  
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 12px rgba(143, 25, 20, 0.05); /* Sombra sutilmente tintada con tu rojo */
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+  --radius-md: 12px;
+  --radius-lg: 20px;
+}
+
+/* =========================================
+   CONTENEDOR PRINCIPAL
+   ========================================= */
 .welcome-container {
   display: flex;
   justify-content: center;
-  align-items: center;
-  min-height: 10vh;
-  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-  padding: 20px;
+  align-items: flex-start;
+  /* Le quitamos el min-height: 100vh porque el layout ya lo tiene */
+  background: transparent; /* Hacemos que herede el fondo del AppLayout */
+  padding: 40px 20px;
 }
 
 .welcome-content {
-  background-color: #ffffff;
-  padding: 3rem 2rem;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(22, 101, 52, 0.1);
-  text-align: center;
-  max-width: 450px;
+  /* AQUÍ ESTÁ LA MAGIA: Bajamos el blanco al 65% para que sea translúcido */
+  background-color: rgba(255, 255, 255, 0.65); 
+  
+  /* Desenfoque más fuerte para el efecto cristal */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  
+  padding: 3.5rem;
+  border-radius: var(--radius-lg);
+  
+  /* Borde blanco sólido para enmarcar el cristal */
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  
+  /* Sombra más profunda y teñida ligeramente con tu rojo[cite: 1] */
+  box-shadow: 0 30px 60px -15px rgba(143, 25, 20, 0.15); 
+    
+  max-width: 850px;
   width: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
-.logo-placeholder {
-  font-size: 4.5rem;
-  margin-bottom: 1rem;
+
+/* Acento superior con los colores de la marca */
+.welcome-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, var(--np-red-dark) 0%, var(--np-pink) 50%, var(--np-green) 100%);
 }
+
+/* =========================================
+   ENCABEZADO Y LOGO
+   ========================================= */
+.brand-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+/* Asegura que la imagen ocupe todo el espacio del wrapper sin deformarse */
+.logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Usa 'cover' si quieres que llene todo el cuadrado, o 'contain' si prefieres que se vea completo sin recortes */
+  border-radius: inherit; /* Hereda los bordes redondeados del logo-wrapper */
+}
+
+
+.logo-wrapper {
+  width: 190px;
+  height: 190px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.5rem auto;
+}
+
+
 
 .welcome-title {
-  color: #166534;
-  font-size: 1.8rem;
+  color: var(--np-red-dark); /* Color característico de cerdos[cite: 1] */
+  font-size: 2.5rem;
+  font-weight: 900;
   margin-bottom: 0.5rem;
-  font-weight: 800;
+  letter-spacing: -0.5px;
 }
 
 .welcome-subtitle {
-  color: #475569;
-  font-size: 1rem;
-  margin-bottom: 2.5rem;
-  line-height: 1.5;
+  color: var(--np-text-muted);
+  font-size: 1.15rem;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-.btn-entrar {
-  background-color: #16a34a;
+/* =========================================
+   PANEL DE PERFIL
+   ========================================= */
+.profile-card {
+  /* Blanco completamente sólido para contrastar con el fondo translúcido */
+  background-color: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: var(--radius-md);
+  padding: 2.2rem;
+  margin-bottom: 2rem;
+  /* Sombra marcada para que parezca flotar sobre el cristal */
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+}
+
+.profile-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap; /* NUEVO: Permite que los elementos bajen si no caben */
+  gap: 12px;       /* NUEVO: Espacio entre el título y el botón si se separan */
+  border-bottom: 2px solid var(--np-bg-app);
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.profile-card-header h3 {
+  margin: 0;
+  color: var(--np-text-dark);
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-edit-link {
+  background: rgba(19, 126, 53, 0.1);
+  border: none;
+  color: var(--np-green); /* Verde agropecuario[cite: 1] */
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-edit-link:hover {
+  background: var(--np-green);
+  color: white;
+}
+
+.profile-display-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.info-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-label {
+  font-size: 0.85rem;
+  color: var(--np-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.info-value {
+  font-size: 1.1rem;
+  color: var(--np-text-dark);
+  font-weight: 500;
+}
+
+.badge-plan {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-plan.pro {
+  background-color: var(--np-green);
+  color: white;
+  box-shadow: 0 2px 8px rgba(19, 126, 53, 0.3);
+}
+
+.badge-plan.básica {
+  background-color: var(--np-border-light);
+  color: var(--np-text-muted);
+}
+
+/* =========================================
+   FORMULARIO DE EDICIÓN
+   ========================================= */
+.profile-edit-form {
+  background: var(--np-bg-app);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border-left: 4px solid var(--np-green);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.input-field label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--np-text-dark);
+  margin-bottom: 6px;
+}
+
+.input-field input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--np-border-light);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background-color: var(--np-surface);
+}
+
+.input-field input:focus {
+  outline: none;
+  border-color: var(--np-green);
+  box-shadow: 0 0 0 3px rgba(19, 126, 53, 0.15);
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.btn-save-profile {
+  background-color: var(--np-green);
   color: white;
   border: none;
-  padding: 14px 32px;
-  font-size: 1.1rem;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-save-profile:hover {
+  background-color: #106b2c;
+}
+
+.btn-cancel-profile {
+  background-color: transparent;
+  color: var(--np-text-muted);
+  border: 1px solid var(--np-border-light);
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel-profile:hover {
+  background-color: var(--np-border-light);
+  color: var(--np-text-dark);
+}
+
+/* =========================================
+   GRID DE INDICADORES (MÉTRICAS)
+   ========================================= */
+.stats-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.stat-box-card {
+  /* Blanco sólido con un levísimo gradiente hacia el crema */
+  background: linear-gradient(135deg, #ffffff 60%, rgba(237, 221, 153, 0.15) 100%); /*[cite: 1] */
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  padding: 2rem 1.5rem;
+  border-radius: var(--radius-md);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.stat-box-card:hover {
+  transform: translateY(-5px);
+  /* Sombra verde al interactuar[cite: 1] */
+  box-shadow: 0 15px 30px -5px rgba(19, 126, 53, 0.15); 
+  border-color: rgba(19, 126, 53, 0.3);
+}
+
+/* Detalles visuales en las tarjetas de estadísticas */
+.stat-box-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: var(--np-green);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.stat-box-card:hover::after {
+  transform: scaleX(1);
+}
+
+.stat-number-display {
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--np-green); /* Verde de producción[cite: 1] */
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.stat-label-display {
+  font-size: 0.95rem;
+  color: var(--np-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* =========================================
+   BANNERS Y ALERTAS
+   ========================================= */
+.upgrade-premium-banner {
+  background-color: var(--np-cream); /* Tono cálido de la marca[cite: 1] */
+  border: 1px solid #d4c481;
+  padding: 1.5rem;
+  border-radius: var(--radius-md);
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.upgrade-premium-banner p {
+  margin: 0;
+  color: var(--np-text-dark);
+  font-size: 1.05rem;
+}
+
+.btn-upgrade-action {
+  background-color: var(--np-text-dark);
+  color: var(--np-cream);
+  border: none;
+  padding: 12px 24px;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.2s ease;
+}
+
+.btn-upgrade-action:hover {
+  transform: scale(1.05);
+}
+
+/* ZONA PELIGROSA */
+.danger-zone-trigger {
+  margin-top: 3rem;
+  border-top: 1px dashed var(--np-border-light);
+  padding-top: 1.5rem;
+  text-align: center;
+}
+
+.btn-danger-purge {
+  background: none;
+  border: none;
+  color: var(--np-text-muted);
+  font-size: 0.85rem;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.btn-danger-purge:hover {
+  color: var(--np-red-dark);
+}
+
+/* MODAL CRÍTICO */
+.critical-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.critical-modal-box {
+  background-color: var(--np-surface);
+  padding: 2.5rem;
+  border-radius: var(--radius-lg);
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+  border-top: 6px solid var(--np-red-dark); /* Color de la raza/marca para peligro[cite: 1] */
+}
+
+.critical-modal-box h3 {
+  color: var(--np-red-dark);
+  margin-top: 0;
+  font-size: 1.4rem;
+}
+
+.critical-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 2rem;
+}
+
+.btn-confirm-purge {
+  flex: 1;
+  background-color: var(--np-red-dark); /* Botón de acción destructiva[cite: 1] */
+  color: white;
+  border: none;
+  padding: 14px;
   font-weight: bold;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  width: 100%;
-  box-shadow: 0 4px 6px rgba(22, 163, 74, 0.2);
 }
 
-.btn-entrar:hover {
-  background-color: #15803d;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(22, 163, 74, 0.3);
+.btn-cancel-purge {
+  flex: 1;
+  background-color: var(--np-surface);
+  color: var(--np-text-dark);
+  border: 1px solid var(--np-border-light);
+  padding: 14px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
-.btn-entrar:active {
-  transform: translateY(0);
+/* =========================================
+   ANIMACIONES Y RESPONSIVE
+   ========================================= */
+.animate-fade-in {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .welcome-content {
+    padding: 2rem 1.5rem;
+  }
+  
+  .stats-dashboard-grid {
+    grid-template-columns: 1fr; /* Apila las métricas en móviles */
+  }
+  
+  .upgrade-premium-banner {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .btn-upgrade-action {
+    width: 100%;
+  }
 }
