@@ -1,0 +1,183 @@
+/* Contenedor principal (Namespace) */
+.maximizador-page {
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  animation: fadeIn 0.4s ease-out;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #2d3748;
+}
+
+/* Ahora todas las clases genéricas solo aplican DENTRO de .maximizador-page */
+.maximizador-page .module-header {
+  margin-bottom: 2rem;
+}
+
+.maximizador-page .module-header h2 {
+  font-size: 2.5rem;
+  color: #1a202c;
+  margin-bottom: 0.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.maximizador-page .module-header p {
+  color: #718096;
+  font-size: 1.1rem;
+}
+
+.maximizador-page .maximizador-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.maximizador-page .card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+  border: 1px solid #edf2f7;
+}
+
+.maximizador-page .card h3 {
+  font-size: 1.25rem;
+  color: #1a202c;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #edf2f7;
+  padding-bottom: 1rem;
+  font-weight: 700;
+}
+
+.maximizador-page .widget-wrapper {
+  margin-top: 0.5rem;
+}
+
+.maximizador-page .status-text {
+  color: #718096;
+  font-weight: 500;
+  font-size: 1.1rem;
+  text-align: center;
+  padding: 2rem;
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #edf2f7;
+}
+
+/* Custom Searchable Select aislado */
+.maximizador-page .custom-select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.maximizador-page .custom-select-trigger {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.2rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: white;
+  font-size: 1rem;
+  color: #2d3748;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.maximizador-page .custom-select-trigger:hover {
+  border-color: #cbd5e0;
+}
+
+.maximizador-page .custom-select-trigger.open {
+  border-color: #38b2ac;
+  box-shadow: 0 0 0 3px rgba(56, 178, 172, 0.2);
+}
+
+.maximizador-page .custom-select-trigger svg {
+  color: #a0aec0;
+}
+
+.maximizador-page .custom-select-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  z-index: 50;
+  overflow: hidden;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.maximizador-page .custom-select-search {
+  padding: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.maximizador-page .custom-select-search input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.maximizador-page .custom-select-search input:focus {
+  border-color: #38b2ac;
+}
+
+.maximizador-page .custom-select-options {
+  max-height: 220px;
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.maximizador-page .custom-select-options li {
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  color: #4a5568;
+  cursor: pointer;
+  border-bottom: 1px solid #edf2f7;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.maximizador-page .custom-select-options li:last-child {
+  border-bottom: none;
+}
+
+.maximizador-page .custom-select-options li:hover,
+.maximizador-page .custom-select-options li.selected {
+  background-color: #e6fffa;
+  color: #2c7a7b;
+}
+
+.maximizador-page .custom-select-options li span.etapa-badge {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Colores por etapas */
+.maximizador-page .etapa-destete { background: #e7fafc !important; color: #2b7b7b !important; }
+.maximizador-page .etapa-desarrollo { background: #fef3c7 !important; color: #b45309 !important; }
+.maximizador-page .etapa-engorde { background: #e0e7ff !important; color: #4338ca !important; }
+.maximizador-page .etapa-reproducción,
+.maximizador-page .etapa-reproduccion { background: #fae8ff !important; color: #86198f !important; }
+.maximizador-page .etapa-gestación,
+.maximizador-page .etapa-gestacion { background: #dcfce7 !important; color: #166534 !important; }
+.maximizador-page .etapa-lactancia { background: #fee2e2 !important; color: #991b1b !important; }

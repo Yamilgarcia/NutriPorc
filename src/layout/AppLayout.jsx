@@ -5,6 +5,7 @@ import { useAuth } from "../features/auth/logic/AuthContext";
 import "./AppLayout.css";
 import InstallPWAButton from "../components/InstallPWAButton";
 
+
 export default function AppLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
   // 2. Extraemos la función logout
@@ -27,7 +28,7 @@ export default function AppLayout() {
             aria-label="Abrir menú"
           >
             {/* Icono de hamburguesa SVG puro */}
-            <svg
+              <svg
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -155,36 +156,31 @@ export default function AppLayout() {
           >
             Semáforo Epidemiológico
           </NavLink>
+
+          <NavLink
+            to="/inteligencia"
+            className={({ isActive }) =>
+              isActive ? "nav-link active" : "nav-link"
+            }
+            onClick={() => setMenuOpen(false)}
+          >
+            Inteligencia
+          </NavLink>
+
+          <NavLink
+            to="/ChatIA"
+            className={({ isActive }) =>
+              isActive ? "nav-link active" : "nav-link"
+            }
+            onClick={() => setMenuOpen(false)}
+          >
+            ChatIA
+          </NavLink>
         </nav>
 
         {/* 3. BOTÓN DE CERRAR SESIÓN AL FINAL DEL MENÚ */}
-        <div
-          style={{
-            padding: "20px",
-            borderTop: "1px solid #e2e8f0",
-            marginTop: "auto",
-          }}
-        >
-          <button
-            onClick={handleLogout}
-            style={{
-              width: "100%",
-              backgroundColor: "#ef4444",
-              color: "white",
-              border: "none",
-              padding: "12px",
-              borderRadius: "8px",
-              fontWeight: "bold",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "8px",
-              transition: "background-color 0.2s",
-            }}
-            onMouseOver={(e) => (e.target.style.backgroundColor = "#dc2626")}
-            onMouseOut={(e) => (e.target.style.backgroundColor = "#ef4444")}
-          >
+        <div className="logout-container">
+          <button onClick={handleLogout}>
             <svg
               viewBox="0 0 24 24"
               width="20"

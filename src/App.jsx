@@ -11,6 +11,9 @@ import FormuladorPage from "./features/formulador/ui/FormuladorPage";
 import Insumos from "./features/insumos/ui/InsumosPage";
 import { DashboardFinanciero } from "./features/finanzas/ui/DashboardFinanciero";  
 import Semaforo from "./features/semaforo/ui/SemaforoPage.jsx";
+import ChatIA from "./features/GeminisIA/ui/ChatNutriPorc.jsx";
+import InteligenciaPage from "./features/inteligencia/ui/InteligenciaPage.jsx";
+
 // Atrapamos el parámetro antes de que React Router redireccione y lo borre
 if (window.location.search.includes("pago=exitoso")) {
   localStorage.setItem("pago_pendiente_procesar", "true");
@@ -34,6 +37,8 @@ export default function App() {
             <Route path="/insumos" element={<Insumos />} />
             <Route path="/finanzas" element={<DashboardFinanciero />} />
             <Route path="/Semaforo" element={<Semaforo />} />
+            <Route path="/inteligencia" element={<InteligenciaPage />} />
+            <Route path="/ChatIA" element={<ChatIA />} />
           </Route>
         </Route>
       </Routes>
