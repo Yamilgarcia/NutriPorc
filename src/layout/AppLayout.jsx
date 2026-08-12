@@ -27,7 +27,7 @@ export default function AppLayout() {
             aria-label="Abrir menú"
           >
             {/* Icono de hamburguesa SVG puro */}
-            <svg
+              <svg
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
