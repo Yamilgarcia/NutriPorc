@@ -1,0 +1,114 @@
+.semaforo-page {
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.semaforo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.alerta-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  border-top: 5px solid #ccc;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s;
+}
+
+.alerta-card:hover {
+  transform: translateY(-3px);
+}
+
+/* COLORES DEL SEMÁFORO */
+.alerta-card.rojo { border-top-color: #ef4444; background-color: #fef2f2; }
+.alerta-card.rojo .luz-indicadora { background-color: #ef4444; box-shadow: 0 0 10px #ef4444; }
+
+.alerta-card.amarillo { border-top-color: #f59e0b; background-color: #fffbeb; }
+.alerta-card.amarillo .luz-indicadora { background-color: #f59e0b; box-shadow: 0 0 10px #f59e0b; }
+
+.alerta-card.verde { border-top-color: #10b981; background-color: #f0fdf4; }
+.alerta-card.verde .luz-indicadora { background-color: #10b981; }
+
+.alerta-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.alerta-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.alerta-title h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #1e293b;
+}
+
+.luz-indicadora {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.poblacion-badge {
+  background: rgba(0,0,0,0.05);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.diagnostico, .recomendacion {
+  font-size: 0.95rem;
+  color: #334155;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.btn-atender {
+  width: 100%;
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #0f172a;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-atender:hover {
+  background-color: #334155;
+}
+
+/* Animación fluida de la línea de tiempo */
+.timeline-container {
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+}
+
+.timeline-container.collapsed {
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.timeline-container.expanded {
+  max-height: 500px; /* Tamaño máximo holgado */
+  opacity: 1;
+}
