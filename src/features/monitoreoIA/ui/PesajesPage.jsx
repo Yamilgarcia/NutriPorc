@@ -40,20 +40,23 @@ export default function PesajesPage() {
   const procesarFotoIA = async (imageBase64) => {
     setMostrarScanner(false); 
     
-    const resultado = await analizarImagen(imageBase64);
+    // 1. Buscamos el corral actual para saber su etapa biológica
+    const loteActual = lotes.find(l => l.id === loteSeleccionadoId);
+    const etapaLote = loteActual ? loteActual.etapa : "Engorde";
+
+    // 2. Le pasamos la imagen Y el contexto biológico a la IA
+    const resultado = await analizarImagen(imageBase64, etapaLote);
 
     if (resultado.exito) {
-      // En vez de alert(), abrimos nuestro modal de éxito
       setAlertaIA({
         mostrar: true,
         exito: true,
         titulo: "¡Análisis Completado!",
-        mensaje: `Precisión biométrica: ${resultado.confianza}%\nEspecie detectada: ${resultado.objeto}`,
+        mensaje: `Precisión biométrica: ${resultado.confianza}%\nEspecie detectada: ${resultado.objeto}\nContexto aplicado: ${etapaLote}`,
         pesoResultante: resultado.peso
       });
       setPesoInput(resultado.peso); 
     } else {
-      // Abrimos el modal de error
       setAlertaIA({
         mostrar: true,
         exito: false,
