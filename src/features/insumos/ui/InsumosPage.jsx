@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useInsumos } from "../logic/useInsumos";
 import "./InsumosPage.css";
 
-// --- MINI-COMPONENTE PARA LA TARJETAs ---
+// --- MINI-COMPONENTE PARA LA TARJETA ---
 const InsumoCard = ({ insumo, esDelSistema, handleUpdatePrecio, handleDelete }) => {
   const [precioBorrador, setPrecioBorrador] = useState(insumo.costoPorLibra);
   const [confirmarEliminar, setConfirmarEliminar] = useState(false);

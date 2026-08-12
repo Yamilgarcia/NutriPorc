@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import {  
+import { 
+  getFirestore, 
   initializeFirestore, 
   persistentLocalCache, 
   persistentMultipleTabManager 

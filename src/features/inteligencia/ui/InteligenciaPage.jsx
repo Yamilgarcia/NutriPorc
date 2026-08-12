@@ -34,7 +34,7 @@ export default function InteligenciaPage() {
   ] : insumosEstrella.slice(0, 4);
 
   const MEJOR_DIETA = datosDietas.length > 0 ? datosDietas[0] : null;
-  const COLORES_PIE = ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b'];
+  const COLORES_PIE = ['#137E35', '#F49F97', '#8F1914', '#EDDD99'];
 
   return (
     <ProPaywall 
@@ -147,14 +147,14 @@ export default function InteligenciaPage() {
               <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
                 <p><strong>Dieta:</strong> {MEJOR_DIETA.nombre}</p>
                 <p><strong>Etapa Ideal:</strong> {MEJOR_DIETA.etapa}</p>
-                <p><strong>Rendimiento Esperado:</strong> <span style={{ color: '#10b981', fontWeight: 'bold' }}>+{(MEJOR_DIETA.gmd / 1000).toFixed(2)} kilos al día por cerdo</span></p>
+                <p><strong>Rendimiento Esperado:</strong> <span style={{ color: '#137E35', fontWeight: 'bold' }}>+{(MEJOR_DIETA.gmd / 1000).toFixed(2)} kilos al día por cerdo</span></p>
               </div>
 
               <div style={{ marginBottom: '20px' }}>
                 <h4 style={{ color: '#334155', marginBottom: '10px' }}>Ingredientes Clave a Mezclar:</h4>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                   {MEJOR_DIETA.ingredientes.split(',').map((ingrediente, i) => (
-                    <span key={i} style={{ background: '#ede9fe', color: '#7c3aed', padding: '5px 12px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold' }}>
+                    <span key={i} style={{ background: '#f49f9736', color: '#f49f97', padding: '5px 12px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold' }}>
                       {ingrediente.trim()}
                     </span>
                   ))}
@@ -163,7 +163,7 @@ export default function InteligenciaPage() {
 
               <button 
                 onClick={() => setModalOpen(false)}
-                style={{ width: '100%', background: '#0f172a', color: 'white', padding: '12px', borderRadius: '8px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}
+                style={{ width: '100%', background: '#137E35', color: 'white', padding: '12px', borderRadius: '8px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}
               >
                 Cerrar Receta
               </button>

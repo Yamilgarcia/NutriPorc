@@ -5,7 +5,6 @@ import { useAuth } from "../features/auth/logic/AuthContext";
 import "./AppLayout.css";
 import InstallPWAButton from "../components/InstallPWAButton";
 
-
 export default function AppLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
   // 2. Extraemos la función logout
@@ -28,7 +27,7 @@ export default function AppLayout() {
             aria-label="Abrir menú"
           >
             {/* Icono de hamburguesa SVG puro */}
-              <svg
+            <svg
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"

@@ -29,7 +29,7 @@ export default function SemaforoPage() {
       setTratamientoData({
         tipo: registro.tipo,
         medicamento: registro.medicamento !== "N/A" ? registro.medicamento : "",
-        notes: registro.notes || registro.notas // Soporte para ambos nombres de propiedad
+        notes: registro.notes || registro.notas 
       });
     } else {
       setEditandoId(null);
@@ -61,185 +61,190 @@ export default function SemaforoPage() {
   };
 
   return (
-
-  <ProPaywall 
+    <ProPaywall 
       tituloFeature="Semáforo Epidemiológico 🚨" 
       descripcion="Anticípate a los brotes de enfermedades. El sistema Pro analiza la mortalidad de tus corrales en tiempo real y te alerta antes de que sea crítico."
     >
+      <div className="semaforo-page">
+        <header className="module-header">
+          <h2 className="semaforo-main-title">
+            Semáforo Epidemiológico 🚨
+          </h2>
+          <p className="semaforo-subtitle">Control de incidencias biológicas y monitoreo sanitario automático.</p>
+        </header>
 
+        {loading ? (
+          <p className="status-text">Analizando datos sanitarios de la granja...</p>
+        ) : (
+          <div className="semaforo-grid">
+            {lotesEvaluados.map(lote => {
+              const isOpen = !!historialesAbiertos[lote.id];
+              const tieneHistorial = lote.historialMedico && lote.historialMedico.length > 0;
+              
+              // Contadores rápidos para los chips de resumen
+              const totalTratamientos = lote.historialMedico?.filter(h => h.tipo === "Tratamiento").length || 0;
+              const totalAislamientos = lote.historialMedico?.filter(h => h.tipo === "Aislamiento").length || 0;
 
-    <div className="semaforo-page" style={{ padding: "24px", maxWidth: "1200px", margin: "0 auto" }}>
-      <header className="module-header" style={{ marginBottom: "30px" }}>
-        <h2 style={{ fontSize: "26px", color: "#1e293b", display: "flex", alignItems: "center", gap: "10px" }}>
-          Semáforo Epidemiológico 🚨
-        </h2>
-        <p style={{ color: "#64748b", margin: "4px 0 0 0" }}>Control de incidencias biológicas y monitoreo sanitario automático.</p>
-      </header>
-
-      {loading ? (
-        <p className="status-text">Analizando datos sanitarios de la granja...</p>
-      ) : (
-        <div className="semaforo-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))", gap: "24px" }}>
-          {lotesEvaluados.map(lote => {
-            const isOpen = !!historialesAbiertos[lote.id];
-            const tieneHistorial = lote.historialMedico && lote.historialMedico.length > 0;
-            
-            // Contadores rápidos para los chips de resumen
-            const totalTratamientos = lote.historialMedico?.filter(h => h.tipo === "Tratamiento").length || 0;
-            const totalAislamientos = lote.historialMedico?.filter(h => h.tipo === "Aislamiento").length || 0;
-
-            return (
-              <div key={lote.id} className={`alerta-card ${lote.semaforo.toLowerCase()}`} style={{ height: "fit-content" }}>
-                <div className="alerta-header">
-                  <div className="alerta-title">
-                    <span className="luz-indicadora"></span>
-                    <h3>{lote.nombre}</h3>
+              return (
+                <div key={lote.id} className={`alerta-card ${lote.semaforo.toLowerCase()}`}>
+                  <div className="alerta-header">
+                    <div className="alerta-title">
+                      <span className="luz-indicadora"></span>
+                      <h3>{lote.nombre}</h3>
+                    </div>
+                    <span className="poblacion-badge">{lote.cantidad} cerdos</span>
                   </div>
-                  <span className="poblacion-badge">{lote.cantidad} cerdos</span>
-                </div>
-                
-                <div className="alerta-body">
-                  <p className="diagnostico"><strong>Diagnóstico:</strong> {lote.diagnostico}</p>
-                  <p className="recomendacion"><strong>Acción sugerida:</strong> {lote.accionRecomendada}</p>
-                </div>
-
-                {/* BARRA DE CHIPS DE RESUMEN (Súper moderno) */}
-                {tieneHistorial && (
-                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", padding: "0 20px", marginBottom: "10px" }}>
-                    {totalTratamientos > 0 && <span style={{ fontSize: "11px", backgroundColor: "#fffbeb", color: "#b45309", padding: "3px 8px", borderRadius: "20px", fontWeight: "600" }}>💊 {totalTratamientos} Tratados</span>}
-                    {totalAislamientos > 0 && <span style={{ fontSize: "11px", backgroundColor: "#eff6ff", color: "#1e40af", padding: "3px 8px", borderRadius: "20px", fontWeight: "600" }}>🚪 {totalAislamientos} Aislados</span>}
+                  
+                  <div className="alerta-body">
+                    <p className="diagnostico"><strong>Diagnóstico:</strong> {lote.diagnostico}</p>
+                    <p className="recomendacion"><strong>Acción sugerida:</strong> {lote.accionRecomendada}</p>
                   </div>
-                )}
 
-                {/* SECCIÓN DE LÍNEA DE TIEMPO EXPANDIBLE */}
-                {tieneHistorial && (
-                  <div style={{ padding: "0 20px" }}>
-                    <button 
-                      onClick={() => toggleHistorial(lote.id)}
-                      style={{ width: "100%", padding: "10px", backgroundColor: "#f1f5f9", border: "none", borderRadius: "6px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "13px", fontWeight: "600", color: "#475569", transition: "background 0.2s" }}
-                    >
-                      <span>{isOpen ? "⬇️ Ocultar historial médico" : "➡️ Ver línea de tiempo médica"}</span>
-                      <span style={{ backgroundColor: "#cbd5e1", borderRadius: "50%", width: "20px", height: "20px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px" }}>
-                        {lote.historialMedico.length}
-                      </span>
-                    </button>
+                  {/* BARRA DE CHIPS DE RESUMEN */}
+                  {tieneHistorial && (
+                    <div className="chips-container">
+                      {totalTratamientos > 0 && <span className="chip chip-tratamiento">💊 {totalTratamientos} Tratados</span>}
+                      {totalAislamientos > 0 && <span className="chip chip-aislamiento">🚪 {totalAislamientos} Aislados</span>}
+                    </div>
+                  )}
 
-                    {/* Contenedor Animado de la Línea de Tiempo */}
-                    <div className={`timeline-container ${isOpen ? 'expanded' : 'collapsed'}`}>
-                      <div style={{ padding: "15px 5px 5px 15px", borderLeft: "2px solid #cbd5e1", marginLeft: "10px", display: "flex", flexDirection: "column", gap: "20px", position: "relative" }}>
-                        {lote.historialMedico.map(registro => {
-                          const esTratamiento = registro.tipo === "Tratamiento";
-                          const esAislamiento = registro.tipo === "Aislamiento";
-                          
-                          // Color del nodo de la línea de tiempo según la gravedad
-                          let colorNodo = "#64748b"; // Gris por defecto
-                          if (esTratamiento) colorNodo = "#f59e0b"; // Amarillo/Naranja
-                          if (esAislamiento) colorNodo = "#3b82f6"; // Azul
+                  {/* SECCIÓN DE LÍNEA DE TIEMPO EXPANDIBLE */}
+                  {tieneHistorial && (
+                    <div className="historial-section">
+                      <button 
+                        className="btn-toggle-historial"
+                        onClick={() => toggleHistorial(lote.id)}
+                      >
+                        <span>{isOpen ? "⬇️ Ocultar historial médico" : "➡️ Ver línea de tiempo médica"}</span>
+                        <span className="historial-counter">
+                          {lote.historialMedico.length}
+                        </span>
+                      </button>
 
-                          return (
-                            <div key={registro.id} style={{ position: "relative" }}>
-                              {/* Punto flotante de la línea de tiempo */}
-                              <span style={{ position: "absolute", left: "-22px", top: "2px", width: "12px", height: "12px", borderRadius: "50%", backgroundColor: colorNodo, boxShadow: `0 0 0 4px white, 0 0 8px ${colorNodo}` }}></span>
-                              
-                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                                <div style={{ flex: 1 }}>
-                                  <span style={{ fontSize: "11px", color: "#94a3b8", fontWeight: "600" }}>{registro.fecha}</span>
-                                  <h4 style={{ margin: "2px 0", fontSize: "13px", color: "#334155" }}>{registro.tipo}</h4>
-                                  <p style={{ margin: 0, color: "#64748b", fontSize: "12px", lineHeight: "1.4" }}>{registro.notas || registro.notes}</p>
-                                  {registro.medicamento && registro.medicamento !== "N/A" && (
-                                    <span style={{ display: "inline-block", marginTop: "4px", padding: "2px 6px", backgroundColor: "#e0f2fe", color: "#0369a1", borderRadius: "4px", fontSize: "11px", fontWeight: "600" }}>
-                                      💊 {registro.medicamento}
-                                    </span>
-                                  )}
-                                </div>
-                                <div style={{ display: "flex", gap: "8px", marginLeft: "10px" }}>
-                                  <button onClick={() => openModal(lote, registro)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "12px" }} title="Editar">✏️</button>
-                                  <button onClick={() => handleDeleteRegistro(registro.id)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "12px" }} title="Eliminar">🗑️</button>
+                      {/* Contenedor Animado de la Línea de Tiempo */}
+                      <div className={`timeline-container ${isOpen ? 'expanded' : 'collapsed'}`}>
+                        <div className="timeline-track">
+                          {lote.historialMedico.map(registro => {
+                            const esTratamiento = registro.tipo === "Tratamiento";
+                            const esAislamiento = registro.tipo === "Aislamiento";
+                            
+                            // Color del nodo de la línea de tiempo según la gravedad
+                            let colorNodo = "#64748b"; // Gris por defecto
+                            if (esTratamiento) colorNodo = "#f59e0b"; // Amarillo/Naranja
+                            if (esAislamiento) colorNodo = "#3b82f6"; // Azul
+
+                            return (
+                              <div key={registro.id} className="timeline-item">
+                                {/* Punto flotante de la línea de tiempo */}
+                                <span 
+                                  className="timeline-dot" 
+                                  style={{ backgroundColor: colorNodo, boxShadow: `0 0 0 4px white, 0 0 8px ${colorNodo}` }}
+                                ></span>
+                                
+                                <div className="timeline-content">
+                                  <div className="timeline-info">
+                                    <span className="timeline-date">{registro.fecha}</span>
+                                    <h4 className="timeline-type">{registro.tipo}</h4>
+                                    <p className="timeline-notes">{registro.notas || registro.notes}</p>
+                                    {registro.medicamento && registro.medicamento !== "N/A" && (
+                                      <span className="timeline-medication">
+                                        💊 {registro.medicamento}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="timeline-actions">
+                                    <button className="btn-timeline-action" onClick={() => openModal(lote, registro)} title="Editar">
+                                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                      Editar
+                                    </button>
+                                    <button className="btn-timeline-action danger" onClick={() => handleDeleteRegistro(registro.id)} title="Eliminar">
+                                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                      Eliminar
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          );
-                        })}
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
+                  )}
+
+                  <div className="alerta-actions">
+                    <button className="btn-atender" onClick={() => openModal(lote)}>
+                      🏥 Registrar Incidencia Médica
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+
+            {lotesEvaluados.length === 0 && (
+              <p className="status-text">No tienes lotes activos para evaluar en este momento.</p>
+            )}
+          </div>
+        )}
+
+        {/* MODAL */}
+        {modalOpen && loteSeleccionado && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <h3>{editandoId ? "✏️ Editar Incidencia Médica" : `🏥 Registrar Incidencia: ${loteSeleccionado.nombre}`}</h3>
+              <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                  <label>Tipo de Acción</label>
+                  <select 
+                    className="form-input" 
+                    value={tratamientoData.tipo} 
+                    onChange={e => setTratamientoData({...tratamientoData, tipo: e.target.value})}
+                    disabled={isSubmitting}
+                  >
+                    <option value="Tratamiento">Iniciar Tratamiento Médico</option>
+                    <option value="Falsa Alarma">Descartar (Falsa Alarma)</option>
+                    <option value="Aislamiento">Aislamiento de Cerdos</option>
+                  </select>
+                </div>
+
+                {tratamientoData.tipo === "Tratamiento" && (
+                  <div className="form-group">
+                    <label>Medicamento Aplicado (Opcional)</label>
+                    <input 
+                      className="form-input" 
+                      placeholder="Ej. Enrofloxacina, Penicilina..." 
+                      value={tratamientoData.medicamento} 
+                      onChange={e => setTratamientoData({...tratamientoData, medicamento: e.target.value})}
+                      disabled={isSubmitting}
+                    />
                   </div>
                 )}
 
-                <div className="alerta-actions" style={{ marginTop: "15px", padding: "20px" }}>
-                  <button className="btn-atender" onClick={() => openModal(lote)} style={{ width: "100%", display: "flex", justifyContent: "center", gap: "8px" }}>
-                    🏥 Registrar Incidencia Médica
+                <div className="form-group">
+                  <label>Notas / Diagnóstico del Productor</label>
+                  <textarea 
+                    required 
+                    className="form-input" 
+                    rows="3" 
+                    placeholder="Describe los síntomas observados..." 
+                    value={tratamientoData.notas || tratamientoData.notes || ""} 
+                    onChange={e => setTratamientoData({...tratamientoData, notas: e.target.value, notes: e.target.value})}
+                    disabled={isSubmitting}
+                  ></textarea>
+                </div>
+
+                <div className="modal-actions">
+                  <button type="button" className="btn-cancel" onClick={() => setModalOpen(false)} disabled={isSubmitting}>
+                    Cancelar
+                  </button>
+                  <button type="submit" className="btn-primary" disabled={isSubmitting}>
+                    {isSubmitting ? "Guardando..." : (editandoId ? "Actualizar Registro" : "Guardar en Historial")}
                   </button>
                 </div>
-              </div>
-            );
-          })}
-
-          {lotesEvaluados.length === 0 && (
-            <p className="status-text">No tienes lotes activos para evaluar en este momento.</p>
-          )}
-        </div>
-      )}
-
-      {/* MODAL COMPLETAMENTE CORREGIDO */}
-      {modalOpen && loteSeleccionado && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h3>{editandoId ? "✏️ Editar Incidencia Médica" : `🏥 Registrar Incidencia: ${loteSeleccionado.nombre}`}</h3>
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label>Tipo de Acción</label>
-                <select 
-                  className="form-input" 
-                  value={tratamientoData.tipo} 
-                  onChange={e => setTratamientoData({...tratamientoData, tipo: e.target.value})}
-                  disabled={isSubmitting}
-                >
-                  <option value="Tratamiento">Iniciar Tratamiento Médico</option>
-                  <option value="Falsa Alarma">Descartar (Falsa Alarma)</option>
-                  <option value="Aislamiento">Aislamiento de Cerdos</option>
-                </select>
-              </div>
-
-              {tratamientoData.tipo === "Tratamiento" && (
-                <div className="form-group">
-                  <label>Medicamento Aplicado (Opcional)</label>
-                  <input 
-                    className="form-input" 
-                    placeholder="Ej. Enrofloxacina, Penicilina..." 
-                    value={tratamientoData.medicamento} 
-                    onChange={e => setTratamientoData({...tratamientoData, medicamento: e.target.value})}
-                    disabled={isSubmitting}
-                  />
-                </div>
-              )}
-
-              <div className="form-group">
-                <label>Notas / Diagnóstico del Productor</label>
-                <textarea 
-                  required 
-                  className="form-input" 
-                  rows="3" 
-                  placeholder="Describe los síntomas observados..." 
-                  value={tratamientoData.notas || tratamientoData.notes || ""} 
-                  onChange={e => setTratamientoData({...tratamientoData, notas: e.target.value, notes: e.target.value})}
-                  disabled={isSubmitting}
-                ></textarea>
-              </div>
-
-              <div className="modal-actions">
-                <button type="button" className="btn-cancel" onClick={() => setModalOpen(false)} disabled={isSubmitting}>
-                  Cancelar
-                </button>
-                <button type="submit" className="btn-primary" disabled={isSubmitting}>
-                  {isSubmitting ? "Guardando..." : (editandoId ? "Actualizar Registro" : "Guardar en Historial")}
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
-
+        )}
+      </div>
     </ProPaywall>
   );
 }

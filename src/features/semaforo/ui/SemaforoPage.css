@@ -112,3 +112,76 @@
   max-height: 500px; /* Tamaño máximo holgado */
   opacity: 1;
 }
+
+/* =========================================
+   DISEÑO RESPONSIVO (MÓVILES)
+   ========================================= */
+@media (max-width: 768px) {
+  /* 1. Reducir padding lateral para ganar espacio en pantallas pequeñas */
+  .semaforo-page {
+    padding: 15px 10px;
+    box-sizing: border-box;
+  }
+
+  /* 2. ELIMINAR la restricción de 320px en móviles */
+  .semaforo-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  /* 3. Reducir un poco el padding interno de la tarjeta */
+  .alerta-card {
+    padding: 15px;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  /* 4. Asegurar que el encabezado no empuje el contenido si el texto es largo */
+  .alerta-header {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}
+
+/* =========================================
+   BOTONES DE TIMELINE (EDITAR/ELIMINAR)
+   ========================================= */
+.btn-timeline-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background-color: #fef3c7;
+  color: #92400e;
+  border-color: #fcd34d;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.btn-timeline-action svg {
+  flex-shrink: 0;
+}
+
+.btn-timeline-action:hover {
+  background-color: #fde68a;
+  transform: scale(1.05);
+}
+
+.btn-timeline-action.danger {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+.btn-timeline-action.danger:hover {
+  background-color: #fca5a5;
+  color: #991b1b;
+}
