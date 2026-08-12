@@ -6,7 +6,7 @@
    - Assets: stale-while-revalidate (rápido + se actualiza en segundo plano).
 */
 
-const CACHE_NAME = "Nutriporc-cache-v1";
+const CACHE_NAME = "Nutriporc-cache-v5";
 
 // Archivos base mínimos para que la app arranque offline
 const CORE_ASSETS = [
@@ -46,6 +46,7 @@ self.addEventListener("activate", (event) => {
 });
 
 // ========== FETCH ==========
+// ========== FETCH ==========
 self.addEventListener("fetch", (event) => {
   const req = event.request;
 
@@ -57,18 +58,16 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 2) Solo GET es cacheable (evita cachear POST/PUT/DELETE que causan duplicados)
+  // 2) Solo GET es cacheable
   if (req.method !== "GET") {
     event.respondWith(fetch(req));
     return;
   }
 
   const url = new URL(req.url);
-
-  // Sólo cacheamos recursos del mismo origen (evita problemas con CDNs externos si no querés)
   const sameOrigin = url.origin === self.location.origin;
 
-  // 3) Nunca cachear APIs/JSON dinámico
+  // 3) Nunca cachear APIs
   if (sameOrigin && NEVER_CACHE_PREFIXES.some((p) => url.pathname.startsWith(p))) {
     event.respondWith(
       fetch(req).catch(() =>
@@ -81,12 +80,11 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 4) Assets GET: stale-while-revalidate
+  // 4) Assets GET: stale-while-revalidate CORREGIDO
   event.respondWith(
     caches.match(req).then((cached) => {
       const fetchPromise = fetch(req)
         .then((networkRes) => {
-          // Cacheamos sólo respuestas 200 y de mismo origen (type "basic")
           if (
             sameOrigin &&
             networkRes &&
@@ -98,9 +96,16 @@ self.addEventListener("fetch", (event) => {
           }
           return networkRes;
         })
-        .catch(() => cached); // sin red → usa cache si existe
+        .catch(() => {
+          // LA MAGIA ESTÁ AQUÍ: Si falla la red y no hay caché, devolvemos un error real
+          // Esto evita el colapso "Failed to convert value to 'Response'"
+          if (cached) return cached;
+          return new Response("Recurso no disponible sin conexión", {
+            status: 503,
+            statusText: "Service Unavailable"
+          });
+        });
 
-      // devuelve rápido desde caché si está; si no, red
       return cached || fetchPromise;
     })
   );

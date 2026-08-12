@@ -1,0 +1,127 @@
+.inteligencia-page {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: #1e293b;
+}
+
+.dashboard-content {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  margin-top: 20px;
+}
+
+/* Tarjeta de Sugerencia */
+.card-recomendacion {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid #e2e8f0;
+  border-left: 5px solid #8b5cf6;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.15);
+}
+
+.recomendacion-icon {
+  font-size: 3rem;
+  background: #ede9fe;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.recomendacion-texto h3 {
+  margin: 0 0 10px 0;
+  color: #0f172a;
+  font-size: 1.3rem;
+}
+
+.recomendacion-texto p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.6;
+  font-size: 1.05rem;
+}
+
+.highlight-green {
+  color: #10b981;
+  font-weight: 800;
+}
+
+.btn-aplicar {
+  margin-left: auto;
+  white-space: nowrap;
+  background-color: #137E35;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-aplicar:hover {
+  background-color: #11662c;
+}
+
+/* Gráficos */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 3fr 2fr; /* El gráfico de barras ocupa más espacio */
+  gap: 20px;
+}
+
+.chart-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  border: 1px solid #f1f5f9;
+}
+
+.chart-card h3 {
+  margin: 0 0 5px 0;
+  font-size: 1.1rem;
+  color: #1e293b;
+}
+
+.chart-subtitle {
+  margin: 0 0 20px 0;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.chart-container {
+  height: 300px;
+  width: 100%;
+}
+
+.demo-warning {
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  font-style: italic;
+  margin-top: 10px;
+}
+
+/* Responsividad */
+@media (max-width: 900px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+  .card-recomendacion {
+    flex-direction: column;
+    text-align: center;
+  }
+  .btn-aplicar {
+    margin: 10px auto 0 auto;
+    width: 100%;
+  }
+}
