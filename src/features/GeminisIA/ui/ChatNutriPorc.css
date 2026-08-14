@@ -13,21 +13,27 @@
 ::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: #a0aec0; }
 
+/* 1. WRAPPER: Maneja toda la pantalla */
 .chat-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%;
+  /* Usamos dvh para evitar que las barras móviles rompan el layout de la PWA */
+  height: 100vh; 
+  height: 100dvh; 
+  width: 100%;
   padding: 20px;
   background-color: var(--bg-main);
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
-
+/* 2. CONTAINER: El cuadro del chat */
 .chat-container {
   width: 100%;
   max-width: 950px;
-  height: 85vh; /* Un poco más alto para aprovechar la pantalla */
-  min-height: 500px;
+  height: 100%; /* Toma el espacio que le da el wrapper */
+  max-height: 900px; /* Límite para pantallas de PC muy grandes */
   background: var(--bg-panel);
   border-radius: 24px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -38,14 +44,15 @@
 
 /* Header Oscuro Ultra Premium */
 .chat-header {
-  flex-shrink: 0; /* <-- MAGIA: Evita que el header se encoja */
+  flex-shrink: 0;
   background: #0f2a21; 
   background-image: radial-gradient(circle at top right, rgba(0, 153, 81, 0.3), transparent 50%);
-  padding: 15px 20px; /* Menos padding para ahorrar espacio en móvil */
+  padding: 15px 20px; 
   color: white;
   z-index: 10;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
+
 .header-glass {
   display: flex;
   align-items: center;
@@ -115,16 +122,16 @@
 /* Área de conversación con patrón de fondo */
 .chat-history {
   flex: 1;
-  padding: 20px 15px 20px 15px; /* <-- Menos margen lateral en celular */
+  padding: 20px 15px; 
   background-color: #fafbfc;
   background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
   background-size: 20px 20px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 16px; /* Burbujas un poco más juntas pero ordenadas */
+  gap: 16px;
+  scroll-behavior: smooth;
 }
-
 
 /* Quick Actions (Botones de sugerencia) */
 .quick-actions {
@@ -176,9 +183,8 @@
   display: flex; 
   align-items: flex-end; 
   gap: 8px; 
-  max-width: 95%; /* <-- De 85% a 95% para que la burbuja use la pantalla */
+  max-width: 95%; 
 }
-
 
 .row-user { align-self: flex-end; justify-content: flex-end; }
 .row-model { align-self: flex-start; }
@@ -199,8 +205,8 @@
 }
 
 .message-bubble {
-  padding: 14px 18px; /* Menos relleno interno, texto más ancho */
-  font-size: 0.95rem; /* Tamaño de letra ideal para leer mucho texto */
+  padding: 14px 18px; 
+  font-size: 0.95rem; 
   line-height: 1.5; 
   white-space: pre-wrap; 
   word-wrap: break-word;
@@ -232,8 +238,8 @@
 .ia-subtitle {
   color: var(--np-primary-dark); 
   font-size: 1.15rem;
-  margin-top: 20px; /* Más aire arriba */
-  margin-bottom: 10px; /* Más aire abajo */
+  margin-top: 20px; 
+  margin-bottom: 10px; 
   border-bottom: 2px solid #e2e8f0;
   padding-bottom: 6px;
   font-weight: 800;
@@ -259,10 +265,10 @@
 .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
 .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
 
-/* 🚀 LA CAJA DE TEXTO (Super Visible) 🚀 */
+/* LA CAJA DE TEXTO */
 .chat-input-wrapper {
-  flex-shrink: 0; /* <-- MAGIA: Evita que la caja de texto desaparezca o se aplaste */
-  padding: 15px 20px; /* Ajuste para móvil */
+  flex-shrink: 0; 
+  padding: 15px 20px; 
   background: rgba(255, 255, 255, 0.95);
   border-top: 1px solid #e2e8f0;
   box-shadow: 0 -4px 15px rgba(0,0,0,0.03); 
@@ -275,7 +281,6 @@
   background: #ffffff;
   border-radius: 28px;
   padding: 12px 12px 12px 24px;
-  /* Borde grueso y marcado */
   border: 2px solid #09c528; 
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(0,0,0,0.04);
@@ -332,4 +337,80 @@
   color: #94a3b8;
   box-shadow: none;
   cursor: not-allowed;
+}
+
+/* ========================================================
+   MEDIA QUERIES - RESPONSIVE DESIGN PARA MÓVILES (PWA)
+   ======================================================== */
+@media (max-width: 768px) {
+  .chat-wrapper {
+    padding: 0; /* Quitamos el padding para que llene toda la pantalla del celular */
+  }
+
+  .chat-container {
+    border-radius: 0; /* Bordes rectos para un look de app nativa */
+    box-shadow: none;
+    max-width: 100%;
+  }
+
+  .chat-header {
+    padding: 12px 15px; /* Ahorramos espacio vertical */
+  }
+
+  .header-glass {
+    gap: 12px;
+  }
+
+  .ai-avatar {
+    padding: 8px;
+    border-radius: 14px;
+  }
+
+  .emoji-pig {
+    font-size: 1.5rem;
+  }
+
+  .header-titles h2 {
+    font-size: 1.3rem;
+  }
+
+  .chat-history {
+    padding: 15px 10px; /* Maximizamos el ancho de lectura */
+  }
+
+  .message-bubble {
+    font-size: 0.9rem; /* Letra ligeramente más pequeña para que quepa más texto */
+    padding: 12px 16px;
+  }
+
+  .message-row {
+    max-width: 98%; /* La burbuja usa casi todo el ancho disponible */
+  }
+
+  .msg-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+  }
+
+  .chat-input-wrapper {
+    padding: 10px;
+    /* Respeta la zona segura de los iPhones (el indicador de inicio en la parte inferior) */
+    padding-bottom: env(safe-area-inset-bottom, 10px); 
+  }
+
+  .chat-input-form {
+    padding: 8px 8px 8px 16px;
+    gap: 10px;
+  }
+
+  .prompt-input {
+    font-size: 1rem;
+    padding: 10px 0;
+  }
+
+  .send-button {
+    width: 44px;
+    height: 44px;
+  }
 }
