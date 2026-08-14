@@ -5,10 +5,18 @@ import './ChatNutriPorc.css';
 
 const formatearTexto = (texto) => {
   if (!texto) return '';
-  let html = texto.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); 
+  let html = texto.trim();
+  
+  // 1. Atrapa los Títulos (tanto ## como ###)
   html = html.replace(/### (.*?)\n/g, '<h3 class="ia-subtitle">$1</h3>'); 
-  html = html.replace(/\*(.*?)\n/g, '<li>$1</li>'); // Para listas
-  html = html.replace(/\n/g, '<br/>'); 
+  html = html.replace(/## (.*?)\n/g, '<h3 class="ia-subtitle">$1</h3>'); 
+  
+  // 2. Negritas
+  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); 
+  
+  // 3. Atrapa las listas correctamente (asterisco o guión al inicio de una línea)
+  html = html.replace(/(?:^|\n)[*-]\s+(.*?)(?=\n|$)/g, '\n<li class="ia-list-item">$1</li>');
+  
   return html;
 };
 

@@ -22,31 +22,30 @@
   background-color: var(--bg-main);
 }
 
+
 .chat-container {
   width: 100%;
   max-width: 950px;
-  height: 80vh;
-  min-height: 600px;
+  height: 85vh; /* Un poco más alto para aprovechar la pantalla */
+  min-height: 500px;
   background: var(--bg-panel);
   border-radius: 24px;
-  /* Sombra expansiva espectacular */
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0,0,0,0.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  position: relative;
 }
 
 /* Header Oscuro Ultra Premium */
 .chat-header {
-  background: #0f2a21; /* Azul noche profundo casi negro */
+  flex-shrink: 0; /* <-- MAGIA: Evita que el header se encoja */
+  background: #0f2a21; 
   background-image: radial-gradient(circle at top right, rgba(0, 153, 81, 0.3), transparent 50%);
-  padding: 20px 30px;
+  padding: 15px 20px; /* Menos padding para ahorrar espacio en móvil */
   color: white;
   z-index: 10;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
-
 .header-glass {
   display: flex;
   align-items: center;
@@ -116,16 +115,16 @@
 /* Área de conversación con patrón de fondo */
 .chat-history {
   flex: 1;
-  padding: 30px;
-  /* Fondo tecnológico de puntitos */
+  padding: 20px 15px 20px 15px; /* <-- Menos margen lateral en celular */
   background-color: #fafbfc;
   background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
   background-size: 20px 20px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px; /* Burbujas un poco más juntas pero ordenadas */
 }
+
 
 /* Quick Actions (Botones de sugerencia) */
 .quick-actions {
@@ -173,7 +172,14 @@
 }
 
 /* Burbujas de Chat Mejoradas */
-.message-row { display: flex; align-items: flex-end; gap: 12px; max-width: 85%; }
+.message-row { 
+  display: flex; 
+  align-items: flex-end; 
+  gap: 8px; 
+  max-width: 95%; /* <-- De 85% a 95% para que la burbuja use la pantalla */
+}
+
+
 .row-user { align-self: flex-end; justify-content: flex-end; }
 .row-model { align-self: flex-start; }
 
@@ -193,9 +199,11 @@
 }
 
 .message-bubble {
-  padding: 18px 24px;
-  font-size: 1.05rem;
-  line-height: 1.6;
+  padding: 14px 18px; /* Menos relleno interno, texto más ancho */
+  font-size: 0.95rem; /* Tamaño de letra ideal para leer mucho texto */
+  line-height: 1.5; 
+  white-space: pre-wrap; 
+  word-wrap: break-word;
 }
 
 .bubble-user {
@@ -215,15 +223,29 @@
 }
 
 .bubble-model strong { color: var(--np-primary-dark); font-weight: 700; }
-.bubble-model li { margin-bottom: 8px; margin-left: 15px; }
+.bubble-model li { 
+  margin-bottom: 8px; 
+  margin-left: 20px; 
+  list-style-type: disc;
+}
 
 .ia-subtitle {
-  color: var(--np-accent);
+  color: var(--np-primary-dark); 
   font-size: 1.15rem;
-  margin-top: 15px;
-  margin-bottom: 8px;
-  border-bottom: 2px solid #f1f5f9;
-  padding-bottom: 4px;
+  margin-top: 20px; /* Más aire arriba */
+  margin-bottom: 10px; /* Más aire abajo */
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 6px;
+  font-weight: 800;
+  display: block;
+}
+
+.ia-list-item {
+  margin-top: 6px;
+  margin-bottom: 6px;
+  margin-left: 18px;
+  display: list-item;
+  list-style-type: disc;
 }
 
 /* Indicador de escritura animado */
@@ -239,12 +261,11 @@
 
 /* 🚀 LA CAJA DE TEXTO (Super Visible) 🚀 */
 .chat-input-wrapper {
-  padding: 24px 30px;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
+  flex-shrink: 0; /* <-- MAGIA: Evita que la caja de texto desaparezca o se aplaste */
+  padding: 15px 20px; /* Ajuste para móvil */
+  background: rgba(255, 255, 255, 0.95);
   border-top: 1px solid #e2e8f0;
-  /* Esta sombra la hace resaltar brutalmente sobre el fondo */
-  box-shadow: 0 -10px 30px rgba(0,0,0,0.03); 
+  box-shadow: 0 -4px 15px rgba(0,0,0,0.03); 
 }
 
 .chat-input-form {
