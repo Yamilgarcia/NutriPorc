@@ -6,6 +6,9 @@
   --bg-panel: #ffffff;
   --text-main: #1a202c;
   --text-muted: #718096;
+  
+  /* Ajusta este valor si tu menú de arriba es más alto o más bajo */
+  --navbar-height: 65px; 
 }
 
 ::-webkit-scrollbar { width: 8px; }
@@ -13,14 +16,14 @@
 ::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: #a0aec0; }
 
-/* 1. WRAPPER: Maneja toda la pantalla */
+/* 1. WRAPPER PRINCIPAL */
 .chat-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
-  /* Usamos dvh para evitar que las barras móviles rompan el layout de la PWA */
-  height: 100vh; 
-  height: 100dvh; 
+  /* Altura dinámica menos el menú superior para que nada se salga de la pantalla */
+  height: calc(100vh - var(--navbar-height)); 
+  height: calc(100dvh - var(--navbar-height)); 
   width: 100%;
   padding: 20px;
   background-color: var(--bg-main);
@@ -28,12 +31,12 @@
   overflow: hidden;
 }
 
-/* 2. CONTAINER: El cuadro del chat */
+/* 2. CONTAINER DEL CHAT */
 .chat-container {
   width: 100%;
   max-width: 950px;
-  height: 100%; /* Toma el espacio que le da el wrapper */
-  max-height: 900px; /* Límite para pantallas de PC muy grandes */
+  height: 100%; /* Usa todo el espacio que le da el wrapper */
+  max-height: 900px;
   background: var(--bg-panel);
   border-radius: 24px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -344,17 +347,18 @@
    ======================================================== */
 @media (max-width: 768px) {
   .chat-wrapper {
-    padding: 0; /* Quitamos el padding para que llene toda la pantalla del celular */
+    padding: 0; /* Quitamos el padding para usar toda la pantalla */
+    /* La altura se sigue calculando automáticamente con calc() del bloque principal */
   }
 
   .chat-container {
-    border-radius: 0; /* Bordes rectos para un look de app nativa */
+    border-radius: 0; 
     box-shadow: none;
     max-width: 100%;
   }
 
   .chat-header {
-    padding: 12px 15px; /* Ahorramos espacio vertical */
+    padding: 12px 15px; 
   }
 
   .header-glass {
@@ -375,16 +379,16 @@
   }
 
   .chat-history {
-    padding: 15px 10px; /* Maximizamos el ancho de lectura */
+    padding: 15px 10px; 
   }
 
   .message-bubble {
-    font-size: 0.9rem; /* Letra ligeramente más pequeña para que quepa más texto */
+    font-size: 0.9rem; 
     padding: 12px 16px;
   }
 
   .message-row {
-    max-width: 98%; /* La burbuja usa casi todo el ancho disponible */
+    max-width: 98%; 
   }
 
   .msg-icon {
@@ -395,7 +399,7 @@
 
   .chat-input-wrapper {
     padding: 10px;
-    /* Respeta la zona segura de los iPhones (el indicador de inicio en la parte inferior) */
+    /* Evita que los botones de navegación modernos tapen el input */
     padding-bottom: env(safe-area-inset-bottom, 10px); 
   }
 
