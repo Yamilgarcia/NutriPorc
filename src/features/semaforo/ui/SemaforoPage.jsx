@@ -11,7 +11,7 @@ export default function SemaforoPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editandoId, setEditandoId] = useState(null);
   const [tratamientoData, setTratamientoData] = useState({ tipo: "Tratamiento", medicamento: "", notas: "" });
-
+const [alertaEliminar, setAlertaEliminar] = useState({ mostrar: false, id: null });
   // Estado para controlar qué tarjetas tienen su historial médico desplegado
   const [historialesAbiertos, setHistorialesAbiertos] = useState({});
 
@@ -38,10 +38,17 @@ export default function SemaforoPage() {
     setModalOpen(true);
   };
 
-  const handleDeleteRegistro = async (id) => {
-    if (window.confirm("¿Seguro que deseas eliminar este registro médico?")) {
-      await handleEliminarAlerta(id);
+ // 1. Solo abre el modal y guarda qué ID queremos borrar
+  const handleDeleteRegistro = (id) => {
+    setAlertaEliminar({ mostrar: true, id: id });
+  };
+
+  // 2. Ejecuta la eliminación real en la base de datos
+  const confirmarEliminacion = async () => {
+    if (alertaEliminar.id) {
+      await handleEliminarAlerta(alertaEliminar.id);
     }
+    setAlertaEliminar({ mostrar: false, id: null });
   };
 
   const handleSubmit = async (e) => {
@@ -241,6 +248,45 @@ export default function SemaforoPage() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+
+        {/* MODAL PERSONALIZADO DE CONFIRMACIÓN DE ELIMINACIÓN */}
+        {alertaEliminar.mostrar && (
+          <div className="modal-overlay" style={{ zIndex: 9999, backdropFilter: "blur(4px)" }}>
+            <div className="modal-content" style={{ textAlign: "center", maxWidth: "350px", borderRadius: "20px" }}>
+              
+              <div style={{ fontSize: "3.5rem", marginBottom: "15px" }}>⚠️</div>
+              
+              <h3 style={{ color: "#0f172a", marginBottom: "10px", fontSize: "1.3rem" }}>
+                Confirmar Eliminación
+              </h3>
+              
+              <p style={{ color: "#64748b", margin: "0 0 25px 0", fontSize: "0.95rem", lineHeight: "1.5" }}>
+                ¿Estás seguro que deseas eliminar este registro médico? Esta acción no se puede deshacer y afectará el historial sanitario del corral.
+              </p>
+              
+              <div className="modal-actions" style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+                <button 
+                  type="button"
+                  className="btn-cancel" 
+                  onClick={() => setAlertaEliminar({ mostrar: false, id: null })}
+                  style={{ flex: 1, padding: "12px", borderRadius: "10px", fontWeight: "bold" }}
+                >
+                  Cancelar
+                </button>
+                <button 
+                  type="button"
+                  className="btn-primary" 
+                  onClick={confirmarEliminacion}
+                  style={{ flex: 1, backgroundColor: "#ef4444", borderColor: "#ef4444", padding: "12px", borderRadius: "10px", fontWeight: "bold" }}
+                >
+                  Sí, eliminar
+                </button>
+              </div>
+
             </div>
           </div>
         )}

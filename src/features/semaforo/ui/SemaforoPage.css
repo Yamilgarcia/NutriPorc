@@ -166,6 +166,14 @@
   line-height: 1;
 }
 
+/* Contenedor que agrupa los botones Editar y Eliminar */
+.timeline-actions {
+  display: flex;
+  gap: 15px; /* <-- Esto crea la separación exacta entre los dos botones */
+  margin-top: 12px; /* <-- Esto los separa un poco del texto de arriba ("paracetamol") */
+  align-items: center;
+}
+
 .btn-timeline-action svg {
   flex-shrink: 0;
 }
