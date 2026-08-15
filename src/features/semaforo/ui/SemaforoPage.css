@@ -7,31 +7,33 @@
 .semaforo-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 20px;
+  gap: 24px;
   margin-top: 20px;
 }
 
+/* TARJETAS PRINCIPALES */
 .alerta-card {
   background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-  border-top: 5px solid #ccc;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.03), 0 4px 10px rgba(0,0,0,0.02);
+  border-top: 6px solid #ccc;
   position: relative;
   overflow: hidden;
-  transition: transform 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .alerta-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.06);
 }
 
 /* COLORES DEL SEMÁFORO */
 .alerta-card.rojo { border-top-color: #ef4444; background-color: #fef2f2; }
-.alerta-card.rojo .luz-indicadora { background-color: #ef4444; box-shadow: 0 0 10px #ef4444; }
+.alerta-card.rojo .luz-indicadora { background-color: #ef4444; box-shadow: 0 0 12px rgba(239, 68, 68, 0.6); }
 
 .alerta-card.amarillo { border-top-color: #f59e0b; background-color: #fffbeb; }
-.alerta-card.amarillo .luz-indicadora { background-color: #f59e0b; box-shadow: 0 0 10px #f59e0b; }
+.alerta-card.amarillo .luz-indicadora { background-color: #f59e0b; box-shadow: 0 0 12px rgba(245, 158, 11, 0.6); }
 
 .alerta-card.verde { border-top-color: #10b981; background-color: #f0fdf4; }
 .alerta-card.verde .luz-indicadora { background-color: #10b981; }
@@ -40,156 +42,154 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
 }
 
-.alerta-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.alerta-title h3 {
-  margin: 0;
-  font-size: 1.2rem;
-  color: #1e293b;
-}
-
-.luz-indicadora {
-  width: 15px;
-  height: 15px;
-  border-radius: 50%;
-  display: inline-block;
-}
+.alerta-title { display: flex; align-items: center; gap: 12px; }
+.alerta-title h3 { margin: 0; font-size: 1.3rem; color: #1e293b; font-weight: 700; }
+.luz-indicadora { width: 16px; height: 16px; border-radius: 50%; display: inline-block; }
 
 .poblacion-badge {
-  background: rgba(0,0,0,0.05);
-  padding: 4px 8px;
-  border-radius: 6px;
+  background: white;
+  padding: 6px 12px;
+  border-radius: 20px;
   font-size: 0.85rem;
-  font-weight: bold;
+  font-weight: 800;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
-.diagnostico, .recomendacion {
-  font-size: 0.95rem;
-  color: #334155;
-  margin-bottom: 10px;
-  line-height: 1.5;
-}
+.diagnostico, .recomendacion { font-size: 0.95rem; color: #334155; margin-bottom: 12px; line-height: 1.6; }
+.diagnostico strong, .recomendacion strong { color: #0f172a; }
 
-.btn-atender {
+/* CHIPS (Píldoras de resumen) */
+.chips-container { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+.chip { padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; }
+.chip-tratamiento { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+.chip-aislamiento { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
+
+/* BOTÓN DE DESPLEGAR HISTORIAL */
+.btn-toggle-historial {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   width: 100%;
-  margin-top: 15px;
-  padding: 10px;
-  background-color: #0f172a;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
+  padding: 12px 16px;
+  margin: 20px 0;
+  background-color: white;
+  border: 1px solid #cbd5e0;
+  border-radius: 12px;
+  color: #334155;
+  font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.02);
 }
-
-.btn-atender:hover {
-  background-color: #334155;
-}
-
-/* Animación fluida de la línea de tiempo */
-.timeline-container {
-  overflow: hidden;
-  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
-}
-
-.timeline-container.collapsed {
-  max-height: 0;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.timeline-container.expanded {
-  max-height: 500px; /* Tamaño máximo holgado */
-  opacity: 1;
-}
+.btn-toggle-historial:hover { background-color: #f8fafc; border-color: #94a3b8; }
+.historial-counter { background: #0f172a; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; }
 
 /* =========================================
-   DISEÑO RESPONSIVO (MÓVILES)
+   NUEVO DISEÑO DE LÍNEA DE TIEMPO (TIMELINE)
    ========================================= */
-@media (max-width: 768px) {
-  /* 1. Reducir padding lateral para ganar espacio en pantallas pequeñas */
-  .semaforo-page {
-    padding: 15px 10px;
-    box-sizing: border-box;
-  }
+.timeline-container { overflow: hidden; transition: max-height 0.5s ease-in-out, opacity 0.3s ease; }
+.timeline-container.collapsed { max-height: 0; opacity: 0; pointer-events: none; }
+.timeline-container.expanded { max-height: 1000px; opacity: 1; margin-bottom: 20px; }
 
-  /* 2. ELIMINAR la restricción de 320px en móviles */
-  .semaforo-grid {
-    grid-template-columns: 1fr;
-    gap: 15px;
-  }
-
-  /* 3. Reducir un poco el padding interno de la tarjeta */
-  .alerta-card {
-    padding: 15px;
-    box-sizing: border-box;
-    width: 100%;
-  }
-
-  /* 4. Asegurar que el encabezado no empuje el contenido si el texto es largo */
-  .alerta-header {
-    flex-wrap: wrap;
-    gap: 10px;
-  }
+.timeline-track {
+  border-left: 2px dashed #cbd5e0;
+  margin-left: 16px;
+  padding-left: 24px;
+  margin-top: 10px;
 }
 
-/* =========================================
-   BOTONES DE TIMELINE (EDITAR/ELIMINAR)
-   ========================================= */
-.btn-timeline-action {
+.timeline-item { position: relative; margin-bottom: 24px; }
+.timeline-item:last-child { margin-bottom: 0; }
+
+.timeline-dot {
+  position: absolute;
+  left: -31px; /* Centrado en la línea punteada */
+  top: 6px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  z-index: 2;
+}
+
+.timeline-content {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+  transition: border-color 0.2s;
+}
+.timeline-content:hover { border-color: #cbd5e0; }
+
+.timeline-date { font-size: 0.8rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;}
+.timeline-type { margin: 0 0 10px 0; font-size: 1.1rem; color: #0f172a; font-weight: 800; }
+
+.timeline-notes {
+  font-size: 0.95rem;
+  color: #475569;
+  line-height: 1.5;
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  border-left: 3px solid #cbd5e0; /* Estilo cita (blockquote) */
+}
+
+.timeline-medication {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
-  height: 30px;
-  padding: 0 10px;
-  border-radius: 6px;
-  border: 1px solid #e2e8f0;
-  background-color: #fef3c7;
-  color: #92400e;
-  border-color: #fcd34d;
-  cursor: pointer;
-  font-size: 11px;
-  font-weight: 600;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-  line-height: 1;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 5px;
 }
 
-/* Contenedor que agrupa los botones Editar y Eliminar */
-.timeline-actions {
-  display: flex;
-  gap: 15px; /* <-- Esto crea la separación exacta entre los dos botones */
-  margin-top: 12px; /* <-- Esto los separa un poco del texto de arriba ("paracetamol") */
-  align-items: center;
-}
+/* =========================================
+   BOTONES DE TIMELINE Y FORMULARIOS
+   ========================================= */
+.timeline-actions { display: flex; gap: 12px; margin-top: 15px; border-top: 1px solid #f1f5f9; padding-top: 12px; }
 
-.btn-timeline-action svg {
-  flex-shrink: 0;
+.btn-timeline-action {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 6px 12px; border-radius: 8px; border: 1px solid transparent;
+  background-color: #f1f5f9; color: #475569; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease;
 }
+.btn-timeline-action:hover { background-color: #e2e8f0; color: #0f172a; }
+.btn-timeline-action.danger:hover { background-color: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
 
-.btn-timeline-action:hover {
-  background-color: #fde68a;
-  transform: scale(1.05);
+.btn-atender {
+  width: 100%; padding: 14px; background-color: #0f172a; color: white; border: none; border-radius: 12px;
+  font-weight: 800; font-size: 1rem; cursor: pointer; transition: transform 0.1s, background-color 0.2s;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2);
 }
+.btn-atender:hover { background-color: #1e293b; transform: translateY(-2px); }
 
-.btn-timeline-action.danger {
-  background-color: #fee2e2;
-  color: #dc2626;
-  border-color: #fca5a5;
+/* =========================================
+   DISEÑO DEL MODAL PREMIUM
+   ========================================= */
+.form-group { margin-bottom: 20px; text-align: left; }
+.form-group label { display: block; font-weight: 700; color: #334155; margin-bottom: 8px; font-size: 0.95rem; }
+
+.form-input {
+  width: 100%; padding: 14px; border: 2px solid #e2e8f0; border-radius: 12px; font-family: inherit;
+  font-size: 1rem; transition: all 0.25s ease; box-sizing: border-box; background-color: #f8fafc;
 }
+.form-input:focus { outline: none; border-color: #10b981; background-color: white; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15); }
 
-.btn-timeline-action.danger:hover {
-  background-color: #fca5a5;
-  color: #991b1b;
+/* Responsivo Móvil */
+@media (max-width: 768px) {
+  .semaforo-page { padding: 15px 10px; }
+  .semaforo-grid { grid-template-columns: 1fr; gap: 16px; }
+  .alerta-card { padding: 18px; width: 100%; box-sizing: border-box; }
 }
