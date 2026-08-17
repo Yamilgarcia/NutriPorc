@@ -1,3 +1,4 @@
+// src/pages/PesajesPage.jsx
 import { useState } from "react";
 import { usePesajes } from "../logic/usePesajes";
 import { useIA } from "../logic/useIA"; 
@@ -23,9 +24,7 @@ export default function PesajesPage() {
   const [pesoEditado, setPesoEditado] = useState("");
   const [mostrarScanner, setMostrarScanner] = useState(false);
   
-  // ==========================================
-  // NUEVO: ESTADO PARA NUESTRO MODAL PERSONALIZADO
-  // ==========================================
+  // ESTADO PARA NUESTRO MODAL PERSONALIZADO DE IA
   const [alertaIA, setAlertaIA] = useState({
     mostrar: false,
     exito: false,
@@ -34,17 +33,16 @@ export default function PesajesPage() {
     pesoResultante: null
   });
 
-  // ==========================================
   // EL PUENTE ENTRE LA CÁMARA Y LA IA
-  // ==========================================
   const procesarFotoIA = async (imageBase64) => {
     setMostrarScanner(false); 
     
-    // 1. Buscamos el corral actual para saber su etapa biológica
-    const loteActual = lotes.find(l => l.id === loteSeleccionadoId);
+    // 🚨 PARCHE 1: Forzamos la conversión a texto para que el ID siempre coincida
+    const loteActual = lotes.find(l => String(l.id) === String(loteSeleccionadoId));
+    
+    // Si por alguna razón falla, mandamos "Engorde" como última opción
     const etapaLote = loteActual ? loteActual.etapa : "Engorde";
 
-    // 2. Le pasamos la imagen Y el contexto biológico a la IA
     const resultado = await analizarImagen(imageBase64, etapaLote);
 
     if (resultado.exito) {
@@ -66,7 +64,6 @@ export default function PesajesPage() {
       });
     }
   };
-
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!pesoInput || pesoInput <= 0) return alert("Ingresa un peso válido");
@@ -264,7 +261,7 @@ export default function PesajesPage() {
       )}
 
       {/* ========================================== */}
-      {/* NUEVO MODAL DE RESULTADO IA */}
+      {/* MODAL DE RESULTADO IA */}
       {/* ========================================== */}
       {alertaIA.mostrar && (
         <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, backdropFilter: 'blur(4px)' }}>

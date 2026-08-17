@@ -1,4 +1,6 @@
-import { Routes, Route, } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+import { useEffect } from "react"; // <-- FALTABA IMPORTAR ESTO
+
 import AppLayout from "./layout/AppLayout";
 import WelcomePage from "./pages/WelcomePage";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -13,13 +15,23 @@ import { DashboardFinanciero } from "./features/finanzas/ui/DashboardFinanciero"
 import Semaforo from "./features/semaforo/ui/SemaforoPage.jsx";
 import ChatIA from "./features/GeminisIA/ui/ChatNutriPorc.jsx";
 import InteligenciaPage from "./features/inteligencia/ui/InteligenciaPage.jsx";
+import { preCargarModeloIA } from './features/monitoreoIA/logic/useIA.js';
 
-// Atrapamos el parámetro antes de que React Router redireccione y lo borre
+// Esto SÍ puede ir afuera porque es JavaScript normal, no es un Hook de React
 if (window.location.search.includes("pago=exitoso")) {
   localStorage.setItem("pago_pendiente_procesar", "true");
 }
 
 export default function App() {
+
+  
+  useEffect(() => {
+    // Esto se ejecuta una sola vez cuando la aplicación carga en el navegador
+    // Obliga al Service Worker a descargar los archivos de TensorFlow
+    // y guardarlos para cuando el usuario se quede sin internet.
+    preCargarModeloIA();
+  }, []);
+
   return (
     <AuthProvider>
       <Routes>
