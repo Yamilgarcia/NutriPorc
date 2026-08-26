@@ -418,3 +418,50 @@
     height: 44px;
   }
 }
+
+/* ========================================================
+   INDICADOR DE ESCRITURA ANIMADO (LOADING)
+   ======================================================== */
+.typing-indicator-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px; /* Un poco más compacto que un mensaje normal */
+}
+
+.typing-indicator { 
+  display: flex; 
+  gap: 6px; 
+}
+
+.typing-indicator span {
+  width: 8px; 
+  height: 8px;
+  background-color: var(--np-primary);
+  border-radius: 50%;
+  /* Aquí llamamos a la animación "bounce" */
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+.typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0s; }
+
+/* ESTA ES LA ANIMACIÓN QUE FALTABA */
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+.typing-text {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  font-style: italic;
+  animation: pulseText 2s infinite;
+}
+
+@keyframes pulseText {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}

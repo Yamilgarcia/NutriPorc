@@ -117,11 +117,15 @@ export default function ChatNutriPorc() {
             </div>
           ))}
           
+         
           {cargando && (
             <div className="message-row row-model">
               <div className="msg-icon">NP</div>
-              <div className="message-bubble bubble-model typing-indicator">
-                <span></span><span></span><span></span>
+              <div className="message-bubble bubble-model typing-indicator-container">
+                <div className="typing-indicator">
+                  <span></span><span></span><span></span>
+                </div>
+                <span className="typing-text">Procesando respuesta...</span>
               </div>
             </div>
           )}
