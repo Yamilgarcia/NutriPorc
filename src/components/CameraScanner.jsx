@@ -1,4 +1,3 @@
-// src/features/monitoreoIA/ui/components/CameraScanner.jsx
 import { useRef, useState, useEffect } from "react";
 import "./CameraScanner.css";
 
@@ -24,7 +23,7 @@ export const CameraScanner = ({ onCapture, onClose }) => {
         }
       } catch (err) {
         console.error("Error accediendo a la cámara:", err);
-        setError("No se pudo acceder a la cámara. Revisa los permisos.");
+        setError("No se pudo acceder a la cámara. Revisa los permisos de tu navegador.");
       }
     };
 
@@ -70,21 +69,20 @@ export const CameraScanner = ({ onCapture, onClose }) => {
   }
 
   return (
-    <div className="scanner-overlay">
+    <div className="scanner-overlay camera-container-principal">
       <div className="scanner-container">
         
-        {/* BARRA SUPERIOR ELEGANTE */}
+        {/* BARRA SUPERIOR */}
         <div className="scanner-header">
           <button onClick={apagarYCerrar} className="btn-close-text">✕ Volver</button>
           <span className="scanner-title">Escáner NutriPorc</span>
           <div className="header-spacer"></div>
         </div>
 
-        {/* CONTENEDOR DEL VISOR (CONTIENE LA PROPORCIÓN REAL) */}
+        {/* VISOR DE CÁMARA LIBRE (SIN BLOQUEO DE ORIENTACIÓN) */}
         <div className="video-viewport">
           <video ref={videoRef} autoPlay playsInline muted className="scanner-video" />
           
-          {/* MIRA DE ENCUADRE */}
           <div className="scanner-guide">
             <div className="guide-box">
               <span className="corner top-left"></span>
@@ -97,9 +95,9 @@ export const CameraScanner = ({ onCapture, onClose }) => {
 
         {/* BARRA INFERIOR DE CONTROLES */}
         <div className="scanner-footer">
-          <p className="guide-text">Encuadre el perfil del cerdo dentro de la mira</p>
+          <p className="guide-text">Encuadre el perfil del animal en la mira</p>
           <div className="action-row">
-            <button onClick={takeSnapshot} className="btn-capturar" title="Capturar peso con IA"></button>
+            <button onClick={takeSnapshot} className="btn-capturar" title="Capturar"></button>
           </div>
         </div>
 

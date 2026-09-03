@@ -1,20 +1,18 @@
-// src/features/monitoreoIA/logic/useIA.js
 import { useState } from 'react';
 import * as tf from '@tensorflow/tfjs';
 import * as cocossd from '@tensorflow-models/coco-ssd';
 
-// 1. Declaramos el modelo globalmente para que persista en toda la app
+// 1. Declaración global para caché offline (PWA)
 let modeloNeuronalGlobal = null;
 
-// 2. NUEVA FUNCIÓN: Pre-carga silenciosa para caché offline
+// 2. Pre-carga silenciosa
 export const preCargarModeloIA = async () => {
   if (modeloNeuronalGlobal) return; 
-  
   try {
     console.log("🧠 Iniciando pre-carga silenciosa del modelo IA...");
     await tf.ready();
     modeloNeuronalGlobal = await cocossd.load();
-    console.log("✅ Modelo IA descargado en caché. Listo para uso 100% Offline.");
+    console.log("✅ Modelo IA descargado en caché. Listo para modo Offline.");
   } catch (error) {
     console.error("Error pre-cargando el modelo IA:", error);
   }
@@ -25,9 +23,9 @@ export const useIA = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   // ==============================================================
-  // ALGORITMO VOLUMÉTRICO CONSCIENTE DEL CONTEXTO (BIOLÓGICO)
+  // ALGORITMO VOLUMÉTRICO MEJORADO Y CALIBRADO
   // ==============================================================
- const calcularPesoIA = (bboxWidth, bboxHeight, imgWidth, imgHeight, etapaLote) => {
+  const calcularPesoIA = (bboxWidth, bboxHeight, imgWidth, imgHeight, etapaLote) => {
     const areaCerdo = bboxWidth * bboxHeight;
     const areaTotalImagen = imgWidth * imgHeight;
     const porcentajeOcupado = areaCerdo / areaTotalImagen;
@@ -35,28 +33,28 @@ export const useIA = () => {
     const aspectRatio = bboxWidth / bboxHeight;
     const factorPostura = aspectRatio > 1.2 ? 1.15 : 0.90;
 
-    // 🚨 PARCHE 2: Normalizamos el texto (todo a minúsculas y sin espacios)
+    // Normalización extrema para evitar bugs con la base de datos
     const etapaNormalizada = etapaLote ? String(etapaLote).toLowerCase().trim() : "engorde";
 
-    let multiplicador = 1250; 
+    // Multiplicadores calibrados para distancias reales (1.5m a 2m)
+    let multiplicador = 750; 
     let minPeso = 15;
     let maxPeso = 350;
 
-    // Usamos .includes() para cazar la palabra clave
-    if (etapaNormalizada.includes("destete") || etapaNormalizada.includes("lactancia")) {
-      multiplicador = 180; 
+    if (etapaNormalizada.includes("destete") || etapaNormalizada.includes("lactancia") || etapaNormalizada.includes("lechon")) {
+      multiplicador = 150; 
       minPeso = 8;
       maxPeso = 45;
-    } else if (etapaNormalizada.includes("desarrollo")) {
-      multiplicador = 480; 
+    } else if (etapaNormalizada.includes("desarrollo") || etapaNormalizada.includes("crecimiento")) {
+      multiplicador = 350; 
       minPeso = 40;
       maxPeso = 140;
     } else if (etapaNormalizada.includes("engorde")) {
-      multiplicador = 1250; 
+      multiplicador = 750; 
       minPeso = 120;
       maxPeso = 350;
-    } else if (etapaNormalizada.includes("reproducción") || etapaNormalizada.includes("gestación")) {
-      multiplicador = 1800; 
+    } else if (etapaNormalizada.includes("reproducción") || etapaNormalizada.includes("gestación") || etapaNormalizada.includes("maternidad")) {
+      multiplicador = 1100; 
       minPeso = 250;
       maxPeso = 850; 
     }
@@ -64,6 +62,7 @@ export const useIA = () => {
     const pesoBaseLibras = porcentajeOcupado * multiplicador;
     let pesoEstimado = pesoBaseLibras * factorPostura;
 
+    // Límites de seguridad biológica
     if (pesoEstimado < minPeso) pesoEstimado = minPeso; 
     if (pesoEstimado > maxPeso) pesoEstimado = maxPeso; 
 
@@ -73,7 +72,6 @@ export const useIA = () => {
   const analizarImagen = async (imageBase64, etapaLote = "Engorde") => {
     setIsAnalyzing(true);
     try {
-      // Verificamos si el modelo global está listo
       if (!modeloNeuronalGlobal) {
         setIsModelLoading(true);
         await tf.ready(); 
@@ -83,12 +81,9 @@ export const useIA = () => {
 
       const imgElement = document.createElement('img');
       imgElement.src = imageBase64;
-      
       await new Promise((resolve) => { imgElement.onload = resolve; });
 
-      // Usamos el modelo global
       const predictions = await modeloNeuronalGlobal.detect(imgElement);
-      
       const animalesValidos = ['pig', 'cow', 'sheep', 'dog', 'horse', 'bear'];
       const deteccionCerdo = predictions.find(p => animalesValidos.includes(p.class) && p.score > 0.50);
 
@@ -97,32 +92,19 @@ export const useIA = () => {
         const imgW = imgElement.width;
         const imgH = imgElement.height;
 
-        // ==========================================
-        // REGLAS DE VALIDACIÓN DE ENCUADRE
-        // ==========================================
-        
-        // REGLA 1: El cerdo no puede tocar los bordes (Margen técnico del 2%)
-        const margenX = imgW * 0.02;
-        const margenY = imgH * 0.02;
-        const tocaBordes = (x < margenX || y < margenY || (x + width) > (imgW - margenX) || (y + height) > (imgH - margenY));
-        
-        if (tocaBordes) {
-          return { 
-            exito: false, 
-            mensaje: "⚠️ El cerdo es demasiado grande para la foto y está cortado. Da un par de pasos hacia atrás hasta que veas la silueta completa." 
-          };
-        }
+        // Regla flexibilizada: Solo avisa internamente si toca los bordes absolutos, pero no bloquea
+        const tocaBordes = (x <= 0 || y <= 0 || (x + width) >= imgW || (y + height) >= imgH);
+        if (tocaBordes) console.warn("El animal toca los límites de la imagen, la precisión podría variar.");
 
-        // REGLA 2: No puede estar demasiado lejos (Debe ocupar más del 10%)
+        // Regla de distancia mínima (5% de la pantalla)
         const porcentajeOcupado = (width * height) / (imgW * imgH);
-        if (porcentajeOcupado < 0.10) {
+        if (porcentajeOcupado < 0.05) {
           return { 
             exito: false, 
-            mensaje: "⚠️ Estás muy lejos o la IA solo detectó una parte pequeña (como la cabeza). Acércate para que el animal ocupe más espacio en la mira." 
+            mensaje: "⚠️ Estás demasiado lejos. Acércate un poco más al animal para un cálculo preciso." 
           };
         }
 
-        // Si pasa las validaciones, calculamos el peso
         const pesoCalculado = calcularPesoIA(width, height, imgW, imgH, etapaLote);
         
         let confianzaReal = Math.round(deteccionCerdo.score * 100);
@@ -137,13 +119,12 @@ export const useIA = () => {
       } else {
         return { 
           exito: false, 
-          mensaje: "No se detectó la silueta completa. Asegúrate de tomar la foto de costado (perfil) y con buena luz." 
+          mensaje: "No se detectó la silueta completa. Asegúrate de tomar la foto de perfil y con buena iluminación." 
         };
       }
-
     } catch (error) {
       console.error("Error en el análisis de IA:", error);
-      return { exito: false, mensaje: "Error al procesar la imagen con TensorFlow." };
+      return { exito: false, mensaje: "Error al procesar la imagen con el motor neuronal." };
     } finally {
       setIsAnalyzing(false);
     }

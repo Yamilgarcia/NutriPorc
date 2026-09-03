@@ -1,12 +1,10 @@
-// src/pages/PesajesPage.jsx
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { usePesajes } from "../logic/usePesajes";
 import { useIA } from "../logic/useIA"; 
 import { CameraScanner } from "../../../components/CameraScanner";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 import { useAuth } from "../../auth/logic/AuthContext";
-
 import "./PesajesPage.css";
 
 export default function PesajesPage() {
@@ -24,7 +22,10 @@ export default function PesajesPage() {
   const [pesoEditado, setPesoEditado] = useState("");
   const [mostrarScanner, setMostrarScanner] = useState(false);
   
-  // ESTADO PARA NUESTRO MODAL PERSONALIZADO DE IA
+  // Referencia para la Galería
+  const fileInputRef = useRef(null);
+
+  // Estado del Modal IA
   const [alertaIA, setAlertaIA] = useState({
     mostrar: false,
     exito: false,
@@ -33,14 +34,11 @@ export default function PesajesPage() {
     pesoResultante: null
   });
 
-  // EL PUENTE ENTRE LA CÁMARA Y LA IA
   const procesarFotoIA = async (imageBase64) => {
     setMostrarScanner(false); 
     
-    // 🚨 PARCHE 1: Forzamos la conversión a texto para que el ID siempre coincida
+    // Búsqueda segura del lote asegurando el formato String
     const loteActual = lotes.find(l => String(l.id) === String(loteSeleccionadoId));
-    
-    // Si por alguna razón falla, mandamos "Engorde" como última opción
     const etapaLote = loteActual ? loteActual.etapa : "Engorde";
 
     const resultado = await analizarImagen(imageBase64, etapaLote);
@@ -50,7 +48,7 @@ export default function PesajesPage() {
         mostrar: true,
         exito: true,
         titulo: "¡Análisis Completado!",
-        mensaje: `Precisión biométrica: ${resultado.confianza}%\nEspecie detectada: ${resultado.objeto}\nContexto aplicado: ${etapaLote}`,
+        mensaje: `Precisión biométrica: ${resultado.confianza}%\nEspecie detectada: ${resultado.objeto}\nContexto biológico: ${etapaLote}`,
         pesoResultante: resultado.peso
       });
       setPesoInput(resultado.peso); 
@@ -64,12 +62,26 @@ export default function PesajesPage() {
       });
     }
   };
+
+  // Carga desde Galería
+  const handleCargarFoto = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result;
+      procesarFotoIA(base64String);
+    };
+    reader.readAsDataURL(file);
+    event.target.value = null; // Resetea el input para uso futuro
+  };
+
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!pesoInput || pesoInput <= 0) return alert("Ingresa un peso válido");
     
     const metodoReal = isAnalyzing ? "ia" : "manual"; 
-    
     const exito = await handleAdd(pesoInput, fechaInput, metodoReal);
     if (exito) setPesoInput("");
   };
@@ -157,9 +169,23 @@ export default function PesajesPage() {
               ) : isAnalyzing ? (
                 <p className="status-text" style={{textAlign: "center", color: "#10b981"}}>👁️ Analizando imagen...</p>
               ) : (
-                <button type="button" onClick={() => setMostrarScanner(true)} className="btn-ia-camara">
-                  📷 Escanear Peso con IA
-                </button>
+                <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                  <button type="button" onClick={() => setMostrarScanner(true)} className="btn-ia-camara" style={{ flex: 1, padding: '12px', fontSize: '0.95rem' }}>
+                    📷 Escanear
+                  </button>
+                  
+                  <button type="button" onClick={() => fileInputRef.current.click()} className="btn-ia-camara" style={{ flex: 1, padding: '12px', fontSize: '0.95rem', backgroundColor: '#334155', color: 'white' }}>
+                    📁 Galería
+                  </button>
+
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    ref={fileInputRef} 
+                    style={{ display: 'none' }} 
+                    onChange={handleCargarFoto} 
+                  />
+                </div>
               )}
             </form>
           </div>
@@ -260,9 +286,6 @@ export default function PesajesPage() {
         />
       )}
 
-      {/* ========================================== */}
-      {/* MODAL DE RESULTADO IA */}
-      {/* ========================================== */}
       {alertaIA.mostrar && (
         <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, backdropFilter: 'blur(4px)' }}>
           <div className="modal-content" style={{ background: 'white', padding: '30px', borderRadius: '20px', maxWidth: '350px', width: '90%', textAlign: 'center', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)' }}>
@@ -293,7 +316,6 @@ export default function PesajesPage() {
           </div>
         </div>
       )}
-
     </div>
   );
 }
