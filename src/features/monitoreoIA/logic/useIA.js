@@ -52,7 +52,7 @@ export const useIA = () => {
     } else if (etapaNormalizada.includes("engorde")) {
       multiplicador = 750; 
       minPeso = 120;
-      maxPeso = 350;
+      maxPeso = 600;
     } else if (etapaNormalizada.includes("reproducción") || etapaNormalizada.includes("gestación") || etapaNormalizada.includes("maternidad")) {
       multiplicador = 1100; 
       minPeso = 250;
