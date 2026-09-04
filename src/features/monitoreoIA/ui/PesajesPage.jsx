@@ -1,3 +1,4 @@
+// src/pages/PesajesPage.jsx
 import { useState, useRef } from "react";
 import { usePesajes } from "../logic/usePesajes";
 import { useIA } from "../logic/useIA"; 
@@ -25,6 +26,9 @@ export default function PesajesPage() {
   // Referencia para la Galería
   const fileInputRef = useRef(null);
 
+  // 🚨 NUEVO ESTADO: Modificador de Condición Corporal (1 = Estándar)
+  const [multiplicadorCondicion, setMultiplicadorCondicion] = useState(1);
+
   // Estado del Modal IA
   const [alertaIA, setAlertaIA] = useState({
     mostrar: false,
@@ -37,21 +41,21 @@ export default function PesajesPage() {
   const procesarFotoIA = async (imageBase64) => {
     setMostrarScanner(false); 
     
-    // Búsqueda segura del lote asegurando el formato String
     const loteActual = lotes.find(l => String(l.id) === String(loteSeleccionadoId));
     const etapaLote = loteActual ? loteActual.etapa : "Engorde";
 
     const resultado = await analizarImagen(imageBase64, etapaLote);
 
     if (resultado.exito) {
+      setMultiplicadorCondicion(1); // Reiniciamos el botón a "Estándar" para cada nuevo escaneo
       setAlertaIA({
         mostrar: true,
         exito: true,
         titulo: "¡Análisis Completado!",
-        mensaje: `Precisión biométrica: ${resultado.confianza}%\nEspecie detectada: ${resultado.objeto}\nContexto biológico: ${etapaLote}`,
+        mensaje: `Precisión biométrica: ${resultado.confianza}%\nEspecie: ${resultado.objeto}\nContexto biológico: ${etapaLote}`,
         pesoResultante: resultado.peso
       });
-      setPesoInput(resultado.peso); 
+      // OJO: Ya no ponemos el pesoInput aquí, esperamos a que el usuario confirme en el modal
     } else {
       setAlertaIA({
         mostrar: true,
@@ -74,7 +78,7 @@ export default function PesajesPage() {
       procesarFotoIA(base64String);
     };
     reader.readAsDataURL(file);
-    event.target.value = null; // Resetea el input para uso futuro
+    event.target.value = null; 
   };
 
   const onSubmit = async (e) => {
@@ -95,6 +99,16 @@ export default function PesajesPage() {
     if (!pesoEditado || pesoEditado <= 0) return alert("Ingresa un peso válido");
     const exito = await handleUpdate(id, pesoEditado);
     if (exito) setEditandoId(null);
+  };
+
+  // 🚨 Función para cuando el usuario presiona "Confirmar" en el modal
+  const confirmarPesoIA = () => {
+    if (alertaIA.exito) {
+      // Calculamos el peso final aplicando el ojo clínico del granjero
+      const pesoFinal = (alertaIA.pesoResultante * multiplicadorCondicion).toFixed(1);
+      setPesoInput(pesoFinal);
+    }
+    setAlertaIA({ ...alertaIA, mostrar: false });
   };
 
   if (loadingLotes) return <p className="status-text">Cargando corrales de la finca...</p>;
@@ -162,7 +176,7 @@ export default function PesajesPage() {
               {user?.plan !== "Pro" ? (
                 <div style={{ marginTop: '15px', padding: '15px', backgroundColor: '#fef3c7', border: '1px dashed #fbbf24', borderRadius: '8px', textAlign: 'center' }}>
                   <p style={{ color: '#b45309', margin: 0, fontSize: '0.9rem', fontWeight: 'bold' }}>⭐ Función Exclusiva Pro</p>
-                  <p style={{ color: '#d97706', margin: '5px 0 0 0', fontSize: '0.85rem' }}>Actualiza tu licencia para estimar el peso usando la cámara y visión artificial.</p>
+                  <p style={{ color: '#d97706', margin: '5px 0 0 0', fontSize: '0.85rem' }}>Actualiza tu licencia para estimar el peso usando la cámara.</p>
                 </div>
               ) : isModelLoading ? (
                 <p className="status-text" style={{textAlign: "center", color: "#3b82f6"}}>🧠 Cargando modelo neuronal...</p>
@@ -178,13 +192,7 @@ export default function PesajesPage() {
                     📁 Galería
                   </button>
 
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    ref={fileInputRef} 
-                    style={{ display: 'none' }} 
-                    onChange={handleCargarFoto} 
-                  />
+                  <input type="file" accept="image/*" ref={fileInputRef} style={{ display: 'none' }} onChange={handleCargarFoto} />
                 </div>
               )}
             </form>
@@ -192,6 +200,7 @@ export default function PesajesPage() {
         </div>
 
         <div className="panel-derecho">
+          {/* Lógica de la gráfica se mantiene igual */}
           <div className="card card-grafico">
             <h3>Curva de Crecimiento del Lote</h3>
             {pesajes.length < 2 ? (
@@ -207,14 +216,7 @@ export default function PesajesPage() {
                     <YAxis tick={{ fontSize: 12, fill: '#64748b' }} unit=" lb" />
                     <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }} />
                     <Legend />
-                    <Line 
-                      type="monotone" 
-                      dataKey="Peso Real (lbs)" 
-                      stroke="#10b981" 
-                      strokeWidth={3} 
-                      dot={{ r: 5, fill: '#10b981', strokeWidth: 2, stroke: 'white' }} 
-                      activeDot={{ r: 8 }} 
-                    />
+                    <Line type="monotone" dataKey="Peso Real (lbs)" stroke="#10b981" strokeWidth={3} dot={{ r: 5, fill: '#10b981', strokeWidth: 2, stroke: 'white' }} activeDot={{ r: 8 }} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -233,41 +235,20 @@ export default function PesajesPage() {
                   <li key={p.id} className="pesaje-item">
                     {editandoId === p.id ? (
                       <div className="edit-mode">
-                        <input 
-                          type="number" 
-                          step="0.1" 
-                          value={pesoEditado} 
-                          onChange={(e) => setPesoEditado(e.target.value)} 
-                          autoFocus
-                          className="edit-input"
-                        />
-                        <button onClick={() => guardarEdicion(p.id)} className="btn-icon save" title="Guardar">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                          Guardar
-                        </button>
-                        <button onClick={() => setEditandoId(null)} className="btn-icon cancel" title="Cancelar">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                          Cancelar
-                        </button>
+                        <input type="number" step="0.1" value={pesoEditado} onChange={(e) => setPesoEditado(e.target.value)} autoFocus className="edit-input" />
+                        <button onClick={() => guardarEdicion(p.id)} className="btn-icon save" title="Guardar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Guardar</button>
+                        <button onClick={() => setEditandoId(null)} className="btn-icon cancel" title="Cancelar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>Cancelar</button>
                       </div>
                     ) : (
                       <>
                         <div className="pesaje-info">
                           <span className="peso-valor">{p.pesoPromedio} lbs</span>
                           <span className="fecha-valor">📅 {p.fecha}</span>
-                          <span className={`badge ${p.metodo === "ia" ? "badge-ia" : "badge-manual"}`}>
-                            {p.metodo.toUpperCase()}
-                          </span>
+                          <span className={`badge ${p.metodo === "ia" ? "badge-ia" : "badge-manual"}`}>{p.metodo.toUpperCase()}</span>
                         </div>
                         <div className="acciones-row">
-                          <button onClick={() => iniciarEdicion(p)} className="btn-icon edit" title="Editar">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                            Editar
-                          </button>
-                          <button onClick={() => handleDelete(p.id)} className="btn-icon delete" title="Eliminar">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                            Eliminar
-                          </button>
+                          <button onClick={() => iniciarEdicion(p)} className="btn-icon edit" title="Editar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>Editar</button>
+                          <button onClick={() => handleDelete(p.id)} className="btn-icon delete" title="Eliminar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>Eliminar</button>
                         </div>
                       </>
                     )}
@@ -286,6 +267,9 @@ export default function PesajesPage() {
         />
       )}
 
+      {/* ========================================== */}
+      {/* MODAL DE RESULTADO IA CON CONDICIÓN CORPORAL */}
+      {/* ========================================== */}
       {alertaIA.mostrar && (
         <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, backdropFilter: 'blur(4px)' }}>
           <div className="modal-content" style={{ background: 'white', padding: '30px', borderRadius: '20px', maxWidth: '350px', width: '90%', textAlign: 'center', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)' }}>
@@ -300,15 +284,47 @@ export default function PesajesPage() {
               {alertaIA.mensaje}
             </p>
 
+            {/* 🚨 NUEVO: Selector de Ojo Clínico */}
+            {alertaIA.exito && (
+              <div style={{ marginBottom: '20px' }}>
+                <p style={{ fontSize: '0.80rem', color: '#64748b', marginBottom: '8px', textTransform: 'uppercase', fontWeight: 'bold' }}>
+                  Ojo Clínico: Condición Corporal
+                </p>
+                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                  <button 
+                    onClick={() => setMultiplicadorCondicion(0.9)}
+                    style={{ flex: 1, padding: '8px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '0.8rem', cursor: 'pointer', transition: 'all 0.2s', backgroundColor: multiplicadorCondicion === 0.9 ? '#3b82f6' : '#f1f5f9', color: multiplicadorCondicion === 0.9 ? 'white' : '#64748b', boxShadow: multiplicadorCondicion === 0.9 ? '0 4px 6px rgba(59, 130, 246, 0.3)' : 'none' }}
+                  >
+                    Delgado
+                  </button>
+                  <button 
+                    onClick={() => setMultiplicadorCondicion(1)}
+                    style={{ flex: 1, padding: '8px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '0.8rem', cursor: 'pointer', transition: 'all 0.2s', backgroundColor: multiplicadorCondicion === 1 ? '#10b981' : '#f1f5f9', color: multiplicadorCondicion === 1 ? 'white' : '#64748b', boxShadow: multiplicadorCondicion === 1 ? '0 4px 6px rgba(16, 185, 129, 0.3)' : 'none' }}
+                  >
+                    Estándar
+                  </button>
+                  <button 
+                    onClick={() => setMultiplicadorCondicion(1.1)}
+                    style={{ flex: 1, padding: '8px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '0.8rem', cursor: 'pointer', transition: 'all 0.2s', backgroundColor: multiplicadorCondicion === 1.1 ? '#f59e0b' : '#f1f5f9', color: multiplicadorCondicion === 1.1 ? 'white' : '#64748b', boxShadow: multiplicadorCondicion === 1.1 ? '0 4px 6px rgba(245, 158, 11, 0.3)' : 'none' }}
+                  >
+                    Robusto
+                  </button>
+                </div>
+              </div>
+            )}
+
             {alertaIA.exito && (
               <div style={{ background: '#ecfdf5', border: '1px solid #10b981', color: '#047857', padding: '15px', borderRadius: '12px', marginBottom: '20px' }}>
-                <span style={{ display: 'block', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '5px' }}>Peso Estimado</span>
-                <span style={{ fontSize: '2rem', fontWeight: '900' }}>{alertaIA.pesoResultante} <span style={{fontSize: '1rem'}}>lbs</span></span>
+                <span style={{ display: 'block', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '5px' }}>Peso Final Ajustado</span>
+                <span style={{ fontSize: '2.5rem', fontWeight: '900' }}>
+                  {/* Calculamos el peso en vivo dependiendo del botón presionado */}
+                  {(alertaIA.pesoResultante * multiplicadorCondicion).toFixed(1)} <span style={{fontSize: '1rem'}}>lbs</span>
+                </span>
               </div>
             )}
 
             <button 
-              onClick={() => setAlertaIA({ ...alertaIA, mostrar: false })}
+              onClick={confirmarPesoIA}
               style={{ width: '100%', background: alertaIA.exito ? '#10b981' : '#f59e0b', color: 'white', padding: '14px', borderRadius: '10px', fontWeight: 'bold', border: 'none', cursor: 'pointer', fontSize: '1rem', transition: 'all 0.2s' }}
             >
               {alertaIA.exito ? "Confirmar y Continuar" : "Entendido"}
