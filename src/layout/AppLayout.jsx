@@ -163,7 +163,7 @@ export default function AppLayout() {
             }
             onClick={() => setMenuOpen(false)}
           >
-            Inteligencia
+            Inteligencia Dieta
           </NavLink>
 
           <NavLink

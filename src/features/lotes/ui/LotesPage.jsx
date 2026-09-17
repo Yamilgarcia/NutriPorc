@@ -1,38 +1,45 @@
 import { useState } from "react";
 import { useLotes } from "../logic/useLotes";
+import { useInsumos } from "../../insumos/logic/useInsumos"; // <-- NUEVO: Importamos los insumos
 import "./LotesPage.css";
 
 export default function LotesPage() {
   const {
-    lotes, loading, searchTerm, setSearchTerm, filterEstado, setFilterEstado, filterEtapa, setFilterEtapa,
+    lotes, loading: loadingLotes, searchTerm, setSearchTerm, filterEstado, setFilterEstado, filterEtapa, setFilterEtapa,
     handleAdd, handleUpdate, handleArchivar, handleRegistrarBaja, handleRegistrarPesaje,
   } = useLotes();
 
-  // Estados de los Modales Existentes
+  // NUEVO: Traemos el catálogo de insumos de la granja
+  const { insumos } = useInsumos();
+
+  // Estados de los Modales
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const [isEtapaModalOpen, setEtapaModalOpen] = useState(false);
   const [isBajaModalOpen, setBajaModalOpen] = useState(false);
   const [isCerrarModalOpen, setCerrarModalOpen] = useState(false);
   const [isPesajeModalOpen, setPesajeModalOpen] = useState(false);
-  const [selectedLote, setSelectedLote] = useState(null);
-
-  // ==========================================
-  // NUEVO: ESTADOS PARA EDICIÓN Y ALERTA BONITA
-  // ==========================================
   const [isEditModalOpen, setEditModalOpen] = useState(false);
-  const [editData, setEditData] = useState({ nombre: "", codigo: "" });
+  const [selectedLote, setSelectedLote] = useState(null);
   const [alertaLote, setAlertaLote] = useState({ mostrar: false, exito: true, titulo: "", mensaje: "" });
 
-  // Formularios de datos
+  // Formularios de datos (Nota: ingredientes ahora es un Array [])
   const [formData, setFormData] = useState({ nombre: "", codigo: "", fechaInicio: "", cantidad: "", raza: "", etapa: "Destete" });
   const [bajaData, setBajaData] = useState({ cantidad: "", causa: "", fecha: new Date().toISOString().split("T")[0] });
-  const [cierreData, setCierreData] = useState({ pesoFinal: "", dietaAplicada: "", ingredientes: "" });
-  const [pesajeData, setPesajeData] = useState({ peso: "", dieta: "", ingredientes: "", fecha: new Date().toISOString().split("T")[0] });
+  const [cierreData, setCierreData] = useState({ pesoFinal: "", dietaAplicada: "", ingredientes: [] });
+  const [pesajeData, setPesajeData] = useState({ peso: "", dieta: "", ingredientes: [], fecha: new Date().toISOString().split("T")[0] });
   const [nuevaEtapa, setNuevaEtapa] = useState("");
+  const [editData, setEditData] = useState({ nombre: "", codigo: "" });
 
-  // ==========================================
-  // FUNCIONES DE EDICIÓN
-  // ==========================================
+  // NUEVO: Función para alternar selección de ingredientes (Checkboxes visuales)
+  const toggleIngrediente = (nombreInsumo, dataState, setDataState) => {
+    const seleccionados = dataState.ingredientes;
+    if (seleccionados.includes(nombreInsumo)) {
+      setDataState({ ...dataState, ingredientes: seleccionados.filter(i => i !== nombreInsumo) });
+    } else {
+      setDataState({ ...dataState, ingredientes: [...seleccionados, nombreInsumo] });
+    }
+  };
+
   const openEditModal = (lote) => {
     setSelectedLote(lote);
     setEditData({ nombre: lote.nombre, codigo: lote.codigo || "" });
@@ -41,26 +48,12 @@ export default function LotesPage() {
 
   const submitEdit = async (e) => {
     e.preventDefault();
-    if (!editData.nombre.trim()) {
-      setAlertaLote({ mostrar: true, exito: false, titulo: "Error", mensaje: "El nombre del lote es obligatorio." });
-      return;
-    }
-
-    await handleUpdate(selectedLote.id, {
-      nombre: editData.nombre.trim(),
-      codigo: editData.codigo.trim()
-    });
-
+    if (!editData.nombre.trim()) return setAlertaLote({ mostrar: true, exito: false, titulo: "Error", mensaje: "El nombre es obligatorio." });
+    await handleUpdate(selectedLote.id, { nombre: editData.nombre.trim(), codigo: editData.codigo.trim() });
     setEditModalOpen(false);
-    setAlertaLote({
-      mostrar: true,
-      exito: true,
-      titulo: "¡Lote Actualizado!",
-      mensaje: `Los datos del lote "${editData.nombre.trim()}" han sido guardados correctamente.`
-    });
+    setAlertaLote({ mostrar: true, exito: true, titulo: "¡Lote Actualizado!", mensaje: `Datos guardados.` });
   };
 
-  // Funciones Existentes
   const handleOpenCreate = () => {
     setFormData({ nombre: "", codigo: "", fechaInicio: new Date().toISOString().split("T")[0], cantidad: "", raza: "", etapa: "Destete" });
     setCreateModalOpen(true);
@@ -68,18 +61,10 @@ export default function LotesPage() {
 
   const submitCreate = (e) => {
     e.preventDefault();
-    if (!formData.nombre.trim()) return setAlertaLote({ mostrar: true, exito: false, titulo: "Datos Incompletos", mensaje: "El nombre del lote es obligatorio." });
-    if (/\d/.test(formData.nombre)) return setAlertaLote({ mostrar: true, exito: false, titulo: "Formato Inválido", mensaje: "El nombre no debe contener números." });
-    
-    handleAdd({
-      ...formData,
-      nombre: formData.nombre.trim(),
-      codigo: formData.codigo.trim(),
-      raza: formData.raza.trim(),
-      cantidad: parseInt(formData.cantidad, 10),
-    });
+    if (!formData.nombre.trim()) return setAlertaLote({ mostrar: true, exito: false, titulo: "Error", mensaje: "Nombre obligatorio." });
+    handleAdd({ ...formData, nombre: formData.nombre.trim(), codigo: formData.codigo.trim(), cantidad: parseInt(formData.cantidad, 10) });
     setCreateModalOpen(false);
-    setAlertaLote({ mostrar: true, exito: true, titulo: "¡Lote Creado!", mensaje: `El corral "${formData.nombre}" ha sido registrado en el sistema.` });
+    setAlertaLote({ mostrar: true, exito: true, titulo: "¡Lote Creado!", mensaje: `El corral "${formData.nombre}" ha sido registrado.` });
   };
 
   const openEtapaModal = (lote) => {
@@ -93,7 +78,7 @@ export default function LotesPage() {
     if (nuevaEtapa === selectedLote.etapa) return;
     handleUpdate(selectedLote.id, { etapa: nuevaEtapa });
     setEtapaModalOpen(false);
-    setAlertaLote({ mostrar: true, exito: true, titulo: "Etapa Actualizada", mensaje: `El lote ahora se encuentra en la etapa de ${nuevaEtapa}.` });
+    setAlertaLote({ mostrar: true, exito: true, titulo: "Etapa Actualizada", mensaje: `Nueva etapa: ${nuevaEtapa}.` });
   };
 
   const openBajaModal = (lote) => {
@@ -104,65 +89,48 @@ export default function LotesPage() {
 
   const submitBaja = (e) => {
     e.preventDefault();
-    const cantidadBaja = parseInt(bajaData.cantidad, 10);
-    if (!bajaData.fecha || isNaN(cantidadBaja) || cantidadBaja <= 0 || !bajaData.causa.trim()) {
-      return setAlertaLote({ mostrar: true, exito: false, titulo: "Error", mensaje: "Verifica que todos los campos sean correctos." });
-    }
-    if (cantidadBaja > selectedLote.cantidad) {
-      return setAlertaLote({ mostrar: true, exito: false, titulo: "Error de Inventario", mensaje: `No puedes reportar ${cantidadBaja} bajas si solo tienes ${selectedLote.cantidad} cerdos.` });
-    }
-
-    const cantidadRestante = selectedLote.cantidad - cantidadBaja;
-    handleRegistrarBaja(selectedLote.id, selectedLote.bajas, { fecha: bajaData.fecha, cantidad: cantidadBaja, causa: bajaData.causa.trim() }, cantidadRestante);
+    const cant = parseInt(bajaData.cantidad, 10);
+    if (cant > selectedLote.cantidad) return setAlertaLote({ mostrar: true, exito: false, titulo: "Error", mensaje: "Supera el inventario." });
+    handleRegistrarBaja(selectedLote.id, selectedLote.bajas, { fecha: bajaData.fecha, cantidad: cant, causa: bajaData.causa }, selectedLote.cantidad - cant);
     setBajaModalOpen(false);
-    setAlertaLote({ mostrar: true, exito: true, titulo: "Baja Registrada", mensaje: "El inventario del corral ha sido actualizado." });
+    setAlertaLote({ mostrar: true, exito: true, titulo: "Baja Registrada", mensaje: "Inventario actualizado." });
   };
 
   const handleArchivarClick = (lote) => {
     setSelectedLote(lote);
-    setCierreData({ pesoFinal: "", dietaAplicada: "", ingredientes: "" });
+    setCierreData({ pesoFinal: "", dietaAplicada: "", ingredientes: [] });
     setCerrarModalOpen(true);
   };
 
   const submitCerrarLote = (e) => {
     e.preventDefault();
-    if (!cierreData.dietaAplicada.trim()) return;
-
     let dias = Math.floor((new Date() - new Date(selectedLote.fechaInicio)) / (1000 * 60 * 60 * 24));
-    if (dias <= 0) dias = 1;
-
-    const datosDeCierre = {
+    handleArchivar(selectedLote.id, {
       pesoFinal: parseFloat(cierreData.pesoFinal),
       dietaAplicada: cierreData.dietaAplicada.trim(),
-      ingredientesClave: cierreData.ingredientes.split(",").map((i) => i.trim()).filter((i) => i !== ""),
-      diasCiclo: dias,
-    };
-
-    handleArchivar(selectedLote.id, datosDeCierre);
+      ingredientesClave: cierreData.ingredientes, // Ya es un array limpio
+      diasCiclo: dias <= 0 ? 1 : dias,
+    });
     setCerrarModalOpen(false);
-    setAlertaLote({ mostrar: true, exito: true, titulo: "Lote Finalizado", mensaje: "Los datos se enviaron a la Inteligencia Nutricional." });
+    setAlertaLote({ mostrar: true, exito: true, titulo: "Lote Finalizado", mensaje: "Datos enviados a la Inteligencia Nutricional." });
   };
 
   const openPesajeModal = (lote) => {
     setSelectedLote(lote);
-    setPesajeData({ peso: "", dieta: "", ingredientes: "", fecha: new Date().toISOString().split("T")[0] });
+    setPesajeData({ peso: "", dieta: "", ingredientes: [], fecha: new Date().toISOString().split("T")[0] });
     setPesajeModalOpen(true);
   };
 
   const submitPesaje = (e) => {
     e.preventDefault();
-    if (!pesajeData.dieta.trim()) return;
-
-    const nuevoPesaje = {
+    handleRegistrarPesaje(selectedLote.id, selectedLote.pesajes, {
       peso: parseFloat(pesajeData.peso),
       dieta: pesajeData.dieta.trim(),
-      ingredientes: pesajeData.ingredientes.split(",").map((i) => i.trim()).filter((i) => i !== ""),
+      ingredientes: pesajeData.ingredientes, // Ya es un array limpio
       fecha: pesajeData.fecha,
-    };
-
-    handleRegistrarPesaje(selectedLote.id, selectedLote.pesajes, nuevoPesaje);
+    });
     setPesajeModalOpen(false);
-    setAlertaLote({ mostrar: true, exito: true, titulo: "Avance Guardado", mensaje: "El control de peso se registró con éxito." });
+    setAlertaLote({ mostrar: true, exito: true, titulo: "Avance Guardado", mensaje: "Control registrado." });
   };
 
   return (
@@ -173,63 +141,40 @@ export default function LotesPage() {
       </header>
       
       <div className="control-panelLotes">
-        <input type="text" placeholder="Buscar lote o código..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="search-input" />
+        <input type="text" placeholder="Buscar lote..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="search-input" />
         <select value={filterEstado} onChange={(e) => setFilterEstado(e.target.value)} className="sort-select">
-          <option value="Todos">Todos los estados</option>
-          <option value="Activo">Activos</option>
-          <option value="Histórico">Históricos</option>
+          <option value="Todos">Todos</option><option value="Activo">Activos</option><option value="Histórico">Históricos</option>
         </select>
         <select value={filterEtapa} onChange={(e) => setFilterEtapa(e.target.value)} className="sort-select">
-          <option value="Todas">Todas las etapas</option>
-          <option value="Destete">Destete</option>
-          <option value="Desarrollo">Desarrollo</option>
-          <option value="Engorde">Engorde</option>
-          <option value="Reproducción">Reproducción</option>
-          <option value="Gestación">Gestación</option>
-          <option value="Lactancia">Lactancia</option>
+          <option value="Todas">Todas las etapas</option><option value="Destete">Destete</option><option value="Desarrollo">Desarrollo</option><option value="Engorde">Engorde</option>
         </select>
         <button className="btn-primary" style={{ marginLeft: "auto" }} onClick={handleOpenCreate}>+ Nuevo Lote</button>
       </div>
 
-      {loading ? (
-        <p>Cargando base de datos...</p>
-      ) : (
+      {loadingLotes ? <p>Cargando...</p> : (
         <div className="lotes-grid">
           {lotes.map((lote) => (
             <div key={lote.id} className="lote-card">
-              <span className={`card-badge ${lote.estado === "Activo" ? "badge-activo" : "badge-historico"}`}>
-                {lote.estado}
-              </span>
+              <span className={`card-badge ${lote.estado === "Activo" ? "badge-activo" : "badge-historico"}`}>{lote.estado}</span>
               <div className="card-header">
-                <h3>{lote.nombre}</h3>
-                <p className="card-subtitle">Cód: {lote.codigo || "N/A"}</p>
+                <h3>{lote.nombre}</h3><p className="card-subtitle">Cód: {lote.codigo || "N/A"}</p>
               </div>
               <div className="card-body">
                 <div className="stat-row"><span className="stat-label">Población:</span><span className="stat-value">{lote.cantidad} cerdos</span></div>
                 <div className="stat-row"><span className="stat-label">Etapa:</span><span className="etapa-badge">{lote.etapa}</span></div>
-                <div className="stat-row"><span className="stat-label">Inicio:</span><span className="stat-value">{new Date(lote.fechaInicio).toLocaleDateString()}</span></div>
-                <div className="stat-row">
-                  <span className="stat-label">Mortalidad:</span>
-                  <span className="stat-value" style={{ color: "#e53e3e" }}>
-                    {lote.bajas?.length ? lote.bajas.reduce((acc, b) => acc + b.cantidad, 0) : 0}
-                  </span>
-                </div>
+                <div className="stat-row"><span className="stat-label">Mortalidad:</span><span className="stat-value" style={{ color: "#e53e3e" }}>{lote.bajas?.length ? lote.bajas.reduce((acc, b) => acc + b.cantidad, 0) : 0}</span></div>
               </div>
               {lote.estado === "Activo" && (
                 <div className="card-actions" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '15px' }}>
-                  {/* NUEVO BOTÓN DE EDITAR */}
                   <button className="btn-action" onClick={() => openEditModal(lote)}>Editar</button>
-                  <button className="btn-action" onClick={() => openEtapaModal(lote)}>Cambiar Etapa</button>
-                  <button className="btn-action" onClick={() => openBajaModal(lote)}>Reportar Baja</button>
-                  <button className="btn-action" onClick={() => openPesajeModal(lote)}>Control Peso</button>
-                  <button className="btn-action archivar" onClick={() => handleArchivarClick(lote)}>Cerrar Lote</button>
+                  <button className="btn-action" onClick={() => openEtapaModal(lote)}>Etapa</button>
+                  <button className="btn-action" onClick={() => openBajaModal(lote)}>Mortalidad</button>
+                  <button className="btn-action" onClick={() => openPesajeModal(lote)}>Peso</button>
+                  <button className="btn-action archivar" onClick={() => handleArchivarClick(lote)}>Cerrar</button>
                 </div>
               )}
             </div>
           ))}
-          {lotes.length === 0 && (
-            <p>No hay lotes que coincidan con los filtros.</p>
-          )}
         </div>
       )}
 
@@ -328,74 +273,84 @@ export default function LotesPage() {
         </div>
       )}
 
-      {/* Modal de Cierre de Lote */}
+      {/* MODAL CIERRE LOTE (ACTUALIZADO) */}
       {isCerrarModalOpen && selectedLote && (
         <div className="modal-overlay">
           <div className="modal-content">
             <h3>Cerrar Lote: {selectedLote.nombre}</h3>
-            <p style={{ marginBottom: "1rem", color: "#64748b", fontSize: "0.9rem", lineHeight: "1.4" }}>
-              Para enviar este lote al historial y alimentar la Inteligencia Nutricional, ingresa los datos finales de rendimiento.
-            </p>
             <form onSubmit={submitCerrarLote}>
-              <div className="form-group"><label>Peso Promedio Final (kg)</label><input required type="number" step="0.1" min="1" className="form-input" placeholder="Ej: 110" value={cierreData.pesoFinal} onChange={(e) => setCierreData({ ...cierreData, pesoFinal: e.target.value })} /></div>
-              <div className="form-group"><label>Nombre de Dieta Principal</label><input required className="form-input" placeholder="Ej: Engorde Máximo" value={cierreData.dietaAplicada} onChange={(e) => setCierreData({ ...cierreData, dietaAplicada: e.target.value })} /></div>
-              <div className="form-group"><label>Ingredientes Clave</label><input required className="form-input" placeholder="Ej: Sorgo, Harina de Soya, Aceite" value={cierreData.ingredientes} onChange={(e) => setCierreData({ ...cierreData, ingredientes: e.target.value })} /></div>
+              <div className="form-group"><label>Peso Promedio Final (kg)</label><input required type="number" step="0.1" className="form-input" value={cierreData.pesoFinal} onChange={(e) => setCierreData({ ...cierreData, pesoFinal: e.target.value })} /></div>
+              <div className="form-group"><label>Nombre de Dieta Principal</label><input required className="form-input" value={cierreData.dietaAplicada} onChange={(e) => setCierreData({ ...cierreData, dietaAplicada: e.target.value })} /></div>
+              
+              <div className="form-group">
+                <label>Ingredientes Utilizados (Selecciona de tu inventario)</label>
+                <div className="ingredientes-selector">
+                  {insumos.map(ins => (
+                    <div 
+                      key={ins.id} 
+                      className={`ingrediente-chip ${cierreData.ingredientes.includes(ins.nombre) ? 'chip-active' : ''}`}
+                      onClick={() => toggleIngrediente(ins.nombre, cierreData, setCierreData)}
+                    >
+                      {ins.nombre}
+                    </div>
+                  ))}
+                  {insumos.length === 0 && <p style={{fontSize: '0.8rem', color: 'red'}}>No tienes insumos en tu biblioteca.</p>}
+                </div>
+              </div>
+
               <div className="modal-actions">
                 <button type="button" className="btn-cancel" onClick={() => setCerrarModalOpen(false)}>Cancelar</button>
-                <button type="submit" className="btn-danger">Archivar y Generar Analítica</button>
+                <button type="submit" className="btn-danger" disabled={cierreData.ingredientes.length === 0}>Archivar Lote</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* Modal de Control de Peso */}
+      {/* MODAL PESAJE (ACTUALIZADO) */}
       {isPesajeModalOpen && selectedLote && (
         <div className="modal-overlay">
           <div className="modal-content">
             <h3>Control de Peso: {selectedLote.nombre}</h3>
-            <p style={{ marginBottom: "1rem", color: "#64748b", fontSize: "0.9rem" }}>Registra el peso actual y la dieta para evaluar su rendimiento sin cerrar el lote.</p>
             <form onSubmit={submitPesaje}>
-              <div className="form-group"><label>Fecha de Pesaje</label><input required type="date" className="form-input" value={pesajeData.fecha} onChange={(e) => setPesajeData({ ...pesajeData, fecha: e.target.value })} /></div>
-              <div className="form-group"><label>Peso Promedio Actual (kg)</label><input required type="number" step="0.1" min="1" className="form-input" placeholder="Ej: 50" value={pesajeData.peso} onChange={(e) => setPesajeData({ ...pesajeData, peso: e.target.value })} /></div>
-              <div className="form-group"><label>Dieta Aplicada</label><input required className="form-input" placeholder="Ej: Desarrollo Fase 1" value={pesajeData.dieta} onChange={(e) => setPesajeData({ ...pesajeData, dieta: e.target.value })} /></div>
-              <div className="form-group"><label>Ingredientes Clave</label><input required className="form-input" placeholder="Ej: Maíz, Soya, Calcio" value={pesajeData.ingredientes} onChange={(e) => setPesajeData({ ...pesajeData, ingredientes: e.target.value })} /></div>
+              <div className="form-group"><label>Fecha</label><input required type="date" className="form-input" value={pesajeData.fecha} onChange={(e) => setPesajeData({ ...pesajeData, fecha: e.target.value })} /></div>
+              <div className="form-group"><label>Peso Actual (kg)</label><input required type="number" step="0.1" className="form-input" value={pesajeData.peso} onChange={(e) => setPesajeData({ ...pesajeData, peso: e.target.value })} /></div>
+              <div className="form-group"><label>Dieta Aplicada</label><input required className="form-input" value={pesajeData.dieta} onChange={(e) => setPesajeData({ ...pesajeData, dieta: e.target.value })} /></div>
+              
+              <div className="form-group">
+                <label>Ingredientes de esta Dieta</label>
+                <div className="ingredientes-selector">
+                  {insumos.map(ins => (
+                    <div 
+                      key={ins.id} 
+                      className={`ingrediente-chip ${pesajeData.ingredientes.includes(ins.nombre) ? 'chip-active' : ''}`}
+                      onClick={() => toggleIngrediente(ins.nombre, pesajeData, setPesajeData)}
+                    >
+                      {ins.nombre}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div className="modal-actions">
                 <button type="button" className="btn-cancel" onClick={() => setPesajeModalOpen(false)}>Cancelar</button>
-                <button type="submit" className="btn-primary">Registrar Avance</button>
+                <button type="submit" className="btn-primary" disabled={pesajeData.ingredientes.length === 0}>Registrar</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* ========================================== */}
-      {/* NUEVO MODAL DE ALERTA GENERAL (ESTILO PREMIUM) */}
-      {/* ========================================== */}
+      {/* ALERTA */}
       {alertaLote.mostrar && (
-        <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, backdropFilter: 'blur(4px)' }}>
-          <div className="modal-content" style={{ background: 'white', padding: '30px', borderRadius: '20px', maxWidth: '350px', width: '90%', textAlign: 'center', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
-            
-            <div style={{ fontSize: '4rem', marginBottom: '10px' }}>
-              {alertaLote.exito ? '✅' : '⚠️'}
-            </div>
-            
-            <h3 style={{ color: '#0f172a', margin: '0 0 10px 0', fontSize: '1.4rem' }}>{alertaLote.titulo}</h3>
-            
-            <p style={{ color: '#64748b', margin: '0 0 20px 0', whiteSpace: 'pre-line', fontSize: '0.95rem', lineHeight: '1.5' }}>
-              {alertaLote.mensaje}
-            </p>
-
-            <button 
-              onClick={() => setAlertaLote({ ...alertaLote, mostrar: false })}
-              style={{ width: '100%', background: alertaLote.exito ? '#10b981' : '#f59e0b', color: 'white', padding: '14px', borderRadius: '10px', fontWeight: 'bold', border: 'none', cursor: 'pointer', fontSize: '1rem', transition: 'all 0.2s' }}
-            >
-              Entendido
-            </button>
+        <div className="modal-overlay" style={{ zIndex: 9999 }}>
+          <div className="modal-content" style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '3rem' }}>{alertaLote.exito ? '✅' : '⚠️'}</div>
+            <h3>{alertaLote.titulo}</h3><p>{alertaLote.mensaje}</p>
+            <button onClick={() => setAlertaLote({ ...alertaLote, mostrar: false })} className="btn-primary" style={{ width: '100%' }}>Entendido</button>
           </div>
         </div>
       )}
-
     </div>
   );
 }

@@ -389,3 +389,38 @@
     width: 100%;
   }
 }
+
+
+
+/* Nuevo selector visual de insumos */
+.ingredientes-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 5px;
+  padding: 10px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+.ingrediente-chip {
+  padding: 6px 12px;
+  background-color: #e2e8f0;
+  color: #475569;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+.ingrediente-chip:hover {
+  background-color: #cbd5e1;
+}
+.chip-active {
+  background-color: #166534; /* Verde NutriPorc */
+  color: white;
+  box-shadow: 0 2px 4px rgba(22, 101, 52, 0.3);
+}
