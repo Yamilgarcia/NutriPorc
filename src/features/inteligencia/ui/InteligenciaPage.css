@@ -335,15 +335,18 @@
     font-size: 1.1rem;
   }
   
-  .ranking-ing {
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    margin-top: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  
+ .ranking-ing {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-top: 4px;
+  /* Trunca el texto a 2 líneas en vez de forzar una sola línea infinita */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+
   .ranking-stats {
     width: 35%;
     text-align: right;
@@ -495,3 +498,52 @@
     .ranking-info { width: 100%; }
     .ranking-stats { width: 100%; text-align: left; }
   }
+
+
+  /* ==========================================
+   RESPONSIVIDAD MÓVIL EXTREMA (CORREGIDA)
+   ========================================== */
+@media (max-width: 768px) {
+  /* Reducimos los márgenes generales para ganar espacio en la pantalla */
+  .inteligencia-page { padding: 10px; }
+  
+  .premium-header { 
+    padding: 15px; 
+    flex-direction: column; 
+    align-items: stretch; 
+    text-align: left; 
+  }
+  
+  .filtros-wrapper { flex-direction: column; width: 100%; gap: 10px; }
+  .select-estilizado select { width: 100%; }
+  
+  .card-campeona { padding: 20px; }
+  .campeona-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .gmd-highlight { align-self: flex-start; }
+  .gmd-valor { font-size: 2.8rem; }
+  
+  .impacto-grid { grid-template-columns: 1fr; gap: 10px; }
+  
+  /* Ajuste de las tarjetas del ranking */
+  .ranking-item { 
+    flex-direction: column; 
+    align-items: flex-start; 
+    gap: 12px; 
+    padding: 15px; 
+  }
+  
+  .ranking-info { 
+    width: 100%; 
+    align-items: flex-start; 
+  }
+  
+  /* Evita que el badge numérico se aplaste */
+  .ranking-badge { 
+    min-width: 35px; 
+    height: 35px; 
+    flex-shrink: 0;
+  }
+  
+  .ranking-stats { width: 100%; text-align: left; }
+  .bar-container { margin-bottom: 4px; }
+}
