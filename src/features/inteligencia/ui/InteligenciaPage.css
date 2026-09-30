@@ -537,7 +537,7 @@
     align-items: flex-start; 
   }
   
-  /* Evita que el badge numérico se aplaste */
+  /* Evita que el badge numérico se aplaste xd */
   .ranking-badge { 
     min-width: 35px; 
     height: 35px; 
