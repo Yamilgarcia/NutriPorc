@@ -15,7 +15,9 @@ export const DashboardFinanciero = () => {
     totalIngresosParciales,
     costoPorLibra,
     procesandoCierre,
+    procesandoTransaccion,
     handleAgregarTransaccion,
+    handleRegistrarVentaParcial,
     handleEliminarTransaccion,
     handleEditarTransaccion,
     handleCerrarLote,
@@ -64,7 +66,7 @@ export const DashboardFinanciero = () => {
       if (lote.finanzas) {
         gananciaTotal += (lote.finanzas.gananciaNeta || 0);
         inversionTotal += (lote.finanzas.gastosTotales || 0);
-        cerdosVendidos += (lote.finanzas.poblacionFinal || 0);
+        cerdosVendidos += Number(lote.finanzas.poblacionFinal ?? 0) + Number(lote.vendidosParciales ?? 0);
       }
     });
     return { gananciaTotal, inversionTotal, cerdosVendidos };
@@ -144,9 +146,36 @@ export const DashboardFinanciero = () => {
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-                <FormTransaccion onAgregar={handleAgregarTransaccion} />
-                <TablaTransacciones transacciones={transacciones} onEliminar={handleEliminarTransaccion} onEditar={handleEditarTransaccion} />
-                <FormCierreLote gastosTotales={totalEgresos} ingresosPrevios={totalIngresosParciales} onCerrarLote={handleCerrarLote} isProcessing={procesandoCierre} />
+                {/* Gastos y otros ingresos: nunca descuenta cerdos. */}
+                <FormTransaccion
+                  key={`movimientos-${loteActivo.id}`}
+                  onAgregar={handleAgregarTransaccion}
+                  isProcessing={procesandoTransaccion}
+                />
+
+                {/* Venta parcial: descuenta animales y guarda el ingreso. */}
+                <FormVentaParcial
+                  key={`venta-${loteActivo.id}`}
+                  loteActivo={loteActivo}
+                  onVentaParcial={handleRegistrarVentaParcial}
+                  isProcessing={procesandoTransaccion}
+                />
+
+                <TablaTransacciones
+                  key={`tabla-${loteActivo.id}`}
+                  transacciones={transacciones}
+                  onEliminar={handleEliminarTransaccion}
+                  onEditar={handleEditarTransaccion}
+                />
+
+                <FormCierreLote
+                  key={`cierre-${loteActivo.id}`}
+                  gastosTotales={totalEgresos}
+                  ingresosPrevios={totalIngresosParciales}
+                  cantidadDisponible={Number(loteActivo.cantidad)}
+                  onCerrarLote={handleCerrarLote}
+                  isProcessing={procesandoCierre}
+                />
               </div>
             </>
           ) : (
@@ -186,6 +215,7 @@ export const DashboardFinanciero = () => {
                 <option value="10">Octubre</option>
                 <option value="11">Noviembre</option>
                 <option value="12">Diciembre</option>
+
               </select>
             </div>
             <div style={{ flex: 2, minWidth: "200px" }}>
@@ -236,7 +266,7 @@ export const DashboardFinanciero = () => {
                         <tr key={lote.id} style={{ borderTop: "1px solid #eee" }}>
                           <td style={{ padding: "12px" }}>{lote.fechaCierre ? new Date(lote.fechaCierre).toLocaleDateString() : "-"}</td>
                           <td style={{ padding: "12px", fontWeight: "600" }}>{lote.nombre}</td>
-                          <td style={{ padding: "12px" }}>{lote.finanzas?.poblacionFinal || lote.cantidad}</td>
+                          <td style={{ padding: "12px" }}>{Number(lote.finanzas?.poblacionFinal ?? lote.cantidad ?? 0) + Number(lote.vendidosParciales ?? 0)}</td>
                           <td style={{ padding: "12px", color: "#ef4444" }}>C$ {(lote.finanzas?.gastosTotales || 0).toFixed(2)}</td>
                           <td style={{ padding: "12px", color: "#3b82f6" }}>C$ {ingresosTotales.toFixed(2)}</td>
                           <td style={{ padding: "12px", fontWeight: "bold", color: ganancia >= 0 ? "#10b981" : "#ef4444" }}>
@@ -257,27 +287,39 @@ export const DashboardFinanciero = () => {
 };
 
 // COMPONENTE: FORMULARIO MULTI-TRANSACCIÓN
-const FormTransaccion = ({ onAgregar }) => {
+const FormTransaccion = ({ onAgregar, isProcessing = false }) => {
   const [tipo, setTipo] = useState("Egreso");
   const [concepto, setConcepto] = useState("");
   const [monto, setMonto] = useState("");
   const [categoria, setCategoria] = useState("Vacunas/Medicinas");
 
   const categoriasGasto = ["Vacunas/Medicinas", "Alimento", "Jornal", "Transporte", "Mantenimiento", "Otros"];
-  const categoriasIngreso = ["Venta de Cerdo (Parcial)", "Venta de Subproducto", "Ajuste a favor", "Otros"];
+  const categoriasIngreso = ["Venta de Subproducto", "Ajuste a favor", "Otros"];
 
   const handleTipoChange = (nuevoTipo) => {
     setTipo(nuevoTipo);
-    setCategoria(nuevoTipo === "Egreso" ? "Vacunas/Medicinas" : "Venta de Cerdo (Parcial)");
-    if(nuevoTipo === "Ingreso") setConcepto("Venta de 1 cerdo");
-    else setConcepto("");
+    setCategoria(nuevoTipo === "Egreso" ? "Vacunas/Medicinas" : "Venta de Subproducto");
+    setConcepto("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!concepto || isNaN(parseFloat(monto))) return;
-    onAgregar({ tipo, concepto, monto: parseFloat(monto), categoria });
-    setConcepto(""); setMonto("");
+    if (isProcessing) return;
+    const montoNumerico = Number(monto);
+    if (!concepto.trim() || !Number.isFinite(montoNumerico) || montoNumerico <= 0) {
+      alert("Escribe un concepto y un monto mayor que cero.");
+      return;
+    }
+    const guardado = await onAgregar({
+      tipo,
+      concepto: concepto.trim(),
+      monto: montoNumerico,
+      categoria
+    });
+    if (guardado) {
+      setConcepto("");
+      setMonto("");
+    }
   };
 
   return (
@@ -292,7 +334,7 @@ const FormTransaccion = ({ onAgregar }) => {
             Registrar Gasto
           </button>
           <button type="button" onClick={() => handleTipoChange("Ingreso")} style={{ padding: "6px 12px", border: "none", borderRadius: "4px", cursor: "pointer", fontWeight: "600", fontSize: "13px", backgroundColor: tipo === "Ingreso" ? "#10b981" : "transparent", color: tipo === "Ingreso" ? "white" : "#64748b" }}>
-            Venta Parcial
+            Otros Ingresos
           </button>
         </div>
       </div>
@@ -313,7 +355,7 @@ const FormTransaccion = ({ onAgregar }) => {
           <input type="number" step="0.01" className="np-input" value={monto} onChange={(e) => setMonto(e.target.value)} placeholder="0.00" required min="1" />
         </div>
         <div>
-          <button type="submit" className="np-btn-primary" style={{ backgroundColor: tipo === "Egreso" ? "#ef4444" : "#10b981" }}>
+          <button type="submit" className="np-btn-primary" disabled={isProcessing} style={{ backgroundColor: tipo === "Egreso" ? "#ef4444" : "#10b981" }}>
             Guardar {tipo}
           </button>
         </div>
@@ -333,10 +375,10 @@ const TablaTransacciones = ({ transacciones = [], onEliminar, onEditar }) => {
     setFormEdit({ concepto: t.concepto, monto: t.monto, categoria: t.categoria, tipo: t.tipo || "Egreso" });
   };
 
-  const guardarEdicion = (id) => {
-    if (!formEdit.concepto.trim() || isNaN(parseFloat(formEdit.monto))) return;
-    onEditar(id, formEdit);
-    setEditandoId(null);
+  const guardarEdicion = async (id) => {
+    if (!formEdit.concepto.trim() || !Number.isFinite(Number(formEdit.monto)) || Number(formEdit.monto) <= 0) return;
+    const editado = await onEditar(id, formEdit);
+    if (editado) setEditandoId(null);
   };
 
   const transaccionesFiltradas = filtroCat === "Todas" 
@@ -392,7 +434,15 @@ const TablaTransacciones = ({ transacciones = [], onEliminar, onEditar }) => {
                       {esFilaEditable ? (
                         <input type="text" className="np-input" style={{ padding: "4px" }} value={formEdit.concepto} onChange={e => setFormEdit({ ...formEdit, concepto: e.target.value })} />
                       ) : (
-                        <div><strong>{t.categoria}</strong><br/><span style={{fontSize: "12px", color: "#64748b"}}>{t.concepto}</span></div>
+                        <div>
+                          <strong>{t.categoria}</strong><br/>
+                          <span style={{fontSize: "12px", color: "#64748b"}}>{t.concepto}</span>
+                          {t.categoria === "Venta de Cerdo (Parcial)" && t.cantidadVendida != null && (
+                            <div style={{ color: "#047857", fontSize: "12px", marginTop: "4px" }}>
+                              Animales vendidos: {t.cantidadVendida}
+                            </div>
+                          )}
+                        </div>
                       )}
                     </td>
                     <td style={{ padding: "12px", fontWeight: "600", color: esIngreso ? "#10b981" : "#0f172a" }}>
@@ -442,24 +492,27 @@ const TablaTransacciones = ({ transacciones = [], onEliminar, onEditar }) => {
 };
 
 // SIMULADOR DE CIERRE MEJORADO
-const FormCierreLote = ({ gastosTotales, ingresosPrevios, onCerrarLote, isProcessing }) => {
+const FormCierreLote = ({ gastosTotales, ingresosPrevios, cantidadDisponible, onCerrarLote, isProcessing }) => {
   const [precioVenta, setPrecioVenta] = useState("");
   const [previsualizacion, setPrevisualizacion] = useState(null);
 
   const handleCalcularRendimiento = (e) => {
     e.preventDefault();
     const ingresoFinal = parseFloat(precioVenta);
-    if (isNaN(ingresoFinal) || ingresoFinal <= 0) return;
+    if (!Number.isFinite(ingresoFinal) || ingresoFinal < 0 ||
+        (cantidadDisponible > 0 && ingresoFinal <= 0)) return;
 
     const gananciaNeta = (ingresoFinal + ingresosPrevios) - gastosTotales;
     setPrevisualizacion({ ingresoFinal, gananciaNeta, esRentable: gananciaNeta >= 0 });
   };
 
-  const handleConfirmarCierre = () => {
-    if (!previsualizacion) return;
-    onCerrarLote(previsualizacion.ingresoFinal);
-    setPrevisualizacion(null);
-    setPrecioVenta("");
+  const handleConfirmarCierre = async () => {
+    if (!previsualizacion || isProcessing) return;
+    const cerrado = await onCerrarLote(previsualizacion.ingresoFinal);
+    if (cerrado) {
+      setPrevisualizacion(null);
+      setPrecioVenta("");
+    }
   };
 
   return (
@@ -472,7 +525,7 @@ const FormCierreLote = ({ gastosTotales, ingresosPrevios, onCerrarLote, isProces
       <form onSubmit={handleCalcularRendimiento} style={{ display: "flex", gap: "15px", alignItems: "flex-end", flexWrap: "wrap", marginBottom: previsualizacion ? "20px" : "0" }}>
         <div>
           <label className="np-label">Ingreso Final por Venta (C$)</label>
-          <input type="number" step="0.01" className="np-input" style={{ width: "250px" }} value={precioVenta} onChange={(e) => { setPrecioVenta(e.target.value); if (previsualizacion) setPrevisualizacion(null); }} placeholder="Ej. 45000.00" required disabled={isProcessing} min="1" />
+          <input type="number" step="0.01" className="np-input" style={{ width: "250px" }} value={precioVenta} onChange={(e) => { setPrecioVenta(e.target.value); if (previsualizacion) setPrevisualizacion(null); }} placeholder={cantidadDisponible === 0 ? "0.00 (todos vendidos previamente)" : "Ej. 45000.00"} required disabled={isProcessing} min={cantidadDisponible === 0 ? "0" : "0.01"} />
         </div>
         <button type="submit" className="np-btn-primary" style={{ backgroundColor: "#F49F97", height: "42px" }} disabled={isProcessing}>
           Calcular Rendimiento
@@ -509,6 +562,92 @@ const FormCierreLote = ({ gastosTotales, ingresosPrevios, onCerrarLote, isProces
           </div>
         </div>
       )}
+    </div>
+  );
+};
+
+// FORMULARIO EXCLUSIVO PARA VENDER ANIMALES DEL LOTE ACTIVO.
+// Utiliza el hook existente; no escribe directamente en Firestore.
+export const FormVentaParcial = ({ loteActivo, onVentaParcial, isProcessing = false }) => {
+  const [cantidadVendida, setCantidadVendida] = useState("");
+  const [montoTotal, setMontoTotal] = useState("");
+  const [guardando, setGuardando] = useState(false);
+
+  if (!loteActivo) return null;
+  const disponibles = Number(loteActivo.cantidad || 0);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (guardando || isProcessing) return;
+
+    const cantidad = Number(cantidadVendida);
+    const monto = Number(montoTotal);
+
+    if (!Number.isSafeInteger(cantidad) || cantidad <= 0) {
+      alert("La cantidad de cerdos debe ser un número entero mayor que cero.");
+      return;
+    }
+    if (!Number.isFinite(monto) || monto <= 0) {
+      alert("El ingreso total debe ser mayor que cero.");
+      return;
+    }
+    if (cantidad > disponibles) {
+      alert(`Solo tienes ${disponibles} cerdos disponibles en este lote.`);
+      return;
+    }
+
+    setGuardando(true);
+    try {
+      const guardado = await onVentaParcial({
+        cantidadCerdos: cantidad,
+        montoTotal: monto
+      });
+      if (guardado) {
+        setCantidadVendida("");
+        setMontoTotal("");
+      }
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  return (
+    <div className="np-card" style={{ border: "1px solid #10b981", backgroundColor: "#ecfdf5", marginTop: "20px" }}>
+      <h3 style={{ color: "#065f46", marginTop: 0, marginBottom: "20px", fontSize: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+        <span style={{ fontSize: "20px" }}>💰</span>
+        Registrar Venta Parcial de Cerdos
+      </h3>
+      <p style={{ fontSize: "12px", color: "#047857", marginBottom: "15px" }}>
+        Cerdos disponibles en {loteActivo.nombre}: <strong>{disponibles}</strong>
+      </p>
+      <form onSubmit={handleSubmit} style={{ display: "flex", gap: "15px", alignItems: "flex-end", flexWrap: "wrap" }}>
+        <div style={{ flex: "1", minWidth: "150px" }}>
+          <label className="np-label" style={{ color: "#065f46" }}>Cerdos vendidos</label>
+          <input
+            type="number" min="1" step="1" max={disponibles}
+            className="np-input" value={cantidadVendida}
+            onChange={(e) => setCantidadVendida(e.target.value)}
+            placeholder="Ej. 2" required disabled={guardando || isProcessing || disponibles === 0}
+          />
+        </div>
+        <div style={{ flex: "2", minWidth: "200px" }}>
+          <label className="np-label" style={{ color: "#065f46" }}>Ingreso total (C$)</label>
+          <input
+            type="number" step="0.01" min="0.01"
+            className="np-input" value={montoTotal}
+            onChange={(e) => setMontoTotal(e.target.value)}
+            placeholder="Ej. 12000.00" required disabled={guardando || isProcessing || disponibles === 0}
+          />
+        </div>
+        <button type="submit" className="np-btn-primary"
+          style={{ backgroundColor: "#10b981" }}
+          disabled={guardando || isProcessing || disponibles === 0}>
+          {guardando || isProcessing ? "Registrando..." : "Registrar Venta"}
+        </button>
+      </form> 
+      <p style={{ fontSize: "12px", color: "#047857", marginTop: "12px", marginBottom: 0 }}>
+        La venta actualiza ingresos e inventario juntos. Requiere conexión a Internet.
+      </p>
     </div>
   );
 };

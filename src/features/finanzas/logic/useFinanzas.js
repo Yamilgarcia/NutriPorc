@@ -1,131 +1,484 @@
-import { useState, useEffect, useMemo } from "react";
-import { useAuth } from "../../auth/logic/AuthContext"; 
-import { subscribeToLotesFinanzas, subscribeToGastos, guardarGasto, eliminarGasto, updateGastoInm, procesarCierreLote } from "../data/finanzas.service";
-import { subscribeToPesajes } from "../../monitoreoIA/data/pesajes.service"; 
+
+import { useState, useEffect, useMemo, useRef } from "react";
+import { useAuth } from "../../auth/logic/AuthContext";
+import {
+  subscribeToLotesFinanzas,
+  subscribeToGastos,
+  guardarGasto,
+  eliminarGasto,
+  updateGastoInm,
+  anularVentaParcial,
+  procesarCierreLote,
+  CATEGORIA_VENTA_CERDO
+} from "../data/finanzas.service";
+import { subscribeToPesajes } from "../../monitoreoIA/data/pesajes.service";
 
 export const useFinanzas = () => {
   const { user } = useAuth();
   const fincaId = user?.fincaId;
 
-  // ESTADOS SEPARADOS PARA LOTES
   const [lotesActivos, setLotesActivos] = useState([]);
   const [lotesHistoricos, setLotesHistoricos] = useState([]);
-  
   const [loteIdSeleccionado, setLoteIdSeleccionado] = useState("");
-  const [transacciones, setTransacciones] = useState([]); 
+  const [transacciones, setTransacciones] = useState([]);
   const [pesajesLoteActivo, setPesajesLoteActivo] = useState([]);
   const [procesandoCierre, setProcesandoCierre] = useState(false);
+  const [procesandoTransaccion, setProcesandoTransaccion] = useState(false);
 
+  const guardadoEnCurso = useRef(false);
+  const cierreEnCurso = useRef(false);
+
+  // ==========================================
+  // SUSCRIPCION A LOTES
+  // ==========================================
   useEffect(() => {
-    if (!fincaId) return;
-    const unsubscribe = subscribeToLotesFinanzas(fincaId, (todosLosLotes) => {
-      // Separamos los lotes para las dos vistas del dashboard
-      const activos = todosLosLotes.filter(l => l.estado === "Activo");
-      const historicos = todosLosLotes.filter(l => l.estado === "Histórico");
-      
+    if (!fincaId) {
+      setLotesActivos([]);
+      setLotesHistoricos([]);
+      setLoteIdSeleccionado("");
+      return;
+    }
+
+    return subscribeToLotesFinanzas(fincaId, (todosLosLotes) => {
+      const activos = todosLosLotes.filter(
+        (l) => l.estado === "Activo"
+      );
+
+      const historicos = todosLosLotes.filter(
+        (l) => l.estado === "Histórico"
+      );
+
       setLotesActivos(activos);
       setLotesHistoricos(historicos);
 
-      // Auto-seleccionar lote activo
-      setLoteIdSeleccionado(prev => {
-        if (!prev && activos.length > 0) return activos[0].id;
-        if (prev && !activos.find(l => l.id === prev)) return activos.length > 0 ? activos[0].id : "";
-        return prev;
+      setLoteIdSeleccionado((anterior) => {
+        if (
+          anterior &&
+          activos.some((l) => l.id === anterior)
+        ) {
+          return anterior;
+        }
+
+        return activos[0]?.id || "";
       });
     });
-    return () => unsubscribe();
   }, [fincaId]);
 
+  // ==========================================
+  // SUSCRIPCION A TRANSACCIONES
+  // ==========================================
   useEffect(() => {
-    if (!fincaId || !loteIdSeleccionado) { setTransacciones([]); return; }
-    const unsubscribe = subscribeToGastos(fincaId, loteIdSeleccionado, (lista) => setTransacciones(lista));
-    return () => unsubscribe();
+    setTransacciones([]);
+
+    if (!fincaId || !loteIdSeleccionado) return;
+
+    return subscribeToGastos(
+      fincaId,
+      loteIdSeleccionado,
+      setTransacciones
+    );
   }, [fincaId, loteIdSeleccionado]);
 
+  // ==========================================
+  // SUSCRIPCION A PESAJES IA
+  // ==========================================
   useEffect(() => {
-    if (!fincaId || !loteIdSeleccionado) { setPesajesLoteActivo([]); return; }
-    const unsubscribe = subscribeToPesajes(loteIdSeleccionado, fincaId, (historial) => setPesajesLoteActivo(historial));
-    return () => unsubscribe();
+    setPesajesLoteActivo([]);
+
+    if (!fincaId || !loteIdSeleccionado) return;
+
+    return subscribeToPesajes(
+      loteIdSeleccionado,
+      fincaId,
+      setPesajesLoteActivo
+    );
   }, [fincaId, loteIdSeleccionado]);
 
-  const loteActivo = useMemo(() => lotesActivos.find(l => l.id === loteIdSeleccionado) || null, [lotesActivos, loteIdSeleccionado]);
+  const loteActivo = useMemo(
+    () =>
+      lotesActivos.find(
+        (l) => l.id === loteIdSeleccionado
+      ) || null,
+    [lotesActivos, loteIdSeleccionado]
+  );
 
+  // ==========================================
+  // PESO PROMEDIO
+  // ==========================================
   const pesoPromedio = useMemo(() => {
-    if (pesajesLoteActivo.length > 0) return Number(pesajesLoteActivo[pesajesLoteActivo.length - 1].pesoPromedio || 0);
+    if (pesajesLoteActivo.length > 0) {
+      return Number(
+        pesajesLoteActivo[
+          pesajesLoteActivo.length - 1
+        ].pesoPromedio || 0
+      );
+    }
+
     if (loteActivo) {
       switch (loteActivo.etapa) {
-        case "Destete": return 25;
-        case "Desarrollo": return 70;
-        case "Engorde": return 160;
-        default: return 150;
+        case "Destete":
+          return 25;
+        case "Desarrollo":
+          return 70;
+        case "Engorde":
+          return 160;
+        default:
+          return 150;
       }
     }
+
     return 0;
   }, [pesajesLoteActivo, loteActivo]);
 
-  // MATEMÁTICA LOTE ACTIVO
-  const totalEgresos = useMemo(() => transacciones.filter(t => t.tipo !== "Ingreso").reduce((acc, t) => acc + Number(t.monto || 0), 0), [transacciones]);
-  const totalIngresosParciales = useMemo(() => transacciones.filter(t => t.tipo === "Ingreso").reduce((acc, t) => acc + Number(t.monto || 0), 0), [transacciones]);
+  // ==========================================
+  // CALCULOS FINANCIEROS
+  // ==========================================
+  const totalEgresos = useMemo(
+    () =>
+      transacciones
+        .filter((t) => t.tipo !== "Ingreso")
+        .reduce(
+          (acc, t) => acc + Number(t.monto || 0),
+          0
+        ),
+    [transacciones]
+  );
+
+  const totalIngresosParciales = useMemo(
+    () =>
+      transacciones
+        .filter((t) => t.tipo === "Ingreso")
+        .reduce(
+          (acc, t) => acc + Number(t.monto || 0),
+          0
+        ),
+    [transacciones]
+  );
+
   const costoPorLibra = useMemo(() => {
-    if (!loteActivo || loteActivo.cantidad <= 0 || pesoPromedio <= 0) return 0;
-    return totalEgresos / (loteActivo.cantidad * pesoPromedio); 
+    if (
+      !loteActivo ||
+      Number(loteActivo.cantidad) <= 0 ||
+      pesoPromedio <= 0
+    ) {
+      return 0;
+    }
+
+    return (
+      totalEgresos /
+      (Number(loteActivo.cantidad) * pesoPromedio)
+    );
   }, [totalEgresos, loteActivo, pesoPromedio]);
 
-  // NUEVO: KPI GLOBALES (Para la pestaña de reportes)
+  // ==========================================
+  // METRICAS HISTORICAS
+  // ==========================================
   const metricasGlobales = useMemo(() => {
     let gananciaTotal = 0;
     let inversionTotal = 0;
     let cerdosVendidos = 0;
 
-    lotesHistoricos.forEach(lote => {
-      if (lote.finanzas) {
-        gananciaTotal += (lote.finanzas.gananciaNeta || 0);
-        inversionTotal += (lote.finanzas.gastosTotales || 0);
-        cerdosVendidos += (lote.finanzas.poblacionFinal || 0);
-      }
+    lotesHistoricos.forEach((lote) => {
+      if (!lote.finanzas) return;
+
+      gananciaTotal += Number(
+        lote.finanzas.gananciaNeta || 0
+      );
+
+      inversionTotal += Number(
+        lote.finanzas.gastosTotales || 0
+      );
+
+      cerdosVendidos +=
+        Number(lote.finanzas.poblacionFinal ?? 0) +
+        Number(lote.vendidosParciales ?? 0);
     });
-    return { gananciaTotal, inversionTotal, cerdosVendidos };
+
+    return {
+      gananciaTotal,
+      inversionTotal,
+      cerdosVendidos
+    };
   }, [lotesHistoricos]);
 
-  // MUTACIONES
-  const handleAgregarTransaccion = async (nuevaTransaccion) => {
-    if (!fincaId || !loteIdSeleccionado) return;
-    try { await guardarGasto(fincaId, loteIdSeleccionado, nuevaTransaccion); } catch (error) { console.error(error); }
-  };
-  const handleEditarTransaccion = async (id, datosActualizados) => {
-    setTransacciones(prev => prev.map(t => t.id === id ? { ...t, ...datosActualizados, monto: Number(datosActualizados.monto) } : t));
-    try { await updateGastoInm(id, datosActualizados); } catch (error) { console.error(error); }
-  };
-  const handleEliminarTransaccion = async (id) => {
-    setTransacciones(prev => prev.filter(t => t.id !== id));
-    try { await eliminarGasto(id); } catch (error) { console.error(error); }
+  // ==========================================
+  // GUARDADO DE MOVIMIENTOS
+  // ==========================================
+  const guardarMovimiento = async (datos) => {
+    if (
+      !fincaId ||
+      !loteIdSeleccionado ||
+      guardadoEnCurso.current
+    ) {
+      return false;
+    }
+
+    guardadoEnCurso.current = true;
+    setProcesandoTransaccion(true);
+
+    try {
+      await guardarGasto(
+        fincaId,
+        loteIdSeleccionado,
+        datos
+      );
+
+      return true;
+    } catch (error) {
+      console.error(
+        "Error al registrar movimiento:",
+        error
+      );
+
+      alert(
+        error.message ||
+        "No se pudo registrar el movimiento."
+      );
+
+      return false;
+    } finally {
+      guardadoEnCurso.current = false;
+      setProcesandoTransaccion(false);
+    }
   };
 
+  // ==========================================
+  // AGREGAR GASTOS Y OTROS INGRESOS
+  // ==========================================
+  const handleAgregarTransaccion = async (
+    nuevaTransaccion
+  ) => {
+    if (
+      nuevaTransaccion.tipo === "Ingreso" &&
+      nuevaTransaccion.categoria === CATEGORIA_VENTA_CERDO
+    ) {
+      alert(
+        "Usa el formulario específico de Venta Parcial de Cerdos."
+      );
+      return false;
+    }
+
+    return guardarMovimiento(nuevaTransaccion);
+  };
+
+  // ==========================================
+  // REGISTRAR VENTA PARCIAL
+  // ==========================================
+  const handleRegistrarVentaParcial = async ({
+    cantidadCerdos,
+    montoTotal
+  }) => {
+    const cantidad = Number(cantidadCerdos);
+    const monto = Number(montoTotal);
+
+    if (
+      !Number.isSafeInteger(cantidad) ||
+      cantidad <= 0 ||
+      !Number.isFinite(monto) ||
+      monto <= 0
+    ) {
+      alert(
+        "Revisa la cantidad de cerdos y el monto de la venta."
+      );
+      return false;
+    }
+
+    return guardarMovimiento({
+      tipo: "Ingreso",
+      categoria: CATEGORIA_VENTA_CERDO,
+      concepto: `Venta de ${cantidad} cerdo${
+        cantidad === 1 ? "" : "s"
+      }`,
+      monto,
+      cantidadVendida: cantidad
+    });
+  };
+
+  // ==========================================
+  // EDITAR TRANSACCION
+  // ==========================================
+  const handleEditarTransaccion = async (
+    id,
+    datosActualizados
+  ) => {
+    try {
+      await updateGastoInm(
+        id,
+        datosActualizados
+      );
+
+      return true;
+    } catch (error) {
+      console.error(
+        "Error al editar movimiento:",
+        error
+      );
+
+      alert(
+        error.message ||
+        "No se pudo editar la transacción."
+      );
+
+      return false;
+    }
+  };
+
+  // ==========================================
+  // ELIMINAR O ANULAR TRANSACCION
+  // ==========================================
+  const handleEliminarTransaccion = async (id) => {
+    const movimiento = transacciones.find(
+      (t) => t.id === id
+    );
+
+    if (!movimiento) return false;
+
+    const esVenta =
+      movimiento.tipo === "Ingreso" &&
+      movimiento.categoria === CATEGORIA_VENTA_CERDO;
+
+    if (
+      esVenta &&
+      !Number.isSafeInteger(
+        Number(movimiento.cantidadVendida)
+      )
+    ) {
+      alert(
+        "Esta venta antigua no guarda la cantidad de animales. " +
+        "Revisa el inventario antes de anularla; no se puede reintegrar automáticamente."
+      );
+
+      return false;
+    }
+
+    if (
+      !window.confirm(
+        esVenta
+          ? `¿Anular esta venta y devolver ${movimiento.cantidadVendida} cerdo(s) al lote?`
+          : "¿Anular este movimiento financiero?"
+      )
+    ) {
+      return false;
+    }
+
+    try {
+      if (esVenta) {
+        await anularVentaParcial(
+          fincaId,
+          loteIdSeleccionado,
+          id
+        );
+      } else {
+        await eliminarGasto(id);
+      }
+
+      return true;
+    } catch (error) {
+      console.error(
+        "Error al anular movimiento:",
+        error
+      );
+
+      alert(
+        error.message ||
+        "No se pudo anular el movimiento."
+      );
+
+      return false;
+    }
+  };
+
+  // ==========================================
+  // CIERRE FINANCIERO DEL LOTE
+  // ==========================================
   const handleCerrarLote = async (ingresoFinal) => {
-    if (!loteActivo) return;
+    if (
+      !loteActivo ||
+      cierreEnCurso.current
+    ) {
+      return false;
+    }
+
+    const ingreso = Number(ingresoFinal);
+
+    if (
+      !Number.isFinite(ingreso) ||
+      ingreso < 0 ||
+      (
+        Number(loteActivo.cantidad) > 0 &&
+        ingreso <= 0
+      )
+    ) {
+      alert(
+        "Indica el ingreso final de la venta."
+      );
+
+      return false;
+    }
+
+    cierreEnCurso.current = true;
     setProcesandoCierre(true);
-    const gananciaNeta = (ingresoFinal + totalIngresosParciales) - totalEgresos;
+
     const resumenFinanciero = {
       gastosTotales: totalEgresos,
       ingresosParciales: totalIngresosParciales,
-      ingresoVentaFinal: ingresoFinal,
-      gananciaNeta: gananciaNeta,
+      ingresoVentaFinal: ingreso,
+      gananciaNeta:
+        ingreso +
+        totalIngresosParciales -
+        totalEgresos,
       costoPorLibraCierre: costoPorLibra,
-      poblacionFinal: loteActivo.cantidad
+      poblacionFinal: Number(loteActivo.cantidad)
     };
+
     try {
-      await procesarCierreLote(loteIdSeleccionado, resumenFinanciero);
-      alert(`¡Lote archivado exitosamente!`);
+      await procesarCierreLote(
+        loteIdSeleccionado,
+        resumenFinanciero
+      );
+
+      alert("¡Lote archivado exitosamente!");
+
+      return true;
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Error al cerrar lote:",
+        error
+      );
+
+      alert(
+        error.message ||
+        "No se pudo cerrar el lote."
+      );
+
+      return false;
     } finally {
+      cierreEnCurso.current = false;
       setProcesandoCierre(false);
     }
   };
 
+  // ==========================================
+  // RETORNO DEL HOOK
+  // ==========================================
   return {
-    lotesActivos, lotesHistoricos, loteActivo, loteIdSeleccionado, setLoteIdSeleccionado, transacciones,
-    pesoPromedio, totalEgresos, totalIngresosParciales, costoPorLibra, procesandoCierre, metricasGlobales,
-    handleAgregarTransaccion, handleEliminarTransaccion, handleEditarTransaccion, handleCerrarLote
+    lotesActivos,
+    lotesHistoricos,
+    loteActivo,
+    loteIdSeleccionado,
+    setLoteIdSeleccionado,
+    transacciones,
+    pesoPromedio,
+    totalEgresos,
+    totalIngresosParciales,
+    costoPorLibra,
+    procesandoCierre,
+    procesandoTransaccion,
+    metricasGlobales,
+    handleAgregarTransaccion,
+    handleRegistrarVentaParcial,
+    handleEliminarTransaccion,
+    handleEditarTransaccion,
+    handleCerrarLote
   };
 };
